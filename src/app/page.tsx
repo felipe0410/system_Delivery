@@ -19,52 +19,40 @@ const CreateNote = () => {
 
   const typeScan = [
     {
-      name: "SCAN-ZERO",
+      name: "Registros",
       icon: (
         <SensorOccupiedIcon
           sx={{ fontSize: { xs: "15vw", sm: "4vw" }, color: "#1aabff" }}
         />
       ),
       pacth: "/scan-zero",
-      description: [
-        "Offers OCR for extracting information from scanned documents.",
-        "Provides extracted data in OCR text format along with corresponding labels.",
-        "Includes validation and verification of the accuracy of the extracted data.",
-      ],
+      description: "Aqui va el form",
       endPoint: "https://api.verifik.co/v2/ocr/scan-zero",
       open: openZero,
       setOpen: setOpenZero,
     },
     {
-      name: "SCAN-PROMPT",
+      name: "Envios",
       icon: (
         <FlipIcon
           sx={{ fontSize: { xs: "15vw", sm: "4vw" }, color: "#1aabff" }}
         />
       ),
       pacth: "/scan-prompt",
-      description: [
-        "Enables scanning, extraction, and verification of data in documents using OCR and AI technology.",
-        "Allows you to send document images and receive extracted data.",
-        "Promises higher accuracy and efficiency in document processing due to integration with AI models.",
-      ],
+      description: "Aqui va el form",
       endPoint: "https://api.verifik.co/v2/ocr/scan-prompt",
       open: openPrompt,
       setOpen: setOpenPrompt,
     },
     {
-      name: "SCAN-STUDIO",
+      name: "Formulario",
       icon: (
         <ScannerIcon
           sx={{ fontSize: { xs: "15vw", sm: "4vw" }, color: "#1aabff" }}
         />
       ),
       pacth: "/scan-studio",
-      description: [
-        "Uses pretrained models for performing OCR on identity documents.",
-        "Focuses on the fast and accurate extraction of data from identity documents such as passports and ID cards.",
-        "Provides faster and more accurate responses due to the use of pretrained models.",
-      ],
+      description: "Aqui va el form",
       endPoint: "https://api.verifik.co/v2/ocr/scan-studio",
       open: openStudio,
       setOpen: setOpenStudio,
@@ -124,22 +112,7 @@ const CreateNote = () => {
                     >
                       {button.name}
                     </Typography>
-                    <Box
-                      sx={{
-                        padding: { xs: "12px", sm: "20px" },
-                      }}
-                    >
-                      {button.icon}
-                    </Box>
-                    <Box>
-                      {
-                        <ul style={{ color: "#FFF", textAlign: "left" }}>
-                          {button.description.map((element, i) => (
-                            <li key={i}>{element}</li>
-                          ))}
-                        </ul>
-                      }
-                    </Box>
+                    <Box>{button.description}</Box>
                   </Box>
                 }
               </Button>

@@ -24,6 +24,7 @@ export default function RootLayout({
           margin: "0",
           background:
             "linear-gradient(180deg, #5C68D4 0%, rgba(92, 104, 212, 0.55) 0%, rgba(92, 104, 212, 0.00) 100%)",
+          height: "100vh",
         }}
       >
         <Box
