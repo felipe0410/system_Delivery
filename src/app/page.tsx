@@ -1,95 +1,154 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+"use client";
+import { Box, Typography, Button } from "@mui/material";
+import SensorOccupiedIcon from "@mui/icons-material/SensorOccupied";
+import FlipIcon from "@mui/icons-material/Flip";
+import ScannerIcon from "@mui/icons-material/Scanner";
+import { useEffect, useState } from "react";
 
-export default function Home() {
-  return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+const CreateNote = () => {
+  const [openZero, setOpenZero] = useState(false);
+  const [openPrompt, setOpenPrompt] = useState(false);
+  const [openStudio, setOpenStudio] = useState(false);
+  const [petition, setPetition] = useState(0);
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
+  useEffect(() => {
+    setOpenZero(false);
+    setOpenPrompt(false);
+    setOpenStudio(false);
+  }, [petition]);
+
+  const typeScan = [
+    {
+      name: "SCAN-ZERO",
+      icon: (
+        <SensorOccupiedIcon
+          sx={{ fontSize: { xs: "15vw", sm: "4vw" }, color: "#1aabff" }}
         />
-      </div>
+      ),
+      pacth: "/scan-zero",
+      description: [
+        "Offers OCR for extracting information from scanned documents.",
+        "Provides extracted data in OCR text format along with corresponding labels.",
+        "Includes validation and verification of the accuracy of the extracted data.",
+      ],
+      endPoint: "https://api.verifik.co/v2/ocr/scan-zero",
+      open: openZero,
+      setOpen: setOpenZero,
+    },
+    {
+      name: "SCAN-PROMPT",
+      icon: (
+        <FlipIcon
+          sx={{ fontSize: { xs: "15vw", sm: "4vw" }, color: "#1aabff" }}
+        />
+      ),
+      pacth: "/scan-prompt",
+      description: [
+        "Enables scanning, extraction, and verification of data in documents using OCR and AI technology.",
+        "Allows you to send document images and receive extracted data.",
+        "Promises higher accuracy and efficiency in document processing due to integration with AI models.",
+      ],
+      endPoint: "https://api.verifik.co/v2/ocr/scan-prompt",
+      open: openPrompt,
+      setOpen: setOpenPrompt,
+    },
+    {
+      name: "SCAN-STUDIO",
+      icon: (
+        <ScannerIcon
+          sx={{ fontSize: { xs: "15vw", sm: "4vw" }, color: "#1aabff" }}
+        />
+      ),
+      pacth: "/scan-studio",
+      description: [
+        "Uses pretrained models for performing OCR on identity documents.",
+        "Focuses on the fast and accurate extraction of data from identity documents such as passports and ID cards.",
+        "Provides faster and more accurate responses due to the use of pretrained models.",
+      ],
+      endPoint: "https://api.verifik.co/v2/ocr/scan-studio",
+      open: openStudio,
+      setOpen: setOpenStudio,
+    },
+  ];
 
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
+  return (
+    <Box sx={{ color: "#fff", marginTop: "130px" }}>
+      <Typography
+        align='center'
+        color='initial'
+        sx={{
+          color: "#FF6B00",
+          fontFamily: "Nunito",
+          fontSize: { xs: "30px", sm: "50px" },
+          fontStyle: "normal",
+          fontWeight: 800,
+          lineHeight: "normal",
+          marginBottom: "30px",
+        }}
+      >
+        INTERRAPIDISIMO
+      </Typography>
+      <Box sx={{ width: "100%" }}>
+        {
+          <Box
+            sx={{
+              display: { sm: "flex" },
+              justifyContent: "space-around",
+            }}
+          >
+            {typeScan.map((button, index) => (
+              <Button
+                onClick={() => button.setOpen(true)}
+                sx={{
+                  marginY: { sm: "0", xs: "20px" },
+                  width: { sm: "25%" },
+                  padding: "20px",
+                  borderRadius: "40px",
+                  background: "#08315C",
+                  boxShadow:
+                    "0px 4px 4px 0px rgba(0, 0, 0, 0.25), 0px 4px 4px 0px rgba(0, 0, 0, 0.25), 0px 4px 4px 0px rgba(0, 0, 0, 0.25), 0px 4px 4px 0px rgba(0, 0, 0, 0.25)",
+                }}
+                key={index}
+              >
+                {
+                  <Box>
+                    <Typography
+                      sx={{
+                        color: "#FFF",
+                        fontFamily: "Nunito",
+                        fontSize: { xs: "16px", sm: "24px" },
+                        fontStyle: "normal",
+                        fontWeight: 700,
+                        lineHeight: "normal",
+                      }}
+                    >
+                      {button.name}
+                    </Typography>
+                    <Box
+                      sx={{
+                        padding: { xs: "12px", sm: "20px" },
+                      }}
+                    >
+                      {button.icon}
+                    </Box>
+                    <Box>
+                      {
+                        <ul style={{ color: "#FFF", textAlign: "left" }}>
+                          {button.description.map((element, i) => (
+                            <li key={i}>{element}</li>
+                          ))}
+                        </ul>
+                      }
+                    </Box>
+                  </Box>
+                }
+              </Button>
+            ))}
+          </Box>
+        }
+      </Box>
+    </Box>
+  );
+};
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
-}
+export default CreateNote;
