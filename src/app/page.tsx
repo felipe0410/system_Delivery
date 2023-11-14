@@ -4,17 +4,23 @@ import SensorOccupiedIcon from "@mui/icons-material/SensorOccupied";
 import FlipIcon from "@mui/icons-material/Flip";
 import ScannerIcon from "@mui/icons-material/Scanner";
 import { useEffect, useState } from "react";
+import { Cookies, useCookies } from "react-cookie";
 
 const CreateNote = () => {
   const [openZero, setOpenZero] = useState(false);
   const [openPrompt, setOpenPrompt] = useState(false);
   const [openStudio, setOpenStudio] = useState(false);
   const [petition, setPetition] = useState(0);
+  const [cookies] = useCookies(['user'])
 
   useEffect(() => {
+    // const valueCookie = cookies.user;
+    // const decodedUid = atob(valueCookie);
+    // console.log(decodedUid)
     setOpenZero(false);
     setOpenPrompt(false);
     setOpenStudio(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [petition]);
 
   const typeScan = [
