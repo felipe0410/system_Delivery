@@ -72,7 +72,6 @@ function Sidebar() {
             <Box sx={{ marginY: "40px" }} key={index}>
               <Link href={section.id}>
                 <ListItem
-                  button
                   sx={{
                     background:
                       pathname === section.id ? "#BCC1EE" : "transparent",

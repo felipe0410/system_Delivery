@@ -4,7 +4,7 @@ import Sidebar from "@/components/Sidebar";
 import { Box } from "@mui/material";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { cookies } from 'next/headers'
+import { cookies } from "next/headers";
 import "./globals.css";
 import "@fontsource/nunito/200.css";
 import "@fontsource/nunito/300.css";
@@ -16,7 +16,6 @@ import "@fontsource/nunito/800.css";
 import "@fontsource/nunito/900.css";
 import React from "react";
 // import { useRouter } from "next/navigation";
-
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -30,22 +29,28 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const route: any = (children as React.ReactElement)?.props?.childProp?.segment ?? null;
-  const validationRoutes = ['sign_up', 'sign_in','__DEFAULT__'].includes(route)
+  const route: any =
+    (children as React.ReactElement)?.props?.childProp?.segment ?? null;
+  const validationRoutes = ["sign_up", "sign_in", "__DEFAULT__"].includes(
+    route
+  );
 
   return (
-    <html lang='en' style={{ height: '100%' }}>
+    <html lang='en' style={{ height: "100%" }}>
       <body
         style={{
           margin: "0",
-          background: validationRoutes ? '' : "linear-gradient(180deg, #5C68D4 0%, rgba(92, 104, 212, 0.55) 0%, rgba(92, 104, 212, 0.00) 100%)",
-          height: "100%",
+          background: validationRoutes
+            ? ""
+            : "linear-gradient(180deg, #5C68D4 0%, rgba(92, 104, 212, 0.55) 0%, rgba(92, 104, 212, 0.00) 100%)",
         }}
       >
-        {validationRoutes
-          ? <>{children}</>
-          : <>
-            (<Box
+        {validationRoutes ? (
+          <>{children}</>
+        ) : (
+          <>
+            (
+            <Box
               id='Container Sidebar'
               sx={{
                 display: { xs: "none", sm: "block" },
@@ -83,15 +88,16 @@ export default function RootLayout({
             <Box
               id='container children layout'
               sx={{
-                height: '100%',
+                height: "100%",
                 marginTop: "64px",
                 marginLeft: { sm: "265px" },
               }}
             >
               {children}
-            </Box>)
-
-          </>}
+            </Box>
+            )
+          </>
+        )}
       </body>
     </html>
   );

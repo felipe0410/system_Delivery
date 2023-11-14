@@ -22,24 +22,36 @@ function Header() {
         <TextField
           variant='outlined'
           id='Search'
-          label='search'
           sx={{
+            right: "6rem",
+            top: "3rem",
             color: "#fff",
-            bordeRadius: "40px",
-            background: "#08315C",
+            width: "20rem",
+            borderRadius: "40px",
+            background: "#0A0F37",
             boxShadow:
               "0px 4px 4px 0px rgba(0, 0, 0, 0.25), 0px 4px 4px 0px rgba(0, 0, 0, 0.25), 0px 4px 4px 0px rgba(0, 0, 0, 0.25)",
           }}
+          placeholder='Buscar'
           InputProps={{
             startAdornment: (
               <InputAdornment position='start'>
                 <SearchIcon sx={{ color: "#fff" }} />
               </InputAdornment>
             ),
+            style: {
+              color: "#FFF",
+            },
           }}
         />
         <Avatar
-          sx={{ width: 65, height: 65, marginLeft: "-20px" }}
+          sx={{
+            width: 65,
+            height: 65,
+            marginLeft: "-40px",
+            right: "6rem",
+            top: "3rem",
+          }}
           alt='Cindy Baker'
           src='/2.jpg'
         />
