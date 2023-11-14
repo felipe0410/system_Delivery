@@ -44,7 +44,7 @@ const CreateNote = () => {
           sx={{ fontSize: { xs: "15vw", sm: "4vw" }, color: "#1aabff" }}
         />
       ),
-      pacth: "/scan-prompt",
+      pacth: "/Shipments",
       description: "Aqui va el form",
       endPoint: "https://api.verifik.co/v2/ocr/scan-prompt",
       open: openPrompt,
