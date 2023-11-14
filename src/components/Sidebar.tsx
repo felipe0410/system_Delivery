@@ -24,9 +24,9 @@ function Sidebar() {
       id: "/",
     },
     {
-      section: "Gestión de Envios",
+      section: "Envios",
       icon: <LocalShippingIcon fontSize='large' style={{ color: "#fff" }} />,
-      id: "/scans",
+      id: "/Shipments",
     },
     {
       section: "Registro de Envios",
