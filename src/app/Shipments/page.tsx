@@ -28,7 +28,7 @@ const Shipments = () => {
           sx={{ fontSize: { xs: "15vw", sm: "4vw" }, color: "#FFF" }}
         />
       ),
-      id: "/Shipments/modificar",
+      id: "/Shipments/modify",
     },
     {
       name: "AGREGAR ENVIO",
@@ -37,7 +37,7 @@ const Shipments = () => {
           sx={{ fontSize: { xs: "15vw", sm: "4vw" }, color: "#FFF" }}
         />
       ),
-      id: "/Shipments/agregar",
+      id: "/Shipments/addShipment",
     },
     {
       name: "MENSAJERO",
