@@ -37,39 +37,43 @@ const Page = () => {
           marginLeft: "2rem",
         }}
       >
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <Box>
-            <Typography
-              sx={{
-                color: "#0A0F37",
-                textAlign: "center",
-                fontFamily: "Nunito",
-                fontSize: "2.5rem",
-                fontStyle: "normal",
-                fontWeight: 900,
-                lineHeight: "normal",
-              }}
-            >
-              Modificar Envío
-            </Typography>
-          </Box>
-          <Box>
-            <Button
-              onClick={() => router.push("/Shipments")}
-              sx={{
-                minWidth: "auto",
-                borderRadius: "20PX",
-              }}
-            >
-              <HighlightOffIcon sx={{ color: "red" }} />
-            </Button>
+        <Box>
+          <Box
+            id='title'
+            sx={{
+              width: '65%',
+              display: "flex",
+              justifyContent: 'space-between',
+              marginLeft: 'auto',
+              alignItems: 'center'
+            }}
+          >
+            <Box>
+              <Typography
+                sx={{
+                  color: "#0A0F37",
+                  textAlign: "center",
+                  fontFamily: "Nunito",
+                  fontSize: "2.5rem",
+                  fontStyle: "normal",
+                  fontWeight: 900,
+                  lineHeight: "normal",
+                }}
+              >
+                Modificar Envío
+              </Typography>
+            </Box>
+            <Box>
+              <Button
+                onClick={() => router.push("/Shipments")}
+                sx={{
+                  minWidth: "auto",
+                  borderRadius: "20PX",
+                }}
+              >
+                <HighlightOffIcon sx={{ color: "red" }} />
+              </Button>
+            </Box>
           </Box>
         </Box>
         <Box
