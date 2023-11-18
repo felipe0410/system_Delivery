@@ -6,7 +6,7 @@ import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { usePathname } from "next/navigation";
 import HomeIcon from "@mui/icons-material/Home";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
@@ -20,17 +20,17 @@ function Sidebar() {
   const sections = [
     {
       section: "Inicio",
-      icon: <HomeIcon fontSize='large' style={{ color: "#fff" }} />,
+      icon: <HomeIcon fontSize='large' style={{ color: pathname === '/' ? "#0A0F37" : "#fff" }} />,
       id: "/",
     },
     {
       section: "Envios",
-      icon: <LocalShippingIcon fontSize='large' style={{ color: "#fff" }} />,
+      icon: <LocalShippingIcon fontSize='large' style={{ color: pathname === '/Shipments' ? "#0A0F37" : "#fff" }} />,
       id: "/Shipments",
     },
     {
       section: "Registro de Envios",
-      icon: <AssignmentIcon fontSize='large' style={{ color: "#fff" }} />,
+      icon: <AssignmentIcon fontSize='large' style={{ color: pathname === '/scans' ? "#0A0F37" : "#fff" }} />,
       id: "/scans",
     },
   ];
@@ -42,7 +42,8 @@ function Sidebar() {
       anchor='left'
       PaperProps={{
         style: {
-          background: "transparent", // Establecer el fondo en blanco
+          background: "transparent",
+          border: 'none'
         },
       }}
     >
@@ -70,7 +71,7 @@ function Sidebar() {
         <Box id='containerSections'>
           {sections.map((section: any, index: number) => (
             <Box sx={{ marginY: "40px" }} key={index}>
-              <Link href={section.id}>
+              <Link href={section.id} style={{ textDecoration: 'none', color: '#0A0F37' }} >
                 <ListItem
                   sx={{
                     background:
@@ -83,16 +84,19 @@ function Sidebar() {
                 >
                   <ListItemIcon>{section.icon}</ListItemIcon>
                   <ListItemText
-                    sx={{
-                      color: pathname === section.id ? "##0A0F37" : "#FFF",
-                      fontFamily: "Inter",
-                      fontSize: "24px",
+                  >
+                    <Typography sx={{
+                      color: pathname === section.id ? "#0A0F37" : "#FFF",
+                      fontFamily: "Nunito",
+                      fontSize: "20px",
                       fontStyle: "normal",
-                      fontWeight: 400,
+                      fontWeight: 700,
                       lineHeight: "normal",
-                    }}
-                    primary={section.section}
-                  />
+                      textDecoration: 'none'
+                    }}>
+                      {section.section}
+                    </Typography>
+                  </ListItemText>
                 </ListItem>
               </Link>
             </Box>
