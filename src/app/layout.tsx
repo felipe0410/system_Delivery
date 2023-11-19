@@ -39,10 +39,13 @@ export default function RootLayout({
     <html lang='en' style={{ height: "100%" }}>
       <body
         style={{
+          height: "100%",
           margin: "0",
           background: validationRoutes
             ? ""
             : "linear-gradient(180deg, #5C68D4 0%, rgba(92, 104, 212, 0.55) 0%, rgba(92, 104, 212, 0.00) 100%)",
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: 'contain',
         }}
       >
         {validationRoutes ? (
@@ -57,7 +60,7 @@ export default function RootLayout({
                 position: "fixed",
                 top: 0,
                 left: 0,
-                height: "100vh",
+                height: "100%",
                 zIndex: 1300,
               }}
             >
@@ -88,7 +91,7 @@ export default function RootLayout({
             <Box
               id='container children layout'
               sx={{
-                height: "100%",
+                height: validationRoutes ? "100%" : "80%",
                 marginTop: "64px",
                 marginLeft: { sm: "265px" },
               }}

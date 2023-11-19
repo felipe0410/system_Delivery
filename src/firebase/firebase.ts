@@ -1,8 +1,6 @@
-// Import the functions you need from the SDKs you need
 import { FirebaseApp, initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
-import { Firestore, collection, doc, getFirestore, setDoc } from "firebase/firestore";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { Firestore, collection, doc, getDoc, getDocs, getFirestore, setDoc } from "firebase/firestore";
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -19,9 +17,7 @@ export const firebaseConfig = {
     appId: process.env.NEXT_PUBLIC_FIREBASE_APPID ?? "",
     measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENTID ?? "",
 };
-// Initialize Firebase
 const app: FirebaseApp = initializeApp(firebaseConfig);
-// const analytics = getAnalytics(app);
 export const db: Firestore = getFirestore(app);
 const auth = getAuth();
 
@@ -58,6 +54,15 @@ export const loginUser = async (email: any, password: any) => {
     }
 }
 
+export const singOut = () => {
+    try {
+        signOut(auth)
+
+    } catch (error) {
+        console.error(error)
+    }
+}
+
 
 export const saveDataUser = async (uid: any, userData: any) => {
     try {
@@ -71,6 +76,57 @@ export const saveDataUser = async (uid: any, userData: any) => {
         return uid;
     } catch (error) {
         console.error("Error al guardar información en /user: ", error);
+        return null;
+    }
+};
+
+
+export const shipments = async (uid: any, userData: any) => {
+    try {
+        const userCollectionRef = collection(db, "envios");
+        const userDocRef = doc(userCollectionRef, uid);
+        await setDoc(userDocRef, {
+            uid: uid,
+            ...userData
+        });
+        console.log("Documento guardado con ID: ", uid);
+        return uid;
+    } catch (error) {
+        console.error("Error al guardar información en /user: ", error);
+        return null;
+    }
+};
+
+export const getShipmentData = async (uid: any) => {
+    try {
+        const userCollectionRef = collection(db, 'envios');
+        const userDocRef = doc(userCollectionRef, uid);
+        const docSnapshot = await getDoc(userDocRef);
+
+        if (docSnapshot.exists()) {
+            return docSnapshot.data();
+        } else {
+            console.log('El documento no existe.');
+            return null;
+        }
+    } catch (error) {
+        console.error('Error al obtener información del documento: ', error);
+        return null;
+    }
+};
+
+export const getAllShipmentsData = async () => {
+    try {
+        const shipmentsCollectionRef = collection(db, 'envios');
+        const querySnapshot = await getDocs(shipmentsCollectionRef);
+        const shipmentsData: any = [];
+        querySnapshot.forEach((doc) => {
+            shipmentsData.push(doc.data());
+        });
+        console.log(shipmentsData)
+        return shipmentsData;
+    } catch (error) {
+        console.error('Error al obtener la información de la colección: ', error);
         return null;
     }
 };

@@ -1,12 +1,11 @@
 "use client";
-
 import React from "react";
 import Drawer from "@mui/material/Drawer";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, Button } from "@mui/material";
 import { usePathname } from "next/navigation";
 import HomeIcon from "@mui/icons-material/Home";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
@@ -14,8 +13,12 @@ import AssignmentIcon from "@mui/icons-material/Assignment";
 import Link from "next/link";
 import Image from "next/image";
 import logo from "/public/images/logo.svg";
+import LogoutIcon from '@mui/icons-material/Logout';
+import { singOut } from "@/firebase/firebase";
+import { Cookies, useCookies } from "react-cookie"
 
-function Sidebar() {
+const Sidebar = () => {
+  const [cookies, removeCookie] = useCookies(['user']);
   const pathname = usePathname();
   const sections = [
     {
@@ -31,7 +34,7 @@ function Sidebar() {
     {
       section: "Registro de Envios",
       icon: <AssignmentIcon fontSize='large' style={{ color: pathname === '/scans' ? "#0A0F37" : "#fff" }} />,
-      id: "/scans",
+      id: "/TableShipments",
     },
   ];
 
@@ -101,6 +104,41 @@ function Sidebar() {
               </Link>
             </Box>
           ))}
+        </Box>
+        <Box sx={{
+          height: '40%',
+          display: 'flex',
+          alignItems: 'flex-end',
+          justifyContent: 'center'
+        }}>
+          <Button
+            onClick={async () => {
+              await singOut()
+              removeCookie('user', '');
+              window.location.reload();
+            }}
+            sx={{
+              display: 'flex',
+              width: '90%',
+              justifyContent: 'space-around'
+            }} >
+            <LogoutIcon
+              fontSize='large'
+              sx={{
+                color: '#fff'
+              }} />
+            <Typography sx={{
+              color: '#fff',
+              fontFamily: "Nunito",
+              fontSize: "20px",
+              fontStyle: "normal",
+              fontWeight: 700,
+              lineHeight: "normal",
+              textDecoration: 'none'
+            }}>
+              CERRAR SESION
+            </Typography>
+          </Button>
         </Box>
       </List>
     </Drawer>
