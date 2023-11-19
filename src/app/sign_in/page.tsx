@@ -6,6 +6,7 @@ import Link from "next/link"
 import { SnackbarProvider, enqueueSnackbar } from "notistack"
 import { useState } from "react"
 import { useCookies } from "react-cookie"
+import { styleSign_in } from "./style"
 
 
 const Loggin = () => {
@@ -39,7 +40,7 @@ const Loggin = () => {
                         </InputAdornment>
                     }
                     fullWidth
-                    sx={{ background: 'rgba(255, 255, 255, 0.77)', }}
+                    sx={{ ...styleSign_in.OutlinedInputPassword }}
                     placeholder='xxxxxxxx'
                     onChange={(e) => setData({ ...data, 'password': e.target.value })}
                     value={data.password}
@@ -86,103 +87,48 @@ const Loggin = () => {
             console.log(error)
         }
     }
-
     return (
         <Box sx={{ height: '100%' }}>
-            <Box width={'60%'} sx={{
-                marginLeft: 'auto',
-                textAlign: 'center',
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-evenly',
-            }}>
+            <Box id='box-second' width={{ md: '60%' }} sx={{ ...styleSign_in.boxSecond }}>
                 <SnackbarProvider />
                 <Box>
-                    <Typography sx={{
-                        color: '#FF4A11',
-                        textAlign: 'center',
-                        fontFamily: 'ClementePDai',
-                        fontSize: '48px',
-                        fontStyle: 'normal',
-                        fontWeight: 400,
-                        lineHeight: 'normal'
-                    }}>
+                    <Typography id='title' sx={{ ...styleSign_in.tile }}>
                         PAPELERIA NUEVO MILENIO
                     </Typography>
-                    <Typography sx={{
-                        color: '#0A0F37',
-                        fontFamily: 'Nunito',
-                        fontSize: '32px',
-                        fontStyle: 'normal',
-                        fontWeight: 700,
-                        lineHeight: 'normal',
-                    }} >
+                    <Typography id='title2' sx={{ ...styleSign_in.title2 }} >
                         Bienvenido a nuestro portal
                     </Typography>
                     <Box>
-                        <Box component={'img'} src="Loggin/logoInter.png" />
+                        <Box width={'50%'} component={'img'} src="Loggin/logoInter.png" />
                     </Box>
                 </Box>
-                <Box sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'space-around',
-                    height: '46%',
-                    width: '100%'
-                }}>
-                    <Box sx={{ width: '45%' }}>
+                <Box id='containerField1' sx={{ ...styleSign_in.containerField1 }}>
+                    <Box sx={{ width: { xs: '80%', md: '45%' } }}>
                         <Typography
-                            sx={{
-                                color: '#0A0F37',
-                                textAlign: 'center',
-                                fontFamily: 'Nunito',
-                                fontSize: '32px',
-                                fontStyle: 'normal',
-                                fontWeight: 700,
-                                lineHeight: 'normal',
-                                marginBottom: '20px'
-                            }}>
+                            id='label'
+                            sx={{ ...styleSign_in.label }}>
                             INICIAR SESION
                         </Typography>
                         <Typography
-                            sx={{
-                                textAlign: 'left',
-                                color: '#0A0F37',
-                                fontFamily: 'Nunito',
-                                fontSize: '24px',
-                                fontStyle: 'normal',
-                                fontWeight: 700,
-                                lineHeight: 'normal',
-                            }}
+                            sx={{ ...styleSign_in.labelInputs }}
                         >
                             Usuario
                         </Typography>
                         <Box>
                             <TextField
-                                sx={{ width: '100%' }}
+                                sx={{ width: '100%', background: 'rgba(255, 255, 255, 0.77)' }}
                                 id="user"
                                 type="email"
                                 placeholder='ejemplo@gmail.com'
-                                // label="Usuario"
                                 value={data.email}
                                 onChange={(e) => setData({ ...data, 'email': e.target.value })}
 
                             />
                         </Box>
                     </Box>
-                    <Box sx={{ width: '45%' }}>
+                    <Box sx={{ width: { xs: '80%', md: '45%' } }}>
                         <Typography
-                            sx={{
-                                textAlign: 'left',
-                                color: '#0A0F37',
-                                fontFamily: 'Nunito',
-                                fontSize: '24px',
-                                fontStyle: 'normal',
-                                fontWeight: 700,
-                                lineHeight: 'normal',
-                            }}
+                            sx={{ ...styleSign_in.labelInputs }}
                         >
                             Contraseña
                         </Typography>
@@ -193,31 +139,12 @@ const Loggin = () => {
 
                     <Button
                         onClick={logginUserr}
-                        sx={{
-                            borderRadius: '40px',
-                            background: 'linear-gradient(180deg, #FF4A11 136.16%, rgba(244, 66, 9, 0.00) 136.17%)',
-                            boxShadow: '0px 4px 4px 0px rgba(0, 0, 0, 0.25), 0px 4px 4px 0px rgba(0, 0, 0, 0.25)',
-                            color: '#FFF',
-                            fontFamily: 'Nunito',
-                            fontSize: '32px',
-                            fontStyle: 'normal',
-                            fontWeight: 600,
-                            lineHeight: 'normal',
-                            padding: '5px 50px'
-
-                        }}>
+                        sx={{ ...styleSign_in.button }}>
                         Ingresar
                     </Button>
                 </Box>
                 <Box>
-                    <Typography sx={{
-                        color: '#0A0F37',
-                        fontFamily: 'Nunito',
-                        fontSize: '24px',
-                        fontStyle: 'normal',
-                        fontWeight: 900,
-                        lineHeight: 'normal',
-                    }}>
+                    <Typography sx={{ ...styleSign_in.tyographyRegister }}>
                         ¿No tienes una cuenta?<br />
                         <Link href={'/sign_up'}>
                             REGISTRATE

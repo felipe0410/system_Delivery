@@ -4,7 +4,6 @@ import Sidebar from "@/components/Sidebar";
 import { Box } from "@mui/material";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { cookies } from "next/headers";
 import "./globals.css";
 import "@fontsource/nunito/200.css";
 import "@fontsource/nunito/300.css";

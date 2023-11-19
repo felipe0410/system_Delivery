@@ -1,16 +1,19 @@
 'use client'
 import { VisibilityOff, Visibility } from '@mui/icons-material'
-import { Box, FormControl, IconButton, InputAdornment, InputLabel, MenuItem, OutlinedInput, Paper, Select, TextField, Button } from '@mui/material'
+import { Box, FormControl, IconButton, InputAdornment, InputLabel, MenuItem, OutlinedInput, Paper, Select, TextField, Button, Modal } from '@mui/material'
 import Typography from '@mui/material/Typography'
 import { useState } from 'react';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useRouter } from 'next/navigation'
 import { creteUser, saveDataUser } from '@/firebase/firebase';
 import { SnackbarProvider, enqueueSnackbar } from 'notistack';
+import { styleSign_up } from './style';
 
 
 
 const Sing_up = () => {
+    const adminPassword = 'Nazly1972'
+    const [admin, setAdmin] = useState('')
     const [data, setData] = useState<any>({
         rol: '',
         name: '',
@@ -20,8 +23,13 @@ const Sing_up = () => {
     const [showPassword, setShowPassword] = useState(false);
     const handleClickShowPassword = () => setShowPassword((show) => !show);
     const router = useRouter()
-    const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
-        event.preventDefault();
+    const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => { event.preventDefault() };
+    const [open, setOpen] = useState(false);
+    const handleOpen = () => {
+        setOpen(true);
+    };
+    const handleClose = () => {
+        setOpen(false);
     };
     const inputs = [
         {
@@ -58,7 +66,6 @@ const Sing_up = () => {
                 return false;
             }
         }
-        // Si todas las validaciones son exitosas, retorna true
         return true;
     };
     const validateLength = () => {
@@ -106,7 +113,16 @@ const Sing_up = () => {
     }
 
     const createUser = async () => {
-        console.log(!validateLength())
+        if (admin !== adminPassword) {
+            enqueueSnackbar('Contraseña admin invalida', {
+                variant: 'error',
+                anchorOrigin: {
+                    vertical: 'bottom',
+                    horizontal: 'right'
+                }
+            })
+            return null
+        }
         if (!validateLength()) {
             const creation: any = await creteUser(data.email, data.password)
             saveDataUser(creation.uid, data)
@@ -142,33 +158,114 @@ const Sing_up = () => {
         }
     }
 
+    const modal = (
+        <>
+            <Button
+                onClick={handleOpen}
+                sx={{
+                    padding: '5px 20px',
+                    borderRadius: '40px',
+                    background: validateLength() ? '#b4bac2' : '#5C68D4',
+                    boxShadow: '0px 4px 4px 0px rgba(0, 0, 0, 0.25), 0px 4px 4px 0px rgba(0, 0, 0, 0.25)',
+                    color: '#FFF',
+                    fontFamily: 'Nunito',
+                    fontSize: { xs: '20px', md: '28px' },
+                    fontStyle: 'normal',
+                    fontWeight: 800,
+                    lineHeight: 'normal',
+                    marginTop: '20px',
+                }}
+            >
+                CREAR USUARIO
+            </Button>
+            <Modal
+                open={open}
+                onClose={handleClose}
+                aria-labelledby="parent-modal-title"
+                aria-describedby="parent-modal-description"
+                sx={{
+                    position: 'absolute' as 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    p: 4,
+                    transform: 'translate(-50%, -50%)',
+                    background: 'transparent',
+                    height: '100%',
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                }}
+            >
+                <Box sx={{
+                    height: 'min-content',
+                    borderRadius: '40px',
+                    background: '#eff0fefa',
+                    boxShadow: '0px 4px 4px 0px rgba(0, 0, 0, 0.25), 0px 4px 4px 0px rgba(0, 0, 0, 0.25)',
+                    width: 'fit-content',
+                    padding: '20px',
+                    textAlign: 'center'
+                }} >
+                    <>
+                        <Typography sx={{
+                            color: '#0A0F37',
+                            fontFamily: 'Nunito',
+                            fontSize: { xs: '18px', md: '25px' },
+                            fontStyle: 'normal',
+                            fontWeight: 800,
+                            lineHeight: 'normal',
+                            marginY: { xs: '7px', md: '15px' },
+                        }}>
+                            {'Contraseña de administrador'}
+                        </Typography>
+                        <TextField
+                            fullWidth
+                            sx={{
+                                borderRadius: '10px',
+                                background: 'rgba(255, 255, 255, 0.77)',
+                                boxShadow: '0px 4px 4px 0px rgba(0, 0, 0, 0.25)',
+                            }}
+                            id={'contraseña admin'}
+                            type={'password'}
+                            placeholder={'*******'}
+                            value={admin}
+                            onChange={(e) => setAdmin(e.target.value)}
+                        />
+                    </>
+                    <Button
+                        onClick={createUser}
+                        sx={{
+                            padding: '5px 20px',
+                            borderRadius: '40px',
+                            background: 'linear-gradient(180deg, #FF4A11 136.16%, rgba(244, 66, 9, 0.00) 136.17%)',
+                            boxShadow: '0px 4px 4px 0px rgba(0, 0, 0, 0.25), 0px 4px 4px 0px rgba(0, 0, 0, 0.25)',
+                            color: '#FFF',
+                            fontFamily: 'Nunito',
+                            fontSize: { xs: '20px', md: '28px' },
+                            fontStyle: 'normal',
+                            fontWeight: 800,
+                            lineHeight: 'normal',
+                            marginTop: '20px',
+                        }}
+                    >
+                        CREAR USUARIO
+                    </Button>
+                </Box>
+            </Modal>
+        </>
+    )
     return (
         <>
             <SnackbarProvider />
             <Box sx={{ textAlignLast: 'center' }}>
-                <Typography sx={{
-                    color: '#FF4A11',
-                    textAlign: 'center',
-                    fontFamily: 'ClementePDai',
-                    fontSize: '48px',
-                    fontStyle: 'normal',
-                    fontWeight: 400,
-                    lineHeight: 'normal'
-                }}>
+                <Typography sx={{ ...styleSign_up.tile }}>
                     PAPELERIA NUEVO MILENIO
                 </Typography>
-                <Typography sx={{
-                    color: '#0A0F37',
-                    fontFamily: 'Nunito',
-                    fontSize: '32px',
-                    fontStyle: 'normal',
-                    fontWeight: 700,
-                    lineHeight: 'normal',
-                }}>
+                <Typography sx={{ ...styleSign_up.title2 }}>
                     Bienvenido a nuestro portal
                 </Typography>
                 <Box>
-                    <Box component={'img'} src="Loggin/logoInter.png" />
+                    <Box sx={{ maxWidth: '295px' }} width={'50%'} component={'img'} src="Loggin/logoInter.png" />
                 </Box>
             </Box>
             <Box>
@@ -177,19 +274,19 @@ const Sing_up = () => {
                         borderRadius: '40px',
                         background: '#9BA2E5',
                         boxShadow: '0px 4px 4px 0px rgba(0, 0, 0, 0.25), 0px 4px 4px 0px rgba(0, 0, 0, 0.25)',
-                        width: '30%',
+                        width: { xs: '80%', md: '30%' },
                         margin: '0 auto',
                         padding: '2% 4%',
                     }}
                     elevation={0}
                 >
                     <Button onClick={() => router.push('/sign_in')} sx={{ background: 'rgba(255, 255, 255, 0.77)', minWidth: 'auto', borderRadius: '20PX' }}>
-                        <ArrowBackIcon sx={{ color: '#0A0F37' }} />
+                        <ArrowBackIcon sx={{ color: '#0A0F37', fontSize: { xs: 'small', md: "auto" } }} />
                     </Button>
                     <Typography sx={{
                         color: '#FFF',
                         fontFamily: 'Nunito',
-                        fontSize: '35px',
+                        fontSize: { xs: '23px', md: '35px' },
                         fontStyle: 'normal',
                         fontWeight: 800,
                         lineHeight: 'normal',
@@ -201,16 +298,15 @@ const Sing_up = () => {
                     <Typography sx={{
                         color: '#0A0F37',
                         fontFamily: 'Nunito',
-                        fontSize: '25px',
+                        fontSize: { xs: '18px', md: '25px' },
                         fontStyle: 'normal',
                         fontWeight: 800,
                         lineHeight: 'normal',
-                        marginBottom: '15px'
+                        marginY: { xs: '7px', md: '15px' },
                     }}>
                         Tipo de usuario
                     </Typography>
                     <FormControl id='form-control' fullWidth>
-                        {/* <InputLabel id="type-user">seleccionar tipo de usuario</InputLabel> */}
                         <Select
                             sx={{
                                 background: '#FFFFFFC4',
@@ -235,11 +331,11 @@ const Sing_up = () => {
                                     <Typography sx={{
                                         color: '#0A0F37',
                                         fontFamily: 'Nunito',
-                                        fontSize: '25px',
+                                        fontSize: { xs: '18px', md: '25px' },
                                         fontStyle: 'normal',
                                         fontWeight: 800,
                                         lineHeight: 'normal',
-                                        marginY: '15px',
+                                        marginY: { xs: '7px', md: '15px' },
                                     }}>
                                         {input.label}
                                     </Typography>
@@ -252,7 +348,7 @@ const Sing_up = () => {
                                                 sx={{
                                                     borderRadius: '10px',
                                                     background: 'rgba(255, 255, 255, 0.77)',
-                                                    boxShadow: '0px 4px 4px 0px rgba(0, 0, 0, 0.25)'
+                                                    boxShadow: '0px 4px 4px 0px rgba(0, 0, 0, 0.25)',
                                                 }}
                                                 id={input.label}
                                                 type={input.type}
@@ -273,26 +369,7 @@ const Sing_up = () => {
                         })}
                     </Box>
                     <Box sx={{ textAlignLast: 'center' }}>
-                        <Button
-                            onClick={createUser}
-                            disabled={validateLength()}
-                            sx={{
-                                padding: '5px 20px',
-                                borderRadius: '40px',
-                                background: validateLength() ? '#b4bac2' : '#5C68D4',
-                                boxShadow: '0px 4px 4px 0px rgba(0, 0, 0, 0.25), 0px 4px 4px 0px rgba(0, 0, 0, 0.25)',
-                                color: '#FFF',
-                                fontFamily: 'Nunito',
-                                fontSize: '28px',
-                                fontStyle: 'normal',
-                                fontWeight: 800,
-                                lineHeight: 'normal',
-                                marginTop: '20px',
-                                // 
-                            }}
-                        >
-                            CREAR USUARIO
-                        </Button>
+                        {modal}
                     </Box>
                 </Paper>
             </Box >
