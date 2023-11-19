@@ -33,7 +33,7 @@ const Sidebar = () => {
     },
     {
       section: "Registro de Envios",
-      icon: <AssignmentIcon fontSize='large' style={{ color: pathname === '/scans' ? "#0A0F37" : "#fff" }} />,
+      icon: <AssignmentIcon fontSize='large' style={{ color: pathname === '/TableShipments' ? "#0A0F37" : "#fff" }} />,
       id: "/TableShipments",
     },
   ];
