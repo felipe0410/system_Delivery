@@ -9,26 +9,25 @@ import {
   Select,
   Typography,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import Image from "next/image";
 import imgBack from "/public/images/e181331c8066f48085e340b5de3660ff.png";
-import { getAllShipmentsData, shipments } from "@/firebase/firebase";
+import { getShipmentData, shipments } from "@/firebase/firebase";
 import { SnackbarProvider, enqueueSnackbar } from "notistack";
-import InputAdornment from '@mui/material/InputAdornment';
-import SearchIcon from '@mui/icons-material/Search';
-
-
+import InputAdornment from "@mui/material/InputAdornment";
+import SearchIcon from "@mui/icons-material/Search";
+import { inputs } from "@/data/inputs";
 
 const Page = () => {
   const dataDefault = {
-    guide: '',
-    addressee: '',
-    shippingCost: '',
-    box: '',
-    packageNumber: '',
-    deliverTo: 'oficina',
+    guide: "",
+    addressee: "",
+    shippingCost: "",
+    box: "",
+    packageNumber: "",
+    deliverTo: "oficina",
     intakeDate: null,
     status: null,
     returnDate: null,
@@ -36,25 +35,55 @@ const Page = () => {
     courierAttempt1: null,
     courierAttempt2: null,
     courierAttempt3: null,
-  }
+  };
   const [data, setData] = useState<ShipmentData>(dataDefault);
-  const [petition, setPetition] = useState(0)
+  console.log(data);
   const isNotEmpty = (fields: any) => {
     for (const value in fields) {
-      if (fields.hasOwnProperty(value) && typeof fields[value] === 'string' && fields[value].trim() === '') {
+      if (
+        fields.hasOwnProperty(value) &&
+        typeof fields[value] === "string" &&
+        fields[value].trim() === ""
+      ) {
         return false;
       }
     }
     return true;
   };
 
+  const getShipmentGuide = async (id: string) => {
+    try {
+      const guideToDeliver = await getShipmentData(id);
+      const shipmentData: ShipmentData = guideToDeliver as ShipmentData;
+      if (shipmentData) {
+        setData(shipmentData);
+      } else {
+        enqueueSnackbar("Error al encontrar la guía", {
+          variant: "error",
+          anchorOrigin: {
+            vertical: "bottom",
+            horizontal: "right",
+          },
+        });
+      }
+    } catch (error) {
+      enqueueSnackbar("Error al encontrar la guía", {
+        variant: "error",
+        anchorOrigin: {
+          vertical: "bottom",
+          horizontal: "right",
+        },
+      });
+    }
+  };
+
   const getCurrentDateTime = () => {
     const now = new Date();
     const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
     return `${year}-${month}-${day} ${hours}:${minutes}`;
   };
   const router = useRouter();
@@ -64,81 +93,39 @@ const Page = () => {
         ...data,
         intakeDate: getCurrentDateTime(),
         status: status,
-        deliverTo: status === 'domiciliario' ? 'direccion' : 'oficina'
+        deliverTo: status === "domiciliario" ? "direccion" : "oficina",
       });
-      enqueueSnackbar(petition ? 'Guia guardada con exito' : "Error al guardar el paquete", {
-        variant: petition ? 'success' : 'error',
-        anchorOrigin: {
-          vertical: 'bottom',
-          horizontal: 'right'
+      enqueueSnackbar(
+        petition ? "Guia guardada con exito" : "Error al guardar el paquete",
+        {
+          variant: petition ? "success" : "error",
+          anchorOrigin: {
+            vertical: "bottom",
+            horizontal: "right",
+          },
         }
-      })
+      );
       setData(dataDefault);
-      setPetition((e) => e + 1)
     } catch (error) {
-      enqueueSnackbar('Error al guardar el paquete', {
-        variant: 'error',
+      enqueueSnackbar("Error al guardar el paquete", {
+        variant: "error",
         anchorOrigin: {
-          vertical: 'bottom',
-          horizontal: 'right'
-        }
-      })
+          vertical: "bottom",
+          horizontal: "right",
+        },
+      });
     }
   };
 
   const buttons = [
     {
-      name: 'AGREGAR ENVIO',
-      background: '#00A410',
-      src: '/images/delivery.svg',
-      onclick: () => createOnClickHandler('oficina'),
+      name: "AGREGAR ENVIO",
+      background: "#00A410",
+      src: "/images/add.svg",
+      onclick: () => createOnClickHandler("oficina"),
     },
-    {
-      name: 'GUARDAR Y AGREGAR DOMICILIARIO',
-      background: '#5C68D4',
-      src: '/images/add.svg',
-      onclick: () => createOnClickHandler('domiciliario'),
-    }
   ];
 
-  const inputs = [
-    {
-      name: 'N· de guía:',
-      type: 'number',
-      whidth: '100%',
-      field: 'guide'
-    },
-    {
-      name: 'Destinatario:',
-      type: 'text',
-      whidth: '100%',
-      field: 'addressee'
-    },
-    {
-      name: 'Valor envío :',
-      type: 'number',
-      whidth: '40%',
-      field: 'shippingCost'
-    },
-    {
-      name: 'Caja:',
-      type: 'text',
-      whidth: '40%',
-      field: 'box'
-    },
-    {
-      name: 'N· de paquete:',
-      type: 'text',
-      whidth: '40%',
-      field: 'packageNumber'
-    },
-    {
-      name: 'Entregar:',
-      type: 'select',
-      whidth: '40%',
-      field: 'deliverTo'
-    },
-  ]
   const styleTypography = {
     textAlign: "left",
     color: "#0A0F37",
@@ -147,68 +134,42 @@ const Page = () => {
     fontStyle: "normal",
     fontWeight: 700,
     lineHeight: "normal",
-  }
+    marginTop: "5px",
+  };
   const inputOnChange = (field: string, value: string) => {
-    setData({ ...data, [field]: value })
-  }
-
-  useEffect(() => {
-    setData({
-      ...data, "intakeDate": getCurrentDateTime(),
-      "status": "oficina",
-    })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-  useEffect(() => {
-    const allData = async () => {
-      const allData: ShipmentData[] = await getAllShipmentsData()
-      const array: any = []
-      allData.map((data) => {
-        array.push(data.packageNumber)
-      })
-      const numerosOrdenados = array.map(Number).sort((a: any, b: any) => a - b);
-      let numeroFaltante = 1;
-      for (const numero of numerosOrdenados) {
-        if (numero === numeroFaltante) {
-          numeroFaltante++;
-        } else if (numero > numeroFaltante) {
-          break;
-        }
-      }
-      setData({ ...data, packageNumber: `${numeroFaltante}` })
-    }
-    allData()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [petition])
-  // getShipmentData
+    setData({ ...data, [field]: value });
+  };
 
   return (
     <Box
       sx={{
-        display: 'flex',
-        height: '100%',
-        alignItems: 'center',
-        justifyContent: 'center'
+        display: "flex",
+        height: "100%",
+        alignItems: "center",
+        justifyContent: "center",
       }}
       id='container_add_send'
     >
       <SnackbarProvider />
       <Paper
         sx={{
-          maxWidth: '40%',
+          maxWidth: "55%",
           borderRadius: "2.5rem",
           background: "rgba(132, 141, 223, 0.58)",
           boxShadow:
             "0px 4px 4px 0px rgba(0, 0, 0, 0.25), 0px 4px 4px 0px rgba(0, 0, 0, 0.25)",
-          padding: '2%'
+          padding: "2%",
+          marginTop: "1.5rem",
         }}
       >
-        <Box sx={{
-          display: 'flex',
-          justifyContent: 'flex-end',
-          marginBottom: '-6%',
-          marginRight: '3%',
-        }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "flex-end",
+            marginBottom: "-6%",
+            marginRight: "3%",
+          }}
+        >
           <Button
             onClick={() => router.push("/Shipments")}
             sx={{
@@ -216,7 +177,7 @@ const Page = () => {
               borderRadius: "20PX",
             }}
           >
-            <HighlightOffIcon fontSize="large" sx={{ color: "red" }} />
+            <HighlightOffIcon fontSize='large' sx={{ color: "red" }} />
           </Button>
         </Box>
         <Box
@@ -243,85 +204,86 @@ const Page = () => {
             </Typography>
           </Box>
         </Box>
-        <Box
-          id='container-inputs'
-        >
+        <Box id='container-inputs'>
           <FormControl fullWidth variant='outlined'>
-            <Typography
-              sx={styleTypography}
-            >
-              {'N· de guía:'}
-            </Typography>
-            {<OutlinedInput
-              value={data['guide']}
-              endAdornment={
-                <InputAdornment position="end">
-                  <Button >
-                    <SearchIcon fontSize="large" sx={{ color: "#000" }} />
-                  </Button>
-                </InputAdornment>
-              }
-              onChange={(e) => inputOnChange('guide', e.target.value)}
-              type={'number'}
-              sx={{
-                borderRadius: "40px",
-                background: "rgba(255, 255, 255, 0.77)",
-                boxShadow: "0px 4px 4px 0px rgba(0, 0, 0, 0.25)",
-                height: "3rem",
-              }}
-            />
+            <Typography sx={styleTypography}>{"N· de guía:"}</Typography>
+            {
+              <OutlinedInput
+                value={data["guide"]}
+                endAdornment={
+                  <InputAdornment position='end'>
+                    <Button onClick={() => getShipmentGuide(data.guide)}>
+                      <SearchIcon fontSize='large' sx={{ color: "#000" }} />
+                    </Button>
+                  </InputAdornment>
+                }
+                onChange={(e) => inputOnChange("guide", e.target.value)}
+                type={"number"}
+                sx={{
+                  borderRadius: "40px",
+                  background: "rgba(255, 255, 255, 0.77)",
+                  boxShadow: "0px 4px 4px 0px rgba(0, 0, 0, 0.25)",
+                  height: "3rem",
+                }}
+              />
             }
           </FormControl>
-          {
-            inputs.map((input, index) => {
-              const style = { width: `${input.whidth}`, marginLeft: (input.whidth === '40%' && [3, 5].includes(index)) ? '20%' : '0' }
+          {inputs.map((input, index) => {
+            const style = {
+              width: `${input.whidth}`,
+              marginLeft:
+                input.whidth === "40%" && [3, 5].includes(index) ? "20%" : "0",
+            };
 
-              const inputSelect = (
-                <Box >
-                  <Select
-                    onChange={(e: any) => inputOnChange(input.field, e.target.value)}
-                    label="selecciona una opcion"
-                    value={data['deliverTo']}
-                    sx={{
-                      width: '100%',
-                      borderRadius: "40px",
-                      background: "rgba(255, 255, 255, 0.77)",
-                      boxShadow: "0px 4px 4px 0px rgba(0, 0, 0, 0.25)",
-                      height: "3rem",
-                    }}
-                  >
-                    <MenuItem value={'direccion'}>{'direccion'}</MenuItem>
-                    <MenuItem value={'oficina'}>{'oficina'}</MenuItem>
-                  </Select>
-                </Box>
-              )
-              return (
-                <>
-                  <FormControl sx={{ ...style, display: index === 0 ? 'none' : '' }} key={index * 3} variant='outlined'>
-                    <Typography
-                      sx={styleTypography}
-                    >
-                      {input.name}
-                    </Typography>
-                    {input.type === 'select'
-                      ? inputSelect
-                      : <OutlinedInput
-                        value={data[input.field]}
-                        onChange={(e) => inputOnChange(input.field, e.target.value)}
-                        type={input.type}
-                        sx={{
-                          borderRadius: "40px",
-                          background: "rgba(255, 255, 255, 0.77)",
-                          boxShadow: "0px 4px 4px 0px rgba(0, 0, 0, 0.25)",
-                          height: "3rem",
-                        }}
-                      />
-                    }
-                  </FormControl>
-                </>
-              )
-            })
-          }
+            const inputSelect = (
+              <Box>
+                <Select
+                  disabled
+                  label='selecciona una opcion'
+                  value={data["deliverTo"]}
+                  sx={{
+                    width: "100%",
+                    borderRadius: "40px",
+                    background: "rgba(255, 255, 255, 0.77)",
+                    boxShadow: "0px 4px 4px 0px rgba(0, 0, 0, 0.25)",
+                    height: "3rem",
+                  }}
+                >
+                  <MenuItem value='direccion'>Direccion</MenuItem>
+                  <MenuItem value='oficina'>Oficina</MenuItem>
+                </Select>
+              </Box>
+            );
+            return (
+              <>
+                <FormControl
+                  sx={{
+                    ...style,
+                    display: index === 0 ? "none" : "",
+                  }}
+                  key={index * 3}
+                  variant='outlined'
+                >
+                  <Typography sx={styleTypography}>{input.name}</Typography>
+                  {input.type === "select" ? (
+                    inputSelect
+                  ) : (
+                    <OutlinedInput
+                      disabled
+                      value={data[input.field]}
+                      type={input.type}
+                      sx={{
+                        borderRadius: "40px",
+                        background: "rgba(255, 255, 255, 0.77)",
+                        boxShadow: "0px 4px 4px 0px rgba(0, 0, 0, 0.25)",
+                        height: "3rem",
+                      }}
+                    />
+                  )}
+                </FormControl>
+              </>
+            );
+          })}
         </Box>
         <Box
           sx={{
@@ -332,55 +294,52 @@ const Page = () => {
             justifyContent: "space-evenly",
           }}
         >
-          {
-            buttons.map((button, index) => (
-              <Button
-                onClick={button.onclick}
-                disabled={!isNotEmpty(data)}
-                key={index * 4}
+          {buttons.map((button, index) => (
+            <Button
+              onClick={button.onclick}
+              disabled={!isNotEmpty(data)}
+              key={index * 4}
+              sx={{
+                display: "flow",
+                width: "35%",
+                padding: "15px",
+                borderRadius: "40px",
+                background: !isNotEmpty(data) ? "gray" : `${button.background}`,
+                boxShadow:
+                  "0px 4px 4px 0px rgba(0, 0, 0, 0.25), 0px 4px 4px 0px rgba(0, 0, 0, 0.25)",
+                textAlign: "center",
+                justifyContent: "space-around",
+              }}
+            >
+              <Box component={"img"} src={button.src} />
+              <Typography
                 sx={{
-                  display: 'flow',
-                  width: '40%',
-                  padding: "15px",
-                  borderRadius: "40px",
-                  background: !isNotEmpty(data) ? 'gray' : `${button.background}`,
-                  boxShadow:
-                    "0px 4px 4px 0px rgba(0, 0, 0, 0.25), 0px 4px 4px 0px rgba(0, 0, 0, 0.25)",
+                  color: "#FFF",
                   textAlign: "center",
-                  justifyContent: "space-around",
+                  fontFamily: "Nunito",
+                  fontSize: "0.875rem",
+                  fontStyle: "normal",
+                  fontWeight: 700,
+                  lineHeight: "normal",
                 }}
               >
-                <Box component={'img'} src={button.src} />
-                <Typography
-                  sx={{
-                    color: "#FFF",
-                    textAlign: "center",
-                    fontFamily: "Nunito",
-                    fontSize: "0.875rem",
-                    fontStyle: "normal",
-                    fontWeight: 700,
-                    lineHeight: "normal",
-                  }}
-                >
-                  {button.name}
-                </Typography>
-              </Button>
-
-            ))
-          }
+                {button.name}
+              </Typography>
+            </Button>
+          ))}
         </Box>
-      </Paper >
+      </Paper>
       <Box
         sx={{
           zIndex: "-1",
           position: "absolute",
-          right: "-25px",
-          bottom: "-30px",
+          right: "5px",
+          bottom: "5px",
         }}
       >
-        <Image alt='img-background' src={imgBack} width={594} height={456} />
+        <Image alt='img-background' src={imgBack} width={226} height={456} />
       </Box>
-    </Box >
+    </Box>
   );
 };
 

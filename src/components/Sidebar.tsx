@@ -13,27 +13,47 @@ import AssignmentIcon from "@mui/icons-material/Assignment";
 import Link from "next/link";
 import Image from "next/image";
 import logo from "/public/images/logo.svg";
-import LogoutIcon from '@mui/icons-material/Logout';
+import LogoutIcon from "@mui/icons-material/Logout";
 import { singOut } from "@/firebase/firebase";
-import { Cookies, useCookies } from "react-cookie"
+import { Cookies, useCookies } from "react-cookie";
 
 const Sidebar = () => {
-  const [cookies, removeCookie] = useCookies(['user']);
+  const [cookies, removeCookie] = useCookies(["user"]);
   const pathname = usePathname();
+
   const sections = [
     {
       section: "Inicio",
-      icon: <HomeIcon fontSize='large' style={{ color: pathname === '/' ? "#0A0F37" : "#fff" }} />,
+      icon: (
+        <HomeIcon
+          fontSize='large'
+          style={{ color: pathname === "/" ? "#0A0F37" : "#fff" }}
+        />
+      ),
       id: "/",
     },
     {
       section: "Envios",
-      icon: <LocalShippingIcon fontSize='large' style={{ color: pathname === '/Shipments' ? "#0A0F37" : "#fff" }} />,
+      icon: (
+        <LocalShippingIcon
+          fontSize='large'
+          style={{
+            color: pathname.startsWith("/Shipments") ? "#0A0F37" : "#fff",
+          }}
+        />
+      ),
       id: "/Shipments",
     },
     {
       section: "Registro de Envios",
-      icon: <AssignmentIcon fontSize='large' style={{ color: pathname === '/TableShipments' ? "#0A0F37" : "#fff" }} />,
+      icon: (
+        <AssignmentIcon
+          fontSize='large'
+          style={{
+            color: pathname.startsWith("/TableShipments") ? "#0A0F37" : "#fff",
+          }}
+        />
+      ),
       id: "/TableShipments",
     },
   ];
@@ -46,7 +66,7 @@ const Sidebar = () => {
       PaperProps={{
         style: {
           background: "transparent",
-          border: 'none'
+          border: "none",
         },
       }}
     >
@@ -74,29 +94,52 @@ const Sidebar = () => {
         <Box id='containerSections'>
           {sections.map((section: any, index: number) => (
             <Box sx={{ marginY: "40px" }} key={index}>
-              <Link href={section.id} style={{ textDecoration: 'none', color: '#0A0F37' }} >
+              <Link
+                href={section.id}
+                style={{ textDecoration: "none", color: "#0A0F37" }}
+              >
                 <ListItem
                   sx={{
                     background:
-                      pathname === section.id ? "#BCC1EE" : "transparent",
+                      section.id === "/"
+                        ? pathname === "/"
+                          ? "#BCC1EE"
+                          : "transparent"
+                        : pathname.startsWith(section.id)
+                        ? "#BCC1EE"
+                        : "transparent",
                     borderRadius:
-                      pathname === section.id ? "40px 0px 0px 40px" : "0",
+                      section.id === "/"
+                        ? pathname === "/"
+                          ? "40px 0px 0px 40px"
+                          : "0"
+                        : pathname.startsWith(section.id)
+                        ? "40px 0px 0px 40px"
+                        : "0",
                     marginLeft: "10px",
                     padding: "20px",
                   }}
                 >
                   <ListItemIcon>{section.icon}</ListItemIcon>
-                  <ListItemText
-                  >
-                    <Typography sx={{
-                      color: pathname === section.id ? "#0A0F37" : "#FFF",
-                      fontFamily: "Nunito",
-                      fontSize: "20px",
-                      fontStyle: "normal",
-                      fontWeight: 700,
-                      lineHeight: "normal",
-                      textDecoration: 'none'
-                    }}>
+                  <ListItemText>
+                    <Typography
+                      sx={{
+                        color:
+                          section.id === "/"
+                            ? pathname === "/"
+                              ? "#0A0F37"
+                              : "#FFF"
+                            : pathname.startsWith(section.id)
+                            ? "#0A0F37"
+                            : "#FFF",
+                        fontFamily: "Nunito",
+                        fontSize: "20px",
+                        fontStyle: "normal",
+                        fontWeight: 700,
+                        lineHeight: "normal",
+                        textDecoration: "none",
+                      }}
+                    >
                       {section.section}
                     </Typography>
                   </ListItemText>
@@ -105,37 +148,43 @@ const Sidebar = () => {
             </Box>
           ))}
         </Box>
-        <Box sx={{
-          height: '40%',
-          display: 'flex',
-          alignItems: 'flex-end',
-          justifyContent: 'center'
-        }}>
+        <Box
+          sx={{
+            height: "40%",
+            display: "flex",
+            alignItems: "flex-end",
+            justifyContent: "center",
+          }}
+        >
           <Button
             onClick={async () => {
-              await singOut()
-              removeCookie('user', '');
+              await singOut();
+              removeCookie("user", "");
               window.location.reload();
             }}
             sx={{
-              display: 'flex',
-              width: '90%',
-              justifyContent: 'space-around'
-            }} >
+              display: "flex",
+              width: "90%",
+              justifyContent: "space-around",
+            }}
+          >
             <LogoutIcon
               fontSize='large'
               sx={{
-                color: '#fff'
-              }} />
-            <Typography sx={{
-              color: '#fff',
-              fontFamily: "Nunito",
-              fontSize: "20px",
-              fontStyle: "normal",
-              fontWeight: 700,
-              lineHeight: "normal",
-              textDecoration: 'none'
-            }}>
+                color: "#fff",
+              }}
+            />
+            <Typography
+              sx={{
+                color: "#fff",
+                fontFamily: "Nunito",
+                fontSize: "20px",
+                fontStyle: "normal",
+                fontWeight: 700,
+                lineHeight: "normal",
+                textDecoration: "none",
+              }}
+            >
               CERRAR SESION
             </Typography>
           </Button>
@@ -143,6 +192,6 @@ const Sidebar = () => {
       </List>
     </Drawer>
   );
-}
+};
 
 export default Sidebar;
