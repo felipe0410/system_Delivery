@@ -10,17 +10,12 @@ import {
   Select,
   Typography,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import Image from "next/image";
 import imgBack from "/public/images/9514099e5193291f5148687e8c14464d.png";
-import {
-  getAllShipmentsData,
-  getShipmentData,
-  shipments,
-  updatedShipments,
-} from "@/firebase/firebase";
+import { getShipmentData, updatedShipments } from "@/firebase/firebase";
 import { SnackbarProvider, enqueueSnackbar } from "notistack";
 import { inputs } from "@/data/inputs";
 import SearchIcon from "@mui/icons-material/Search";
@@ -42,8 +37,6 @@ const Page = () => {
     courierAttempt3: null,
   };
   const [data, setData] = useState<ShipmentData>(dataDefault);
-  console.log(data);
-  const [petition, setPetition] = useState(0);
   const isNotEmpty = (fields: any) => {
     for (const value in fields) {
       if (
@@ -83,15 +76,6 @@ const Page = () => {
     }
   };
 
-  const getCurrentDateTime = () => {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, "0");
-    const day = String(now.getDate()).padStart(2, "0");
-    const hours = String(now.getHours()).padStart(2, "0");
-    const minutes = String(now.getMinutes()).padStart(2, "0");
-    return `${year}-${month}-${day} ${hours}:${minutes}`;
-  };
   const router = useRouter();
 
   const modifyFirebase = async (updatedData: ShipmentData) => {
@@ -116,37 +100,6 @@ const Page = () => {
     }
   };
 
-  const createOnClickHandler = async (status: string) => {
-    try {
-      const petition = await shipments(data.guide, {
-        ...data,
-        intakeDate: getCurrentDateTime(),
-        status: status,
-        deliverTo: status === "domiciliario" ? "direccion" : "oficina",
-      });
-      enqueueSnackbar(
-        petition ? "Guia guardada con exito" : "Error al guardar el paquete",
-        {
-          variant: petition ? "success" : "error",
-          anchorOrigin: {
-            vertical: "bottom",
-            horizontal: "right",
-          },
-        }
-      );
-      setData(dataDefault);
-      setPetition((e) => e + 1);
-    } catch (error) {
-      enqueueSnackbar("Error al guardar el paquete", {
-        variant: "error",
-        anchorOrigin: {
-          vertical: "bottom",
-          horizontal: "right",
-        },
-      });
-    }
-  };
-
   const buttons = [
     {
       name: "MODIFICAR ENVIO",
@@ -159,15 +112,6 @@ const Page = () => {
   const inputOnChange = (field: string, value: string) => {
     setData({ ...data, [field]: value });
   };
-
-  // useEffect(() => {
-  //   setData({
-  //     ...data,
-  //     intakeDate: getCurrentDateTime(),
-  //     status: "oficina",
-  //   });
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, []);
 
   const styleTypography = {
     textAlign: "left",

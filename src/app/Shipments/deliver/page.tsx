@@ -3,20 +3,22 @@ import {
   Box,
   Button,
   FormControl,
+  InputAdornment,
   MenuItem,
   OutlinedInput,
   Paper,
   Select,
   Typography,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import Image from "next/image";
 import imgBack from "/public/images/5521cf9a493157426eab3d732c95356f.png";
-import { shipments } from "@/firebase/firebase";
+import { getShipmentData, shipments } from "@/firebase/firebase";
 import { SnackbarProvider, enqueueSnackbar } from "notistack";
 import { inputs } from "@/data/inputs";
+import SearchIcon from "@mui/icons-material/Search";
 
 const Page = () => {
   const dataDefault = {
@@ -63,9 +65,10 @@ const Page = () => {
     try {
       const petition = await shipments(data.guide, {
         ...data,
-        intakeDate: getCurrentDateTime(),
         status: status,
-        deliverTo: status === "domiciliario" ? "direccion" : "oficina",
+        deliveryDate: status === "entregado" ? getCurrentDateTime() : null,
+        returnDate: status === "devolucion" ? getCurrentDateTime() : null,
+        deliverTo: status === "oficina" ? "oficina" : "direccion",
       });
       enqueueSnackbar(
         petition ? "Guia guardada con exito" : "Error al guardar el paquete",
@@ -90,32 +93,65 @@ const Page = () => {
     }
   };
 
+  const getShipmentGuide = async (id: string) => {
+    try {
+      const guideToDeliver = await getShipmentData(id);
+      const shipmentData: ShipmentData = guideToDeliver as ShipmentData;
+      if (shipmentData) {
+        setData(shipmentData);
+      } else {
+        enqueueSnackbar("Error al encontrar la guía", {
+          variant: "error",
+          anchorOrigin: {
+            vertical: "bottom",
+            horizontal: "right",
+          },
+        });
+      }
+    } catch (error) {
+      enqueueSnackbar("Error al encontrar la guía", {
+        variant: "error",
+        anchorOrigin: {
+          vertical: "bottom",
+          horizontal: "right",
+        },
+      });
+    }
+  };
+
   const buttons = [
     {
-      name: "AGREGAR ENVIO",
+      name: "ENTREGAR",
       background: "#00A410",
-      src: "/images/delivery.svg",
+      src: "/images/deliver.svg",
+      onclick: () => createOnClickHandler("entregado"),
+    },
+    {
+      name: "ELIMINAR DE MENSAJERO",
+      background: "#0A0F37",
+      src: "/images/delete.svg",
       onclick: () => createOnClickHandler("oficina"),
     },
     {
-      name: "GUARDAR Y AGREGAR DOMICILIARIO",
+      name: "DEVOLUCION",
       background: "#5C68D4",
-      src: "/images/add.svg",
-      onclick: () => createOnClickHandler("domiciliario"),
+      src: "/images/returnBack.svg",
+      onclick: () => createOnClickHandler("devolucion"),
     },
   ];
-  // const inputOnChange = (field: string, value: string) => {
-  //   setData({ ...data, [field]: value })
-  // }
+  const inputOnChange = (field: string, value: string) => {
+    setData({ ...data, [field]: value });
+  };
 
-  useEffect(() => {
-    setData({
-      ...data,
-      intakeDate: getCurrentDateTime(),
-      status: "oficina",
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const styleTypography = {
+    textAlign: "left",
+    color: "#0A0F37",
+    fontFamily: "Nunito",
+    fontSize: "24px",
+    fontStyle: "normal",
+    fontWeight: 700,
+    lineHeight: "normal",
+  };
 
   return (
     <Box
@@ -182,21 +218,36 @@ const Page = () => {
           </Box>
         </Box>
         <Box id='container-inputs'>
+          <FormControl fullWidth variant='outlined'>
+            <Typography sx={styleTypography}>{"N· de guía:"}</Typography>
+            {
+              <OutlinedInput
+                value={data["guide"]}
+                endAdornment={
+                  <InputAdornment position='end'>
+                    <Button onClick={() => getShipmentGuide(data.guide)}>
+                      <SearchIcon fontSize='large' sx={{ color: "#000" }} />
+                    </Button>
+                  </InputAdornment>
+                }
+                onChange={(e) => inputOnChange("guide", e.target.value)}
+                type={"number"}
+                sx={{
+                  borderRadius: "40px",
+                  background: "rgba(255, 255, 255, 0.77)",
+                  boxShadow: "0px 4px 4px 0px rgba(0, 0, 0, 0.25)",
+                  height: "3rem",
+                }}
+              />
+            }
+          </FormControl>
           {inputs.map((input, index) => {
             const style = {
               width: `${input.whidth}`,
               marginLeft:
                 input.whidth === "40%" && [3, 5].includes(index) ? "20%" : "0",
             };
-            const styleTypography = {
-              textAlign: "left",
-              color: "#0A0F37",
-              fontFamily: "Nunito",
-              fontSize: "24px",
-              fontStyle: "normal",
-              fontWeight: 700,
-              lineHeight: "normal",
-            };
+
             const inputSelect = (
               <Box>
                 <Select
@@ -218,7 +269,11 @@ const Page = () => {
             );
             return (
               <>
-                <FormControl sx={style} key={index * 3} variant='outlined'>
+                <FormControl
+                  sx={{ ...style, display: index === 0 ? "none" : "" }}
+                  key={index * 3}
+                  variant='outlined'
+                >
                   <Typography sx={styleTypography}>{input.name}</Typography>
                   {input.type === "select" ? (
                     inputSelect
@@ -256,8 +311,8 @@ const Page = () => {
               key={index * 4}
               sx={{
                 display: "flow",
-                width: "40%",
-                padding: "15px",
+                width: "30%",
+                padding: "14px",
                 borderRadius: "40px",
                 background: !isNotEmpty(data) ? "gray" : `${button.background}`,
                 boxShadow:

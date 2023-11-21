@@ -5,7 +5,6 @@ import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined
 import ForwardToInboxOutlinedIcon from "@mui/icons-material/ForwardToInboxOutlined";
 import CachedIcon from "@mui/icons-material/Cached";
 import ControlPointIcon from "@mui/icons-material/ControlPoint";
-import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import imgBack from "/public/images/e181331c8066f48085e340b5de3660ff.png";
@@ -16,7 +15,7 @@ const Shipments = () => {
       name: "ENTREGAR",
       icon: (
         <ForwardToInboxOutlinedIcon
-          sx={{ fontSize: { xs: "15vw", sm: "4vw" }, color: "#FFF" }}
+          sx={{ fontSize: { xs: "15vw", sm: "3rem" }, color: "#FFF" }}
         />
       ),
       id: "/Shipments/deliver",
@@ -25,7 +24,7 @@ const Shipments = () => {
       name: "MODIFICAR ENVIO",
       icon: (
         <CachedIcon
-          sx={{ fontSize: { xs: "15vw", sm: "4vw" }, color: "#FFF" }}
+          sx={{ fontSize: { xs: "15vw", sm: "3rem" }, color: "#FFF" }}
         />
       ),
       id: "/Shipments/modify",
@@ -34,7 +33,7 @@ const Shipments = () => {
       name: "AGREGAR ENVIO",
       icon: (
         <ControlPointIcon
-          sx={{ fontSize: { xs: "15vw", sm: "4vw" }, color: "#FFF" }}
+          sx={{ fontSize: { xs: "15vw", sm: "3rem" }, color: "#FFF" }}
         />
       ),
       id: "/Shipments/addShipment",
@@ -43,7 +42,7 @@ const Shipments = () => {
       name: "MENSAJERO",
       icon: (
         <LocalShippingOutlinedIcon
-          sx={{ fontSize: { xs: "15vw", sm: "4vw" }, color: "#FFF" }}
+          sx={{ fontSize: { xs: "15vw", sm: "3rem" }, color: "#FFF" }}
         />
       ),
       id: "/Shipments/mensajero",
@@ -89,7 +88,7 @@ const Shipments = () => {
                     sx={{
                       fontFamily: "Nunito",
                       color: "#FFF",
-                      fontSize: "2rem",
+                      fontSize: "1.5rem",
                       fontStyle: "normal",
                       fontWeight: 700,
                     }}

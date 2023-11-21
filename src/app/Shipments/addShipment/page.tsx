@@ -64,8 +64,9 @@ const Page = () => {
       const petition = await shipments(data.guide, {
         ...data,
         intakeDate: getCurrentDateTime(),
+        courierAttempt1: status === "mensajero" ? getCurrentDateTime() : null,
         status: status,
-        deliverTo: status === "domiciliario" ? "direccion" : "oficina",
+        deliverTo: status === "mensajero" ? "direccion" : "oficina",
       });
       enqueueSnackbar(
         petition ? "Guia guardada con exito" : "Error al guardar el paquete",
@@ -101,7 +102,7 @@ const Page = () => {
       name: "GUARDAR Y AGREGAR DOMICILIARIO",
       background: "#5C68D4",
       src: "/images/add.svg",
-      onclick: () => createOnClickHandler("domiciliario"),
+      onclick: () => createOnClickHandler("mensajero"),
     },
   ];
 
