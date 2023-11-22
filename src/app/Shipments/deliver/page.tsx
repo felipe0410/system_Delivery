@@ -35,9 +35,10 @@ const Page = () => {
     courierAttempt1: null,
     courierAttempt2: null,
     courierAttempt3: null,
+    updateDate: null,
+    modifyBy: null,
   };
   const [data, setData] = useState<ShipmentData>(dataDefault);
-  const [petition, setPetition] = useState(0);
   const isNotEmpty = (fields: any) => {
     for (const value in fields) {
       if (
@@ -63,6 +64,18 @@ const Page = () => {
   const router = useRouter();
   const createOnClickHandler = async (status: string) => {
     try {
+      const guideStatus = data.status;
+
+      if (guideStatus === "entregado" || guideStatus === "devolucion") {
+        enqueueSnackbar(`El paquete ya está ${guideStatus}`, {
+          variant: "warning",
+          anchorOrigin: {
+            vertical: "bottom",
+            horizontal: "right",
+          },
+        });
+        return;
+      }
       const petition = await shipments(data.guide, {
         ...data,
         status: status,
@@ -81,7 +94,6 @@ const Page = () => {
         }
       );
       setData(dataDefault);
-      setPetition((e) => e + 1);
     } catch (error) {
       enqueueSnackbar("Error al guardar el paquete", {
         variant: "error",

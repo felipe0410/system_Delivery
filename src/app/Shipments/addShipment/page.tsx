@@ -33,6 +33,8 @@ const Page = () => {
     courierAttempt1: null,
     courierAttempt2: null,
     courierAttempt3: null,
+    updateDate: null,
+    modifyBy: null,
   };
   const [data, setData] = useState<ShipmentData>(dataDefault);
   const [petition, setPetition] = useState(0);

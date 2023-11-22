@@ -35,6 +35,8 @@ const Page = () => {
     courierAttempt1: null,
     courierAttempt2: null,
     courierAttempt3: null,
+    updateDate: null,
+    modifyBy: null,
   };
   const [data, setData] = useState<ShipmentData>(dataDefault);
   const isNotEmpty = (fields: any) => {
@@ -77,10 +79,41 @@ const Page = () => {
   };
 
   const router = useRouter();
+  const getCurrentDateTime = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    return `${year}-${month}-${day} ${hours}:${minutes}`;
+  };
 
   const modifyFirebase = async (updatedData: ShipmentData) => {
     try {
-      await updatedShipments(data.guide, updatedData);
+      const userCookie = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("user="));
+
+      const user = userCookie?.split("=")[1];
+
+      const guideStatus = data.status;
+
+      if (guideStatus === "entregado" || guideStatus === "devolucion") {
+        enqueueSnackbar(`El paquete ya está ${guideStatus}`, {
+          variant: "warning",
+          anchorOrigin: {
+            vertical: "bottom",
+            horizontal: "right",
+          },
+        });
+        return;
+      }
+      await updatedShipments(data.guide, {
+        ...updatedData,
+        updateDate: getCurrentDateTime(),
+        modifyBy: user,
+      });
       enqueueSnackbar("Sus cambios han sido actualizados", {
         variant: "success",
         anchorOrigin: {

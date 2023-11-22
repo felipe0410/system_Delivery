@@ -35,9 +35,10 @@ const Page = () => {
     courierAttempt1: null,
     courierAttempt2: null,
     courierAttempt3: null,
+    updateDate: null,
+    modifyBy: null,
   };
   const [data, setData] = useState<ShipmentData>(dataDefault);
-  console.log(data);
   const isNotEmpty = (fields: any) => {
     for (const value in fields) {
       if (
@@ -89,22 +90,84 @@ const Page = () => {
   const router = useRouter();
   const createOnClickHandler = async (status: string) => {
     try {
-      const petition = await shipments(data.guide, {
-        ...data,
-        courierAttempt1: getCurrentDateTime(),
-        status: status,
-        deliverTo: status === "mensajero" ? "direccion" : "oficina",
-      });
-      enqueueSnackbar(
-        petition ? "Guia guardada con exito" : "Error al guardar el paquete",
-        {
-          variant: petition ? "success" : "error",
+      const guideStatus = data.status;
+
+      if (guideStatus === "entregado" || guideStatus === "devolucion") {
+        enqueueSnackbar(`El paquete ya está ${guideStatus}`, {
+          variant: "warning",
           anchorOrigin: {
             vertical: "bottom",
             horizontal: "right",
           },
-        }
-      );
+        });
+        return;
+      }
+      if (
+        guideStatus === "oficina" &&
+        data.courierAttempt1 &&
+        data.courierAttempt2 &&
+        data.courierAttempt3
+      ) {
+        enqueueSnackbar("Ya se agotaron los intentos de enviar", {
+          variant: "warning",
+          anchorOrigin: {
+            vertical: "bottom",
+            horizontal: "right",
+          },
+        });
+        return;
+      } else if (
+        guideStatus === "oficina" &&
+        data.courierAttempt1 &&
+        data.courierAttempt2
+      ) {
+        await shipments(data.guide, {
+          ...data,
+          courierAttempt3: getCurrentDateTime(),
+          status: status,
+          deliverTo: status === "mensajero" ? "direccion" : "oficina",
+        });
+        enqueueSnackbar("Guía guardada con éxito", {
+          variant: "success",
+          anchorOrigin: {
+            vertical: "bottom",
+            horizontal: "right",
+          },
+        });
+      } else if (guideStatus === "oficina" && data.courierAttempt1) {
+        await shipments(data.guide, {
+          ...data,
+          courierAttempt2: getCurrentDateTime(),
+          status: status,
+          deliverTo: status === "mensajero" ? "direccion" : "oficina",
+        });
+        enqueueSnackbar("Guía guardada con éxito", {
+          variant: "success",
+          anchorOrigin: {
+            vertical: "bottom",
+            horizontal: "right",
+          },
+        });
+      } else {
+        const petition = await shipments(data.guide, {
+          ...data,
+          courierAttempt1: getCurrentDateTime(),
+          status: status,
+          deliverTo: status === "mensajero" ? "direccion" : "oficina",
+        });
+
+        enqueueSnackbar(
+          petition ? "Guía guardada con éxito" : "Error al guardar el paquete",
+          {
+            variant: petition ? "success" : "error",
+            anchorOrigin: {
+              vertical: "bottom",
+              horizontal: "right",
+            },
+          }
+        );
+      }
+
       setData(dataDefault);
     } catch (error) {
       enqueueSnackbar("Error al guardar el paquete", {
