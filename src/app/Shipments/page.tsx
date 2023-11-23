@@ -60,7 +60,7 @@ const Shipments = () => {
     >
       <Box
         sx={{
-          display: "flex",
+          display: { md: "flex", sm: "block" },
           flexWrap: "wrap",
           justifyContent: "center",
           alignItems: "center",
@@ -69,7 +69,13 @@ const Shipments = () => {
       >
         {sectionsShipments.map((button) => {
           return (
-            <Box sx={{ width: "40%" }} key={button.name}>
+            <Box
+              sx={{
+                width: { md: "40%", sm: "100%" },
+                marginTop: { sm: "2rem", xs: "2rem" },
+              }}
+              key={button.name}
+            >
               <Link href={button.id}>
                 <Button
                   sx={{

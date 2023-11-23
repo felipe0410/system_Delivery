@@ -43,8 +43,8 @@ export default function RootLayout({
           background: validationRoutes
             ? ""
             : "linear-gradient(180deg, #5C68D4 0%, rgba(92, 104, 212, 0.55) 0%, rgba(92, 104, 212, 0.00) 100%)",
-          backgroundRepeat: 'no-repeat',
-          backgroundSize: 'contain',
+          backgroundRepeat: "no-repeat",
+          backgroundSize: "contain",
         }}
       >
         {validationRoutes ? (
@@ -68,10 +68,11 @@ export default function RootLayout({
             <Box
               sx={{
                 display: { sm: "none", xs: "block" },
-                bottom: "10px",
-                right: "10px",
+                top: "10px",
+                left: "10px",
                 zIndex: 10,
                 position: "fixed",
+                background: "#5C68D4",
               }}
             >
               <Menu />

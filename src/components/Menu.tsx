@@ -2,22 +2,30 @@
 import * as React from "react";
 import Box from "@mui/material/Box";
 import SpeedDial from "@mui/material/SpeedDial";
-import SpeedDialIcon from "@mui/material/SpeedDialIcon";
 import SpeedDialAction from "@mui/material/SpeedDialAction";
-import EditIcon from "@mui/icons-material/Edit";
-import DocumentScannerIcon from "@mui/icons-material/DocumentScanner";
-import CoPresentIcon from "@mui/icons-material/CoPresent";
+import HomeIcon from "@mui/icons-material/Home";
+import LocalShippingIcon from "@mui/icons-material/LocalShipping";
+import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
+import AssignmentIcon from "@mui/icons-material/Assignment";
 import { useRouter } from "next/navigation";
 const sections = [
   {
-    section: "Resultados",
-    icon: <CoPresentIcon fontSize='large' style={{ color: "#fff" }} />,
-    id: "/scans",
+    section: "Inicio",
+    icon: <HomeIcon fontSize='large' />,
+    id: "/",
+    name: "Inicio",
   },
   {
-    section: "Escanear",
-    icon: <DocumentScannerIcon fontSize='large' style={{ color: "#fff" }} />,
-    id: "/",
+    section: "Envios",
+    icon: <LocalShippingIcon fontSize='large' />,
+    id: "/Shipments",
+    name: "Envios",
+  },
+  {
+    section: "Registro de Envios",
+    icon: <AssignmentIcon fontSize='large' />,
+    id: "/TableShipments",
+    name: "Registro",
   },
 ];
 export default function Menu() {
@@ -27,15 +35,18 @@ export default function Menu() {
     <Box sx={{ height: 320, transform: "translateZ(0px)", flexGrow: 1 }}>
       <SpeedDial
         ariaLabel='SpeedDial openIcon example'
-        sx={{ position: "absolute", bottom: 16, right: 16 }}
-        icon={<SpeedDialIcon openIcon={<EditIcon />} />}
+        sx={{ position: "absolute", top: "10px" }}
+        icon={<MenuRoundedIcon />}
+        direction='down'
       >
         {sections.map((action) => (
           <SpeedDialAction
-            sx={{ background: "#000", padding: "20px" }}
+            sx={{ padding: "20px" }}
             key={action.id}
             icon={action.icon}
-            tooltipTitle={action.section}
+            tooltipOpen
+            tooltipTitle={action.name}
+            tooltipPlacement='right'
             onClick={() => router.push(action.id)}
           />
         ))}
