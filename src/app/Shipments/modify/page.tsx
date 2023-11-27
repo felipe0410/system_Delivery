@@ -247,9 +247,13 @@ const Page = () => {
           </FormControl>
           {inputs.map((input, index) => {
             const style = {
-              width: `${input.whidth}`,
-              marginLeft:
-                input.whidth === "40%" && [3, 5].includes(index) ? "20%" : "0",
+              width: { xs: "100%", sm: `${input.whidth}` },
+              marginLeft: {
+                sm:
+                  input.whidth === "40%" && [3, 5].includes(index)
+                    ? "20%"
+                    : "0",
+              },
             };
             const inputSelect = (
               <Box>
@@ -273,10 +277,9 @@ const Page = () => {
               </Box>
             );
             return (
-              <>
+              <React.Fragment key={crypto.randomUUID()}>
                 <FormControl
                   sx={{ ...style, display: index === 0 ? "none" : "" }}
-                  key={index * 3}
                   variant='outlined'
                 >
                   <Typography sx={styleTypography}>{input.name}</Typography>
@@ -298,7 +301,7 @@ const Page = () => {
                     />
                   )}
                 </FormControl>
-              </>
+              </React.Fragment>
             );
           })}
         </Box>
@@ -315,7 +318,7 @@ const Page = () => {
             <Button
               onClick={button.onclick}
               disabled={!isNotEmpty(data)}
-              key={index * 4}
+              key={crypto.randomUUID()}
               sx={{
                 display: "flow",
                 width: "30%",
@@ -350,8 +353,8 @@ const Page = () => {
         sx={{
           zIndex: "-1",
           position: "absolute",
-          right: "-15px",
-          bottom: "-30px",
+          right: 0,
+          bottom: "10px",
         }}
       >
         <Image alt='img-background' src={imgBack} width={456} height={456} />

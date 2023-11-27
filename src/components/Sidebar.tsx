@@ -1,11 +1,17 @@
 "use client";
 import React, { useState } from "react";
-import Drawer from "@mui/material/Drawer";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import { Box, Typography, Button, useMediaQuery, useTheme, SwipeableDrawer } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Button,
+  useMediaQuery,
+  useTheme,
+  SwipeableDrawer,
+} from "@mui/material";
 import { usePathname } from "next/navigation";
 import HomeIcon from "@mui/icons-material/Home";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
@@ -18,12 +24,11 @@ import { singOut } from "@/firebase/firebase";
 import { Cookies, useCookies } from "react-cookie";
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 
-
 const Sidebar = () => {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
   const [cookies, removeCookie] = useCookies(["user"]);
   const theme = useTheme();
-  const matchesSM = useMediaQuery(theme.breakpoints.down('sm'));
+  const matchesSM = useMediaQuery(theme.breakpoints.down("sm"));
   const pathname = usePathname();
 
   const sections = [
@@ -32,7 +37,7 @@ const Sidebar = () => {
       icon: (
         <HomeIcon
           id='content icon home'
-          sx={{ fontSize: { sm: '40px' } }}
+          sx={{ fontSize: { sm: "40px" } }}
           style={{ color: pathname === "/" ? "#0A0F37" : "#fff" }}
         />
       ),
@@ -42,7 +47,7 @@ const Sidebar = () => {
       section: "Envios",
       icon: (
         <LocalShippingIcon
-          sx={{ fontSize: { sm: '40px' } }}
+          sx={{ fontSize: { sm: "40px" } }}
           style={{
             color: pathname.startsWith("/Shipments") ? "#0A0F37" : "#fff",
           }}
@@ -54,7 +59,7 @@ const Sidebar = () => {
       section: "Registro de Envios",
       icon: (
         <AssignmentIcon
-          sx={{ fontSize: { sm: '40px' } }}
+          sx={{ fontSize: { sm: "40px" } }}
           style={{
             color: pathname.startsWith("/TableShipments") ? "#0A0F37" : "#fff",
           }}
@@ -66,12 +71,12 @@ const Sidebar = () => {
 
   return (
     <>
-      <Button sx={{ paddingTop: '20px' }} onClick={() => setOpen(true)}>
-        <MenuRoundedIcon sx={{ color: '#0A0F37C2', fontSize: '35px' }} />
+      <Button sx={{ paddingTop: "20px" }} onClick={() => setOpen(true)}>
+        <MenuRoundedIcon sx={{ color: "#0A0F37C2", fontSize: "35px" }} />
       </Button>
       <SwipeableDrawer
         id='Drawer'
-        variant={matchesSM ? undefined : 'permanent'}
+        variant={matchesSM ? undefined : "permanent"}
         anchor='left'
         open={open}
         onClose={() => setOpen(false)}
@@ -80,7 +85,7 @@ const Sidebar = () => {
           style: {
             background: "transparent",
             border: "none",
-            maxWidth: matchesSM ? '45%' : 'auto'
+            maxWidth: matchesSM ? "45%" : "auto",
           },
         }}
       >
@@ -100,14 +105,22 @@ const Sidebar = () => {
               marginBottom: "20px",
             }}
           >
-            <Image style={{ width: '80%' }} alt='company-logo' src={logo} />
+            <Image
+              style={{ width: "80%", height: "auto" }}
+              alt='company-logo'
+              src={logo}
+            />
             <Box sx={{ textAlign: "-webkit-center", marginBottom: "20px" }}>
-              <Box width={"90%"} height={"1px"} sx={{ background: "#87888C" }} />
+              <Box
+                width={"90%"}
+                height={"1px"}
+                sx={{ background: "#87888C" }}
+              />
             </Box>
           </Box>
           <Box id='containerSections'>
-            {sections.map((section: any, index: number) => (
-              <Box sx={{ marginY: "40px" }} key={index}>
+            {sections.map((section: any) => (
+              <Box sx={{ marginY: "40px" }} key={crypto.randomUUID()}>
                 <Link
                   href={section.id}
                   style={{ textDecoration: "none", color: "#0A0F37" }}
@@ -120,21 +133,23 @@ const Sidebar = () => {
                             ? "#BCC1EE"
                             : "transparent"
                           : pathname.startsWith(section.id)
-                            ? "#BCC1EE"
-                            : "transparent",
+                          ? "#BCC1EE"
+                          : "transparent",
                       borderRadius:
                         section.id === "/"
                           ? pathname === "/"
                             ? "40px 0px 0px 40px"
                             : "0"
                           : pathname.startsWith(section.id)
-                            ? "40px 0px 0px 40px"
-                            : "0",
-                      marginLeft: { xs: '5px', sm: "10px" },
+                          ? "40px 0px 0px 40px"
+                          : "0",
+                      marginLeft: { xs: "5px", sm: "10px" },
                       padding: { sm: "20px" },
                     }}
                   >
-                    <ListItemIcon sx={{ minWidth: { xs: '35px', sm: '56px' } }}>{section.icon}</ListItemIcon>
+                    <ListItemIcon sx={{ minWidth: { xs: "35px", sm: "56px" } }}>
+                      {section.icon}
+                    </ListItemIcon>
                     <ListItemText>
                       <Typography
                         sx={{
@@ -144,10 +159,10 @@ const Sidebar = () => {
                                 ? "#0A0F37"
                                 : "#FFF"
                               : pathname.startsWith(section.id)
-                                ? "#0A0F37"
-                                : "#FFF",
+                              ? "#0A0F37"
+                              : "#FFF",
                           fontFamily: "Nunito",
-                          fontSize: { xs: '16px', sm: "20px" },
+                          fontSize: { xs: "16px", sm: "20px" },
                           fontStyle: "normal",
                           fontWeight: 700,
                           lineHeight: "normal",
@@ -161,7 +176,9 @@ const Sidebar = () => {
                 </Link>
               </Box>
             ))}
-            <Box sx={{ marginTop: '100%', position: 'absolute', bottom: '30px' }}>
+            <Box
+              sx={{ marginTop: "100%", position: "absolute", bottom: "30px" }}
+            >
               <Button
                 onClick={async () => {
                   await singOut();
@@ -169,32 +186,30 @@ const Sidebar = () => {
                   window.location.reload();
                 }}
                 sx={{
-                  margin: '0 auto',
+                  margin: "0 auto",
                   display: "flex",
-                  justifyContent: 'space-around',
+                  justifyContent: "space-around",
                   width: "90%",
-                  marginLeft: { xs: '7px', sm: "10px" },
+                  marginLeft: { xs: "7px", sm: "10px" },
                   padding: { sm: "20px" },
                 }}
               >
                 <LogoutIcon
                   sx={{
-                    minWidth: { xs: '45px', sm: '56px' },
-                    fontSize: { sm: '40px' },
+                    minWidth: { xs: "45px", sm: "56px" },
+                    fontSize: { sm: "40px" },
                     color: "#fff",
-
                   }}
                 />
                 <Typography
                   sx={{
                     color: "#fff",
                     fontFamily: "Nunito",
-                    fontSize: { xs: '16px', sm: "20px" },
+                    fontSize: { xs: "16px", sm: "20px" },
                     fontStyle: "normal",
                     fontWeight: 700,
                     lineHeight: "normal",
                     textDecoration: "none",
-
                   }}
                 >
                   Salir
@@ -202,7 +217,6 @@ const Sidebar = () => {
               </Button>
             </Box>
           </Box>
-
         </List>
       </SwipeableDrawer>
     </>

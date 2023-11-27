@@ -14,7 +14,11 @@ import { useRouter } from "next/navigation";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import Image from "next/image";
 import imgBack from "/public/images/af4e63708de6ec3a46f9cfb41f4c5075.png";
-import { getAllShipmentsData, shipments } from "@/firebase/firebase";
+import {
+  getAllShipmentsData,
+  getShipmentData,
+  shipments,
+} from "@/firebase/firebase";
 import { SnackbarProvider, enqueueSnackbar } from "notistack";
 import { inputs } from "@/data/inputs";
 
@@ -63,6 +67,18 @@ const Page = () => {
   const router = useRouter();
   const createOnClickHandler = async (status: string) => {
     try {
+      const existingGuide = await getShipmentData(data.guide);
+
+      if (existingGuide) {
+        enqueueSnackbar("La guía ya existe", {
+          variant: "error",
+          anchorOrigin: {
+            vertical: "bottom",
+            horizontal: "right",
+          },
+        });
+        return;
+      }
       const petition = await shipments(data.guide, {
         ...data,
         intakeDate: getCurrentDateTime(),
@@ -211,9 +227,13 @@ const Page = () => {
         <Box id='container-inputs'>
           {inputs.map((input, index) => {
             const style = {
-              width: { xs: '100%', sm: `${input.whidth}` },
-              marginLeft:
-                { sm: input.whidth === "40%" && [3, 5].includes(index) ? "20%" : "0", }
+              width: { xs: "100%", sm: `${input.whidth}` },
+              marginLeft: {
+                sm:
+                  input.whidth === "40%" && [3, 5].includes(index)
+                    ? "20%"
+                    : "0",
+              },
             };
             const styleTypography = {
               textAlign: "left",
@@ -246,8 +266,8 @@ const Page = () => {
               </Box>
             );
             return (
-              <>
-                <FormControl sx={style} key={index * 3} variant='outlined'>
+              <React.Fragment key={crypto.randomUUID()}>
+                <FormControl sx={style} variant='outlined'>
                   <Typography sx={styleTypography}>{input.name}</Typography>
                   {input.type === "select" ? (
                     inputSelect
@@ -267,7 +287,7 @@ const Page = () => {
                     />
                   )}
                 </FormControl>
-              </>
+              </React.Fragment>
             );
           })}
         </Box>
@@ -280,11 +300,11 @@ const Page = () => {
             justifyContent: "space-evenly",
           }}
         >
-          {buttons.map((button, index) => (
+          {buttons.map((button) => (
             <Button
               onClick={button.onclick}
               disabled={!isNotEmpty(data)}
-              key={index * 4}
+              key={crypto.randomUUID()}
               sx={{
                 display: "flow",
                 width: "40%",
@@ -319,8 +339,8 @@ const Page = () => {
         sx={{
           zIndex: "-1",
           position: "absolute",
-          right: "-75px",
-          bottom: "-30px",
+          right: 0,
+          bottom: "10px",
         }}
       >
         <Image alt='img-background' src={imgBack} width={594} height={456} />

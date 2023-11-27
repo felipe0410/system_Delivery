@@ -1,4 +1,10 @@
-import { Dialog, DialogContent, DialogTitle, TextField } from "@mui/material";
+import {
+  Box,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  TextField,
+} from "@mui/material";
 import React, { useState } from "react";
 import TableModal from "./TableModal";
 
@@ -39,24 +45,26 @@ const SearchResultsModal = ({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth='xl'>
-      <DialogTitle>
+    <Dialog open={open} onClose={onClose} maxWidth='xl' sx={{ zIndex: "10" }}>
+      <DialogTitle sx={{ display: "flex", justifyContent: "space-evenly" }}>
         Resultados de la búsqueda
-        <TextField
-          select
-          label='Filtrar por Estado'
-          value={statusFilter}
-          onChange={handleStatusFilterChange}
-          SelectProps={{
-            native: true,
-          }}
-          style={{ marginLeft: "20px" }}
-        >
-          <option value='all'>Todos</option>
-          <option value='entregado'>Entregado</option>
-          <option value='devolucion'>Devolución</option>
-          <option value='oficina'>Oficina</option>
-        </TextField>
+        <Box>
+          <TextField
+            select
+            SelectProps={{
+              native: true,
+            }}
+            label='Filtrar por Estado'
+            value={statusFilter}
+            onChange={handleStatusFilterChange}
+            style={{ marginLeft: "20px" }}
+          >
+            <option value='all'>Todos</option>
+            <option value='entregado'>Entregado</option>
+            <option value='devolucion'>Devolución</option>
+            <option value='oficina'>Oficina</option>
+          </TextField>
+        </Box>
       </DialogTitle>
       <DialogContent>
         <TableModal data={filterDataByStatus(filterData())} />

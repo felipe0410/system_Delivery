@@ -74,7 +74,7 @@ const Shipments = () => {
                 width: { md: "40%", sm: "100%" },
                 marginTop: { sm: "2rem", xs: "2rem" },
               }}
-              key={button.name}
+              key={crypto.randomUUID()}
             >
               <Link href={button.id}>
                 <Button

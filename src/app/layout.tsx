@@ -54,12 +54,11 @@ export default function RootLayout({
             <Box
               id='Container Sidebar'
               sx={{
-                // display: { xs: "none", sm: "block" },
                 position: "fixed",
                 top: 0,
                 left: 0,
                 height: "100%",
-                zIndex: 1300,
+                zIndex: 7,
               }}
             >
               <Sidebar />
@@ -68,9 +67,9 @@ export default function RootLayout({
               sx={{
                 position: "fixed",
                 top: 0,
-                left: { xs: '100px', sm: "263px" },
+                left: { xs: "100px", sm: "263px" },
                 right: 0,
-                zIndex: 1400,
+                zIndex: 5,
               }}
             >
               <Header />

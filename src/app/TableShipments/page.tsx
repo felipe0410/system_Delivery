@@ -46,27 +46,27 @@ const tablesData: {
   title: string;
   estado: string;
 }[] = [
-    {
-      title: "Todos los envios",
-      estado: "todos",
-    },
-    {
-      title: "Envios agencia",
-      estado: "oficina",
-    },
-    {
-      title: "Devoluciones",
-      estado: "devolucion",
-    },
-    {
-      title: "Mensajero",
-      estado: "mensajero",
-    },
-    {
-      title: "Entregas",
-      estado: "entregado",
-    },
-  ];
+  {
+    title: "Todos los envios",
+    estado: "todos",
+  },
+  {
+    title: "Envios agencia",
+    estado: "oficina",
+  },
+  {
+    title: "Devoluciones",
+    estado: "devolucion",
+  },
+  {
+    title: "Mensajero",
+    estado: "mensajero",
+  },
+  {
+    title: "Entregas",
+    estado: "entregado",
+  },
+];
 
 export default function BasicTabs() {
   const [value, setValue] = React.useState(0);
@@ -113,7 +113,7 @@ export default function BasicTabs() {
 
   return (
     <Box sx={{ padding: "5%" }}>
-      <Paper sx={{ borderRadius: '20px' }}>
+      <Paper sx={{ borderRadius: "20px" }}>
         <Box sx={{ width: "100%" }}>
           <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
             <Tabs
@@ -122,12 +122,20 @@ export default function BasicTabs() {
               aria-label='basic tabs example'
             >
               {tablesData.map((table, index) => (
-                <Tab key={index} label={table.title} {...a11yProps(index)} />
+                <Tab
+                  key={crypto.randomUUID()}
+                  label={table.title}
+                  {...a11yProps(index)}
+                />
               ))}
             </Tabs>
           </Box>
           {tablesData.map((table, index) => (
-            <CustomTabPanel key={index} value={value} index={index}>
+            <CustomTabPanel
+              key={crypto.randomUUID()}
+              value={value}
+              index={index}
+            >
               <Typography
                 sx={{
                   color: "#0A0F37",

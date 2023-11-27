@@ -29,6 +29,13 @@ function Header() {
     setModalOpen(false);
   };
 
+  const handleKeyPress = (e: any) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleOpenModal();
+    }
+  };
+
   useEffect(() => {
     const getFirebaseData = async () => {
       try {
@@ -50,8 +57,11 @@ function Header() {
   return (
     <AppBar
       id='AppBar'
-      sx={{ background: "transparent", boxShadow: "none", padding: "15px" }}
-      position='static'
+      sx={{
+        background: "transparent",
+        boxShadow: "none",
+        padding: "15px",
+      }}
     >
       <Toolbar
         id='Toolbar'
@@ -65,7 +75,7 @@ function Header() {
               display: "flex",
               alignItems: "center",
               color: "#fff",
-              width: "20rem",
+              width: { xs: "15rem", sm: "20rem" },
               borderRadius: "40px",
               background: "#0A0F37",
               boxShadow:
@@ -88,6 +98,7 @@ function Header() {
                 color: "#fff",
               }}
               placeholder='Buscar'
+              onKeyDown={handleKeyPress}
             />
             <Avatar
               sx={{

@@ -102,7 +102,7 @@ const CreateNote = () => {
                   boxShadow:
                     "0px 4px 4px 0px rgba(0, 0, 0, 0.25), 0px 4px 4px 0px rgba(0, 0, 0, 0.25), 0px 4px 4px 0px rgba(0, 0, 0, 0.25), 0px 4px 4px 0px rgba(0, 0, 0, 0.25)",
                 }}
-                key={index}
+                key={crypto.randomUUID()}
               >
                 {
                   <Box>
