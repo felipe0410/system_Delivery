@@ -46,27 +46,27 @@ const tablesData: {
   title: string;
   estado: string;
 }[] = [
-  {
-    title: "Todos los envios",
-    estado: "todos",
-  },
-  {
-    title: "Envios agencia",
-    estado: "oficina",
-  },
-  {
-    title: "Devoluciones",
-    estado: "devolucion",
-  },
-  {
-    title: "Mensajero",
-    estado: "mensajero",
-  },
-  {
-    title: "Entregas",
-    estado: "entregado",
-  },
-];
+    {
+      title: "Todos los envios",
+      estado: "todos",
+    },
+    {
+      title: "Envios agencia",
+      estado: "oficina",
+    },
+    {
+      title: "Devoluciones",
+      estado: "devolucion",
+    },
+    {
+      title: "Mensajero",
+      estado: "mensajero",
+    },
+    {
+      title: "Entregas",
+      estado: "entregado",
+    },
+  ];
 
 export default function BasicTabs() {
   const [value, setValue] = React.useState(0);
@@ -113,7 +113,7 @@ export default function BasicTabs() {
 
   return (
     <Box sx={{ padding: "5%" }}>
-      <Paper>
+      <Paper sx={{ borderRadius: '20px' }}>
         <Box sx={{ width: "100%" }}>
           <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
             <Tabs

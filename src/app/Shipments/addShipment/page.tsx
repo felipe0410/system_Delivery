@@ -211,9 +211,9 @@ const Page = () => {
         <Box id='container-inputs'>
           {inputs.map((input, index) => {
             const style = {
-              width: `${input.whidth}`,
+              width: { xs: '100%', sm: `${input.whidth}` },
               marginLeft:
-                input.whidth === "40%" && [3, 5].includes(index) ? "20%" : "0",
+                { sm: input.whidth === "40%" && [3, 5].includes(index) ? "20%" : "0", }
             };
             const styleTypography = {
               textAlign: "left",
