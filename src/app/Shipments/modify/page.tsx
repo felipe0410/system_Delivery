@@ -150,7 +150,7 @@ const Page = () => {
     textAlign: "left",
     color: "#0A0F37",
     fontFamily: "Nunito",
-    fontSize: "24px",
+    fontSize: { xs: "16px", sm: "24px" },
     fontStyle: "normal",
     fontWeight: 700,
     lineHeight: "normal",
@@ -170,13 +170,13 @@ const Page = () => {
       <SnackbarProvider />
       <Paper
         sx={{
-          maxWidth: "55%",
+          maxWidth: { xs: "75%", sm: "75%", md: "55%" },
           borderRadius: "2.5rem",
           background: "rgba(132, 141, 223, 0.58)",
           boxShadow:
             "0px 4px 4px 0px rgba(0, 0, 0, 0.25), 0px 4px 4px 0px rgba(0, 0, 0, 0.25)",
           padding: "2%",
-          marginTop: "1.5rem",
+          marginTop: { xs: "3.7rem", sm: "1.5rem" },
         }}
       >
         <Box
@@ -211,7 +211,7 @@ const Page = () => {
                 color: "#0A0F37",
                 textAlign: "center",
                 fontFamily: "Nunito",
-                fontSize: "2.5rem",
+                fontSize: { xs: "1.5rem", sm: "2.5rem" },
                 fontStyle: "normal",
                 fontWeight: 900,
                 lineHeight: "normal",
@@ -322,7 +322,7 @@ const Page = () => {
               sx={{
                 display: "flow",
                 width: "30%",
-                padding: "15px",
+                padding: { xs: "8px", sm: "15px" },
                 borderRadius: "40px",
                 background: !isNotEmpty(data) ? "gray" : `${button.background}`,
                 boxShadow:
@@ -331,13 +331,17 @@ const Page = () => {
                 justifyContent: "space-around",
               }}
             >
-              <Box component={"img"} src={button.src} />
+              <Box
+                component={"img"}
+                src={button.src}
+                sx={{ width: { xs: "24px" } }}
+              />
               <Typography
                 sx={{
                   color: "#FFF",
                   textAlign: "center",
                   fontFamily: "Nunito",
-                  fontSize: "0.875rem",
+                  fontSize: { xs: "0.58rem", sm: "0.875rem" },
                   fontStyle: "normal",
                   fontWeight: 700,
                   lineHeight: "normal",

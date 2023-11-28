@@ -15,7 +15,7 @@ const Shipments = () => {
       name: "ENTREGAR",
       icon: (
         <ForwardToInboxOutlinedIcon
-          sx={{ fontSize: { xs: "15vw", sm: "3rem" }, color: "#FFF" }}
+          sx={{ fontSize: { xs: "13vw", sm: "3rem" }, color: "#FFF" }}
         />
       ),
       id: "/Shipments/deliver",
@@ -24,7 +24,7 @@ const Shipments = () => {
       name: "MODIFICAR ENVIO",
       icon: (
         <CachedIcon
-          sx={{ fontSize: { xs: "15vw", sm: "3rem" }, color: "#FFF" }}
+          sx={{ fontSize: { xs: "13vw", sm: "3rem" }, color: "#FFF" }}
         />
       ),
       id: "/Shipments/modify",
@@ -33,7 +33,7 @@ const Shipments = () => {
       name: "AGREGAR ENVIO",
       icon: (
         <ControlPointIcon
-          sx={{ fontSize: { xs: "15vw", sm: "3rem" }, color: "#FFF" }}
+          sx={{ fontSize: { xs: "13vw", sm: "3rem" }, color: "#FFF" }}
         />
       ),
       id: "/Shipments/addShipment",
@@ -42,7 +42,7 @@ const Shipments = () => {
       name: "MENSAJERO",
       icon: (
         <LocalShippingOutlinedIcon
-          sx={{ fontSize: { xs: "15vw", sm: "3rem" }, color: "#FFF" }}
+          sx={{ fontSize: { xs: "13vw", sm: "3rem" }, color: "#FFF" }}
         />
       ),
       id: "/Shipments/mensajero",
@@ -94,7 +94,7 @@ const Shipments = () => {
                     sx={{
                       fontFamily: "Nunito",
                       color: "#FFF",
-                      fontSize: "1.5rem",
+                      fontSize: { xs: "0.9rem", sm: "1.5rem" },
                       fontStyle: "normal",
                       fontWeight: 700,
                     }}
