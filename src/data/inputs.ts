@@ -13,7 +13,7 @@ export const inputs = [
   },
   {
     name: "Valor envío :",
-    type: "number",
+    type: "amount",
     whidth: "40%",
     field: "shippingCost",
   },

@@ -67,6 +67,18 @@ const Sidebar = () => {
       ),
       id: "/TableShipments",
     },
+    {
+      section: "Generar Reporte",
+      icon: (
+        <AssignmentIcon
+          sx={{ fontSize: { sm: "40px" } }}
+          style={{
+            color: pathname.startsWith("/GenerateReport") ? "#0A0F37" : "#fff",
+          }}
+        />
+      ),
+      id: "/GenerateReport",
+    },
   ];
 
   return (
@@ -177,7 +189,7 @@ const Sidebar = () => {
               </Box>
             ))}
             <Box
-              sx={{ marginTop: "100%", position: "absolute", bottom: "30px" }}
+              sx={{ marginTop: "100%", position: "absolute", bottom: "5px" }}
             >
               <Button
                 onClick={async () => {

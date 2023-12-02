@@ -1,12 +1,7 @@
-import {
-  Box,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  TextField,
-} from "@mui/material";
 import React, { useState } from "react";
+import { Box, Dialog, DialogContent, DialogTitle, Button } from "@mui/material";
 import TableModal from "./TableModal";
+import TableModalResponsive from "./TableModalResponsive";
 
 const SearchResultsModal = ({
   open,
@@ -21,8 +16,8 @@ const SearchResultsModal = ({
 }) => {
   const [statusFilter, setStatusFilter] = useState("all");
 
-  const handleStatusFilterChange = (event: any) => {
-    setStatusFilter(event.target.value);
+  const handleStatusFilterChange = (filterValue: string) => {
+    setStatusFilter(filterValue);
   };
 
   const filterDataByStatus = (data: any) => {
@@ -44,30 +39,49 @@ const SearchResultsModal = ({
     });
   };
 
+  const statusOptions = [
+    { value: "entregado", label: "Entregado" },
+    { value: "devolucion", label: "Devolución" },
+    { value: "oficina", label: "Oficina" },
+    { value: "all", label: "Todos" },
+  ];
+
   return (
-    <Dialog open={open} onClose={onClose} maxWidth='xl' sx={{ zIndex: "10" }}>
-      <DialogTitle sx={{ display: "flex", justifyContent: "space-evenly" }}>
-        Resultados de la búsqueda
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth='xl'
+      sx={{ zIndex: "10" }}
+      PaperProps={{ style: { borderRadius: "2.5rem" } }}
+    >
+      <DialogTitle sx={{ textAlign: "center" }}>
         <Box>
-          <TextField
-            select
-            SelectProps={{
-              native: true,
-            }}
-            label='Filtrar por Estado'
-            value={statusFilter}
-            onChange={handleStatusFilterChange}
-            style={{ marginLeft: "20px" }}
-          >
-            <option value='all'>Todos</option>
-            <option value='entregado'>Entregado</option>
-            <option value='devolucion'>Devolución</option>
-            <option value='oficina'>Oficina</option>
-          </TextField>
+          {statusOptions.map((option) => (
+            <Button
+              key={option.value}
+              variant='text'
+              onClick={() => handleStatusFilterChange(option.value)}
+              style={{
+                margin: "0 5px",
+                borderRadius: "2.5rem",
+                background:
+                  statusFilter === option.value ? "#0A0F37" : "transparent",
+                color: statusFilter === option.value ? "#FFFFFF" : "#0A0F37",
+                border: "none",
+              }}
+            >
+              {option.label}
+            </Button>
+          ))}
         </Box>
       </DialogTitle>
       <DialogContent>
-        <TableModal data={filterDataByStatus(filterData())} />
+        <Box display={{ xs: "none", sm: "block" }}>
+          <TableModal data={filterDataByStatus(filterData())} />
+        </Box>
+        <Box display={{ sm: "none", xs: "block" }}>
+          <TableModalResponsive data={filterDataByStatus(filterData())} />
+        </Box>
       </DialogContent>
     </Dialog>
   );

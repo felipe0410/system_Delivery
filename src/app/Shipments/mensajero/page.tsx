@@ -19,6 +19,7 @@ import { SnackbarProvider, enqueueSnackbar } from "notistack";
 import InputAdornment from "@mui/material/InputAdornment";
 import SearchIcon from "@mui/icons-material/Search";
 import { inputs } from "@/data/inputs";
+import { NumericFormat } from "react-number-format";
 
 const Page = () => {
   const dataDefault = {
@@ -321,6 +322,24 @@ const Page = () => {
                 </Select>
               </Box>
             );
+
+            const amountInput = (
+              <NumericFormat
+                onChange={(e: any) =>
+                  inputOnChange(input.field, e.target.value)
+                }
+                value={data["shippingCost"]}
+                prefix='$ '
+                thousandSeparator
+                customInput={OutlinedInput}
+                sx={{
+                  borderRadius: "40px",
+                  background: "rgba(255, 255, 255, 0.77)",
+                  boxShadow: "0px 4px 4px 0px rgba(0, 0, 0, 0.25)",
+                  height: "3rem",
+                }}
+              />
+            );
             return (
               <React.Fragment key={crypto.randomUUID()}>
                 <FormControl
@@ -333,6 +352,8 @@ const Page = () => {
                   <Typography sx={styleTypography}>{input.name}</Typography>
                   {input.type === "select" ? (
                     inputSelect
+                  ) : input.type === "amount" ? (
+                    amountInput
                   ) : (
                     <OutlinedInput
                       disabled
