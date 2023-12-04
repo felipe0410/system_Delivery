@@ -380,7 +380,7 @@ const Sing_up = () => {
           <Box>
             {inputs.map((input, index) => {
               return (
-                <Box key={crypto.randomUUID()}>
+                <Box key={index*98}>
                   <Typography
                     sx={{
                       color: "#0A0F37",

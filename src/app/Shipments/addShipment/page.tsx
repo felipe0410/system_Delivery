@@ -41,7 +41,24 @@ const Page = () => {
     updateDate: null,
     modifyBy: null,
   };
-  const [data, setData] = useState<ShipmentData>(dataDefault);
+  const [data, setData] = useState<ShipmentData>({
+    guide: "",
+    addressee: "",
+    shippingCost: "",
+    box: "",
+    packageNumber: "",
+    deliverTo: "oficina",
+    intakeDate: null,
+    status: null,
+    returnDate: null,
+    deliveryDate: null,
+    courierAttempt1: null,
+    courierAttempt2: null,
+    courierAttempt3: null,
+    updateDate: null,
+    modifyBy: null,
+  });
+  console.log(data)
   const [petition, setPetition] = useState(0);
   const isNotEmpty = (fields: any) => {
     for (const value in fields) {
@@ -130,6 +147,7 @@ const Page = () => {
   };
 
   useEffect(() => {
+    console.log('enntro aqui')
     setData({
       ...data,
       intakeDate: getCurrentDateTime(),
@@ -138,6 +156,7 @@ const Page = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   useEffect(() => {
+    console.log('enntro aqui2')
     const allData = async () => {
       const allData: ShipmentData[] = await getAllShipmentsData();
       const array: any = [];
@@ -160,6 +179,8 @@ const Page = () => {
     allData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [petition]);
+
+
 
   return (
     <Box
@@ -268,10 +289,14 @@ const Page = () => {
             );
             const amountInput = (
               <NumericFormat
-                onChange={(e: any) =>
-                  inputOnChange(input.field, e.target.value)
+                onChange={(e: any) => {
+                  setData((prevData) => ({
+                    ...prevData,
+                    shippingCost: e.target.value,
+                  }));
                 }
-                value={data["shippingCost"]}
+                }
+                value={data.shippingCost}
                 prefix='$ '
                 thousandSeparator
                 customInput={OutlinedInput}
@@ -284,7 +309,7 @@ const Page = () => {
               />
             );
             return (
-              <React.Fragment key={crypto.randomUUID()}>
+              <React.Fragment key={index * 123}>
                 <FormControl sx={style} variant='outlined'>
                   <Typography sx={styleTypography}>{input.name}</Typography>
                   {input.type === "select" ? (
@@ -292,19 +317,21 @@ const Page = () => {
                   ) : input.type === "amount" ? (
                     amountInput
                   ) : (
-                    <OutlinedInput
-                      value={data[input.field]}
-                      onChange={(e) =>
-                        inputOnChange(input.field, e.target.value)
-                      }
-                      type={input.type}
-                      sx={{
-                        borderRadius: "40px",
-                        background: "rgba(255, 255, 255, 0.77)",
-                        boxShadow: "0px 4px 4px 0px rgba(0, 0, 0, 0.25)",
-                        height: "3rem",
-                      }}
-                    />
+                    <>
+                      <OutlinedInput
+                        value={data[input.field]}
+                        onChange={(e) =>
+                          inputOnChange(input.field, e.target.value)
+                        }
+                        type={input.type}
+                        sx={{
+                          borderRadius: "40px",
+                          background: "rgba(255, 255, 255, 0.77)",
+                          boxShadow: "0px 4px 4px 0px rgba(0, 0, 0, 0.25)",
+                          height: "3rem",
+                        }}
+                      />
+                    </>
                   )}
                 </FormControl>
               </React.Fragment>

@@ -12,6 +12,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import { collection, onSnapshot, query } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import SearchResultsModal from "./SearchResultsModal";
+import SearchAutocomplete from "./SearchAutocomplete";
 
 function Header() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -100,6 +101,7 @@ function Header() {
               placeholder='Buscar'
               onKeyDown={handleKeyPress}
             />
+            {/* <SearchAutocomplete /> */}
             <Avatar
               sx={{
                 width: 56,

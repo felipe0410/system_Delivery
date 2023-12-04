@@ -1,5 +1,4 @@
 import Header from "@/components/Header";
-import Menu from "@/components/Menu";
 import Sidebar from "@/components/Sidebar";
 import { Box } from "@mui/material";
 import type { Metadata } from "next";
