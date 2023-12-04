@@ -1,29 +1,31 @@
 "use client";
-import {
-  Box,
-  Button,
-  FormControl,
-  MenuItem,
-  OutlinedInput,
-  Paper,
-  Select,
-  Typography,
-} from "@mui/material";
+import { Box, Paper, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import Image from "next/image";
 import imgBack from "/public/images/af4e63708de6ec3a46f9cfb41f4c5075.png";
-import {
-  getAllShipmentsData,
-  getShipmentData,
-  shipments,
-} from "@/firebase/firebase";
+import { getAllShipmentsData } from "@/firebase/firebase";
 import { SnackbarProvider, enqueueSnackbar } from "notistack";
-import { inputs } from "@/data/inputs";
-import { NumericFormat } from "react-number-format";
+import Autocomplete from "@mui/material/Autocomplete";
+import TextField from "@mui/material/TextField";
+import DocumentScannerOutlinedIcon from "@mui/icons-material/DocumentScannerOutlined";
+import TableReport from "@/components/TableReport";
 
 const Page = () => {
+  const [firebaseData, setFirebaseData] = useState<{ [x: string]: any }[]>([]);
+  const [tagsValue, setTagsValue] = useState<{ [x: string]: any }[]>([]);
+
+  useEffect(() => {
+    const getFirebaseData = async () => {
+      try {
+        const dataRef = await getAllShipmentsData();
+        setFirebaseData(dataRef);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    getFirebaseData();
+  }, []);
+
   return (
     <Box
       sx={{
@@ -32,36 +34,21 @@ const Page = () => {
         alignItems: "center",
         justifyContent: "center",
       }}
-      id='container_add_send'
     >
       <SnackbarProvider />
       <Paper
         sx={{
-          maxWidth: { xs: "75%", sm: "75%", md: "55%" },
           borderRadius: "2.5rem",
-          background: "rgba(132, 141, 223, 0.58)",
+          background: "rgba(92, 104, 212, 0.33)",
           boxShadow:
             "0px 4px 4px 0px rgba(0, 0, 0, 0.25), 0px 4px 4px 0px rgba(0, 0, 0, 0.25)",
           padding: "2%",
-          marginTop: { xs: "2.5rem", sm: "1.5rem" },
+          marginTop: "1.5rem",
+          minWidth: "46.625rem",
+          minHeight: "17.8125rem",
         }}
       >
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "flex-end",
-            marginBottom: "-6%",
-            marginRight: "3%",
-          }}
-        ></Box>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
+        <Box sx={{ textAlign: "-webkit-center" }}>
           <Box>
             <Typography
               sx={{
@@ -77,8 +64,42 @@ const Page = () => {
               GENERAR REPORTE
             </Typography>
           </Box>
+          <Box mt={2} width={"39.5625rem"}>
+            <Typography
+              sx={{
+                color: "#000",
+                textAlign: "center",
+                fontFamily: "Nunito",
+                fontSize: "1.25rem",
+                fontStyle: "normal",
+                fontWeight: 600,
+                lineHeight: "normal",
+              }}
+            >
+              A cotinucacion ESCANEE las guias que desea descargar en formato
+              excel.
+            </Typography>
+          </Box>
+          <Autocomplete
+            multiple
+            id='tags-outlined'
+            options={firebaseData}
+            getOptionLabel={(option) => option.guide}
+            value={tagsValue}
+            onChange={(event, newValue) => {
+              setTagsValue(newValue);
+            }}
+            filterSelectedOptions
+            renderInput={(params) => (
+              <TextField {...params} placeholder='Favorites' />
+            )}
+            popupIcon={<DocumentScannerOutlinedIcon />}
+            sx={{ width: "60%", marginTop: "1rem" }}
+          />
         </Box>
-        <Box id='container-inputs'></Box>
+        <Box id='container-table' mt={4}>
+          <TableReport data={tagsValue} />
+        </Box>
       </Paper>
       <Box
         sx={{
