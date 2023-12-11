@@ -58,7 +58,6 @@ const Page = () => {
     updateDate: null,
     modifyBy: null,
   });
-  console.log(data)
   const [petition, setPetition] = useState(0);
   const isNotEmpty = (fields: any) => {
     for (const value in fields) {
@@ -86,7 +85,6 @@ const Page = () => {
   const createOnClickHandler = async (status: string) => {
     try {
       const existingGuide = await getShipmentData(data.guide);
-
       if (existingGuide) {
         enqueueSnackbar("La guía ya existe", {
           variant: "error",

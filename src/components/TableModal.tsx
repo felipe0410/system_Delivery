@@ -140,9 +140,16 @@ const TableModal = ({ data }: { [x: string]: any }) => {
   ];
 
   return (
-    <>
+    <Box
+      id='container table'
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-around',
+        height: '100%'
+      }}>
       <SnackbarProvider />
-      {data.length === 0 ? (
+      {data?.length === 0 ? (
         <Typography variant='h6' align='center' mt={3}>
           No se encontraron datos.
         </Typography>
@@ -171,7 +178,7 @@ const TableModal = ({ data }: { [x: string]: any }) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {data.map((row: any) => (
+              {data?.map((row: any) => (
                 <StyledTableRow
                   key={row.uid}
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
@@ -216,8 +223,8 @@ const TableModal = ({ data }: { [x: string]: any }) => {
               display: "flow",
               width: "25%",
               padding: "10px",
-              borderRadius: "40px",
-              background: button.background,
+              borderRadius: "20px",
+              background: '#5C68D4',
               boxShadow:
                 "0px 4px 4px 0px rgba(0, 0, 0, 0.25), 0px 4px 4px 0px rgba(0, 0, 0, 0.25)",
               textAlign: "center",
@@ -241,7 +248,7 @@ const TableModal = ({ data }: { [x: string]: any }) => {
           </Button>
         ))}
       </Box>
-    </>
+    </Box>
   );
 };
 

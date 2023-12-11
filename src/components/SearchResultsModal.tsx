@@ -2,17 +2,20 @@ import React, { useState } from "react";
 import { Box, Dialog, DialogContent, DialogTitle, Button } from "@mui/material";
 import TableModal from "./TableModal";
 import TableModalResponsive from "./TableModalResponsive";
+import TableSearch from "./tableShearch";
 
 const SearchResultsModal = ({
   open,
   onClose,
   data,
   searchTerm,
+  setSearchTerm
 }: {
   open: boolean;
   onClose: any;
   data: any;
   searchTerm: string;
+  setSearchTerm: any
 }) => {
   const [statusFilter, setStatusFilter] = useState("all");
 
@@ -24,19 +27,21 @@ const SearchResultsModal = ({
     if (statusFilter === "all") {
       return data;
     }
-    return data.filter((item: any) => item.status === statusFilter);
+    return data?.filter((item: any) => item.status === statusFilter);
   };
 
   const filterData = () => {
-    return data.filter((item: any) => {
-      const guideMatches = item.guide.includes(searchTerm);
-      const statusMatches = item.status.includes(searchTerm);
-      const addresseeMatches = item.addressee
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase());
-
-      return guideMatches || statusMatches || addresseeMatches;
-    });
+    if (searchTerm) {
+      return data.filter((item: any) => {
+        const guideMatches = item.guide.includes(searchTerm);
+        const statusMatches = item.status.includes(searchTerm);
+        const addresseeMatches = item.addressee
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase());
+        return guideMatches || statusMatches || addresseeMatches;
+      });
+    }
+    return data
   };
 
   const statusOptions = [
@@ -48,11 +53,18 @@ const SearchResultsModal = ({
 
   return (
     <Dialog
+      id='dialog'
       open={open}
       onClose={onClose}
       maxWidth='xl'
       sx={{ zIndex: "10" }}
-      PaperProps={{ style: { borderRadius: "2.5rem" } }}
+      PaperProps={{
+        style: {
+          borderRadius: "2.5rem",
+          width: '80%',
+          height: '80%'
+        }
+      }}
     >
       <DialogTitle sx={{ textAlign: "center" }}>
         <Box>
@@ -75,8 +87,9 @@ const SearchResultsModal = ({
           ))}
         </Box>
       </DialogTitle>
+      <TableSearch searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
       <DialogContent>
-        <Box display={{ xs: "none", sm: "block" }}>
+        <Box display={{ xs: "none", sm: "block" }} sx={{ height: '100%' }}>
           <TableModal data={filterDataByStatus(filterData())} />
         </Box>
         <Box display={{ sm: "none", xs: "block" }}>

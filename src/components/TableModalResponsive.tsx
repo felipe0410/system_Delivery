@@ -94,7 +94,7 @@ export default function TableModalResponsive({ data }: { [x: string]: any }) {
   return (
     <>
       <SnackbarProvider />
-      {data.length === 0 ? (
+      {data?.length === 0 ? (
         <Typography variant='h6' align='center' mt={3}>
           No se encontraron datos.
         </Typography>
@@ -114,7 +114,7 @@ export default function TableModalResponsive({ data }: { [x: string]: any }) {
               </TableRow>
             </TableHead>
             <TableBody>
-              {data.map((row: any) => (
+              {data?.map((row: any) => (
                 <React.Fragment key={row.uid}>
                   <StyledTableRow>
                     <StyledTableCell>

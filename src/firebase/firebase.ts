@@ -12,6 +12,7 @@ import {
   getDoc,
   getDocs,
   getFirestore,
+  onSnapshot,
   setDoc,
   updateDoc,
 } from "firebase/firestore";
@@ -158,6 +159,23 @@ export const getAllShipmentsData = async () => {
     });
     console.log(shipmentsData);
     return shipmentsData;
+  } catch (error) {
+    console.error("Error al obtener la información de la colección: ", error);
+    return null;
+  }
+};
+
+export const getAllShipmentsDataRealTime = (callback: (arg0: any[]) => void) => {
+  try {
+    const shipmentsCollectionRef = collection(db, "envios");
+    const shipmentsData: any[] = [];
+    onSnapshot(shipmentsCollectionRef, (querySnapshot) => {
+      querySnapshot.forEach((doc) => {
+        shipmentsData.push(doc.data());
+      });
+      callback(shipmentsData);
+    });
+    return shipmentsData
   } catch (error) {
     console.error("Error al obtener la información de la colección: ", error);
     return null;
