@@ -7,7 +7,6 @@ import SearchIcon from "@mui/icons-material/Search";
 
 export default function TableSearch({ searchTerm, setSearchTerm }: { searchTerm: any, setSearchTerm: any }) {
     const [value, setValue] = React.useState<any>(null);
-    // const [searchTerm, setSearchTerm] = React.useState("");
     const [modalOpen, setModalOpen] = React.useState(false);
     const [firebaseData, setFirebaseData] = React.useState<
         { [x: string]: any }[]
