@@ -11,7 +11,7 @@ import { styled } from "@mui/material/styles";
 import TableCell, { tableCellClasses } from "@mui/material/TableCell";
 import { useEffect, useState } from "react";
 
-export default function BasicTable({ tableData }: { [x: string]: any }) {
+export default function BasicTable2({ tableData }: { [x: string]: any }) {
   const [result, setResult] = useState([]);
   const [search, setsearch] = useState({});
 

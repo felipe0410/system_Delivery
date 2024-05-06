@@ -21,8 +21,9 @@ import Image from "next/image";
 import logo from "/public/images/logo.svg";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { singOut } from "@/firebase/firebase";
-import { Cookies, useCookies } from "react-cookie";
+import { useCookies } from "react-cookie";
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
+import QrCodeIcon from "@mui/icons-material/QrCode";
 
 const Sidebar = () => {
   const [open, setOpen] = useState(false);
@@ -36,12 +37,24 @@ const Sidebar = () => {
       section: "Inicio",
       icon: (
         <HomeIcon
-          id='content icon home'
+          id="content icon home"
           sx={{ fontSize: { sm: "40px" } }}
           style={{ color: pathname === "/" ? "#0A0F37" : "#fff" }}
         />
       ),
       id: "/",
+    },
+    {
+      section: "Scanear envios",
+      icon: (
+        <QrCodeIcon
+          sx={{ fontSize: { sm: "40px" } }}
+          style={{
+            color: pathname.startsWith("/getData") ? "#0A0F37" : "#fff",
+          }}
+        />
+      ),
+      id: "/getData",
     },
     {
       section: "Envios",
@@ -87,9 +100,9 @@ const Sidebar = () => {
         <MenuRoundedIcon sx={{ color: "#0A0F37C2", fontSize: "35px" }} />
       </Button>
       <SwipeableDrawer
-        id='Drawer'
+        id="Drawer"
         variant={matchesSM ? undefined : "permanent"}
-        anchor='left'
+        anchor="left"
         open={open}
         onClose={() => setOpen(false)}
         onOpen={() => setOpen(true)}
@@ -110,7 +123,7 @@ const Sidebar = () => {
           }}
         >
           <Box
-            id='containerIMG'
+            id="containerIMG"
             sx={{
               textAlignLast: "center",
               marginTop: "30px",
@@ -119,7 +132,7 @@ const Sidebar = () => {
           >
             <Image
               style={{ width: "80%", height: "auto" }}
-              alt='company-logo'
+              alt="company-logo"
               src={logo}
             />
             <Box sx={{ textAlign: "-webkit-center", marginBottom: "20px" }}>
@@ -130,7 +143,7 @@ const Sidebar = () => {
               />
             </Box>
           </Box>
-          <Box id='containerSections'>
+          <Box id="containerSections">
             {sections.map((section: any) => (
               <Box sx={{ marginY: "40px" }} key={crypto.randomUUID()}>
                 <Link
