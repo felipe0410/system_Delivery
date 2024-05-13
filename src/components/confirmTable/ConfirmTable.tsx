@@ -298,7 +298,7 @@ const ConfirmTable = ({ data }: { [x: string]: any }) => {
             boxShadow:
               "0px 4px 4px 0px rgba(0, 0, 0, 0.25), 0px 4px 4px 0px rgba(0, 0, 0, 0.25)",
             textAlign: "center",
-            "&:hover": { backgroundColor: "#3943a1" },
+            "&:hover": { backgroundColor: "#364094" },
           }}
         >
           <Typography
