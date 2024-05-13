@@ -15,6 +15,7 @@ import {
 import { usePathname } from "next/navigation";
 import HomeIcon from "@mui/icons-material/Home";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
+import ContentPasteGoIcon from "@mui/icons-material/ContentPasteGo";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import Link from "next/link";
 import Image from "next/image";
@@ -37,7 +38,7 @@ const Sidebar = () => {
       section: "Inicio",
       icon: (
         <HomeIcon
-          id="content icon home"
+          id='content icon home'
           sx={{ fontSize: { sm: "40px" } }}
           style={{ color: pathname === "/" ? "#0A0F37" : "#fff" }}
         />
@@ -92,6 +93,18 @@ const Sidebar = () => {
       ),
       id: "/GenerateReport",
     },
+    {
+      section: "Confirmar Datos",
+      icon: (
+        <ContentPasteGoIcon
+          sx={{ fontSize: { sm: "40px" } }}
+          style={{
+            color: pathname.startsWith("/confirmData") ? "#0A0F37" : "#fff",
+          }}
+        />
+      ),
+      id: "/confirmData",
+    },
   ];
 
   return (
@@ -100,9 +113,9 @@ const Sidebar = () => {
         <MenuRoundedIcon sx={{ color: "#0A0F37C2", fontSize: "35px" }} />
       </Button>
       <SwipeableDrawer
-        id="Drawer"
+        id='Drawer'
         variant={matchesSM ? undefined : "permanent"}
-        anchor="left"
+        anchor='left'
         open={open}
         onClose={() => setOpen(false)}
         onOpen={() => setOpen(true)}
@@ -123,7 +136,7 @@ const Sidebar = () => {
           }}
         >
           <Box
-            id="containerIMG"
+            id='containerIMG'
             sx={{
               textAlignLast: "center",
               marginTop: "30px",
@@ -132,7 +145,7 @@ const Sidebar = () => {
           >
             <Image
               style={{ width: "80%", height: "auto" }}
-              alt="company-logo"
+              alt='company-logo'
               src={logo}
             />
             <Box sx={{ textAlign: "-webkit-center", marginBottom: "20px" }}>
@@ -143,9 +156,9 @@ const Sidebar = () => {
               />
             </Box>
           </Box>
-          <Box id="containerSections">
+          <Box id='containerSections'>
             {sections.map((section: any) => (
-              <Box sx={{ marginY: "40px" }} key={crypto.randomUUID()}>
+              <Box sx={{ marginY: "2px" }} key={crypto.randomUUID()}>
                 <Link
                   href={section.id}
                   style={{ textDecoration: "none", color: "#0A0F37" }}
@@ -215,8 +228,8 @@ const Sidebar = () => {
                   display: "flex",
                   justifyContent: "space-around",
                   width: "90%",
-                  marginLeft: { xs: "7px", sm: "10px" },
-                  padding: { sm: "20px" },
+                  marginLeft: { xs: "7px", sm: "10px", lg: "15px" },
+                  padding: { sm: "20px", md: "10px", lg: "10px" },
                 }}
               >
                 <LogoutIcon
