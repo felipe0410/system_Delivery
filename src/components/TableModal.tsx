@@ -143,11 +143,12 @@ const TableModal = ({ data }: { [x: string]: any }) => {
     <Box
       id='container table'
       sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-around',
-        height: '100%'
-      }}>
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-around",
+        height: "100%",
+      }}
+    >
       <SnackbarProvider />
       {data?.length === 0 ? (
         <Typography variant='h6' align='center' mt={3}>
@@ -224,7 +225,7 @@ const TableModal = ({ data }: { [x: string]: any }) => {
               width: "25%",
               padding: "10px",
               borderRadius: "20px",
-              background: '#5C68D4',
+              background: "#5C68D4",
               boxShadow:
                 "0px 4px 4px 0px rgba(0, 0, 0, 0.25), 0px 4px 4px 0px rgba(0, 0, 0, 0.25)",
               textAlign: "center",
