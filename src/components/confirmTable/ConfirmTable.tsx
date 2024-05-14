@@ -14,6 +14,7 @@ import {
   Select,
   OutlinedInput,
   IconButton,
+  TextField,
 } from "@mui/material";
 import Paper from "@mui/material/Paper";
 import { enqueueSnackbar, SnackbarProvider } from "notistack";
@@ -24,44 +25,16 @@ import { NumericFormat } from "react-number-format";
 import SaveIcon from "@mui/icons-material/Save";
 
 const ConfirmTable = ({ data }: { [x: string]: any }) => {
-  const [selectedRows, setSelectedRows] = useState<string[]>([]);
-  const [editedData, setEditedData] = useState<{ [key: string]: any }>({});
-
+  const [selectedRows, setSelectedRows] = useState<any>([]);
   const inputOnChange = (field: string, value: string) => {
-    setEditedData({ ...editedData, [field]: value });
+    setSelectedRows({ ...selectedRows, [field]: value });
   };
-
-  const handleRowSelection = (rowUid: string) => {
-    if (selectedRows.includes(rowUid)) {
-      setSelectedRows([]);
-      setEditedData({});
-    } else {
-      setSelectedRows([rowUid]);
-      const selectedRowData = data.find((row: any) => row.uid === rowUid);
-      setEditedData(selectedRowData);
-    }
-  };
-
-  console.log(editedData);
-
-  const StyledChip = styled(Chip)(
-    ({ theme }) => `
-					.MuiChip-label {
-						color: #FFF;
-						font-family: Nunito;
-						font-size: 0.875rem;
-						font-style: normal;
-						font-weight: 500;
-						line-height: normal;
-					}
-			`
-  );
 
   const inputSelect = (
     <Box>
       <Select
         onChange={(e: any) => inputOnChange("pago", e.target.value)}
-        value={editedData["pago"]}
+        value={selectedRows["pago"]}
         sx={{
           width: "100%",
           borderRadius: "40px",
@@ -80,8 +53,8 @@ const ConfirmTable = ({ data }: { [x: string]: any }) => {
   const amountInput = (
     <NumericFormat
       onChange={(e: any) => inputOnChange("shippingCost", e.target.value)}
-      value={editedData["shippingCost"]}
-      prefix='$ '
+      value={selectedRows["shippingCost"]}
+      prefix="$ "
       thousandSeparator
       customInput={OutlinedInput}
       sx={{
@@ -95,9 +68,9 @@ const ConfirmTable = ({ data }: { [x: string]: any }) => {
 
   const outlinedBox = (
     <OutlinedInput
-      value={editedData["box"]}
+      value={selectedRows["box"]}
       onChange={(e) => inputOnChange("box", e.target.value)}
-      type='text'
+      type="text"
       sx={{
         borderRadius: "40px",
         background: "rgba(255, 255, 255, 0.77)",
@@ -109,9 +82,8 @@ const ConfirmTable = ({ data }: { [x: string]: any }) => {
 
   const outlinedPackage = (
     <OutlinedInput
-      value={editedData["packageNumber"]}
+      value={selectedRows["packageNumber"]}
       onChange={(e) => inputOnChange("packageNumber", e.target.value)}
-      type='text'
       sx={{
         borderRadius: "40px",
         background: "rgba(255, 255, 255, 0.77)",
@@ -144,7 +116,7 @@ const ConfirmTable = ({ data }: { [x: string]: any }) => {
 
   return (
     <Box
-      id='container table'
+      id="container table"
       sx={{
         display: "flex",
         flexDirection: "column",
@@ -154,7 +126,7 @@ const ConfirmTable = ({ data }: { [x: string]: any }) => {
     >
       <SnackbarProvider />
       {data?.length === 0 ? (
-        <Typography variant='h6' align='center' mt={3}>
+        <Typography variant="h6" align="center" mt={3}>
           No se encontraron datos.
         </Typography>
       ) : (
@@ -162,40 +134,40 @@ const ConfirmTable = ({ data }: { [x: string]: any }) => {
           component={Paper}
           sx={{ maxHeight: "400px", overflowY: "auto", borderRadius: "20px" }}
         >
-          <Table sx={{ minWidth: 650 }} aria-label='simple table'>
+          <Table sx={{ minWidth: 650 }} aria-label="simple table">
             <TableHead sx={{ background: "#3C47A3" }}>
               <TableRow>
                 <TableCell sx={{ color: "#fff" }}></TableCell>
                 <TableCell sx={{ color: "#fff" }}># Guía</TableCell>
-                <TableCell sx={{ color: "#fff" }} align='left'>
+                <TableCell sx={{ color: "#fff" }} align="left">
                   Nombre
                 </TableCell>
-                <TableCell sx={{ color: "#fff" }} align='center'>
+                <TableCell sx={{ color: "#fff" }} align="center">
                   Estado
                 </TableCell>
-                <TableCell sx={{ color: "#fff" }} align='center'>
+                <TableCell sx={{ color: "#fff" }} align="center">
                   Paquete
                 </TableCell>
-                <TableCell sx={{ color: "#fff" }} align='center'>
+                <TableCell sx={{ color: "#fff" }} align="center">
                   Caja
                 </TableCell>
-                <TableCell sx={{ color: "#fff" }} align='center'>
+                <TableCell sx={{ color: "#fff" }} align="center">
                   Pago
                 </TableCell>
-                <TableCell sx={{ color: "#fff" }} align='center'>
+                <TableCell sx={{ color: "#fff" }} align="center">
                   Valor
                 </TableCell>
-                <TableCell sx={{ color: "#fff" }} align='center'>
+                <TableCell sx={{ color: "#fff" }} align="center">
                   Celular
                 </TableCell>
                 {selectedRows.length > 0 ? (
-                  <TableCell align='right'></TableCell>
+                  <TableCell align="right"></TableCell>
                 ) : null}
               </TableRow>
             </TableHead>
             <TableBody>
               {data?.map((row: any) => {
-                const isSelected = selectedRows.includes(row.uid);
+                const isSelected = selectedRows?.uid === row.uid;
                 const destinatario = row.destinatario;
                 return (
                   <StyledTableRow
@@ -204,38 +176,58 @@ const ConfirmTable = ({ data }: { [x: string]: any }) => {
                   >
                     <StyledTableCell>
                       <Checkbox
-                        checked={selectedRows.includes(row.uid)}
-                        onChange={() => handleRowSelection(row.uid)}
+                        checked={selectedRows?.uid === row.uid}
+                        onChange={() => {
+                          setSelectedRows(row);
+                          console.log(row);
+                        }}
                       />
                     </StyledTableCell>
-                    <StyledTableCell component='th' scope='row'>
+                    <StyledTableCell component="th" scope="row">
                       {row.guide}
                     </StyledTableCell>
-                    <StyledTableCell align='left'>
+                    <StyledTableCell align="left">
                       {row.addressee}
                     </StyledTableCell>
-                    <StyledTableCell align='right'>
+                    <StyledTableCell align="right">
                       {row.status}
                     </StyledTableCell>
-                    <StyledTableCell align='right'>
+                    <StyledTableCell align="right">
                       {isSelected
-                        ? outlinedPackage
+                        ? "outlinedPackage"
                         : row.packageNumber === null
                         ? "0"
                         : row.packageNumber}
                     </StyledTableCell>
-                    <StyledTableCell align='right'>
-                      {isSelected
-                        ? outlinedBox
-                        : row.box === null
-                        ? "0"
-                        : row.box}
+                    <StyledTableCell align="right">
+                      {isSelected ? (
+                        <Box>
+                          {
+                            <TextField
+                              id="text-id"
+                              label="hola"
+                              value={selectedRows.box}
+                              onChange={(e) => {
+                                setSelectedRows({
+                                  ...selectedRows,
+                                  box: e.target.value,
+                                });
+                                console.log(e.target.value);
+                              }}
+                            />
+                          }
+                        </Box>
+                      ) : row.box === null ? (
+                        "0"
+                      ) : (
+                        row.box
+                      )}
                     </StyledTableCell>
-                    <StyledTableCell align='right'>
+                    <StyledTableCell align="right">
                       {isSelected ? (
                         inputSelect
                       ) : (
-                        <StyledChip
+                        <Chip
                           sx={{
                             display: row.pago === undefined ? "none" : "block",
                             m: 1,
@@ -247,25 +239,25 @@ const ConfirmTable = ({ data }: { [x: string]: any }) => {
                                 ? "#545B58"
                                 : "#106D14",
                           }}
-                          variant='outlined'
+                          variant="outlined"
                           label={row.pago}
                         />
                       )}
                     </StyledTableCell>
-                    <StyledTableCell align='right'>
+                    <StyledTableCell align="right">
                       {isSelected
-                        ? amountInput
+                        ? "amountInput"
                         : row.shippingCost === null
                         ? "0"
                         : row.shippingCost}
                     </StyledTableCell>
-                    <StyledTableCell align='right'>
+                    <StyledTableCell align="right">
                       {destinatario ? destinatario.celular : ""}
                     </StyledTableCell>
                     {isSelected ? (
-                      <StyledTableCell align='right'>
+                      <StyledTableCell align="right">
                         <IconButton
-                          type='button'
+                          type="button"
                           sx={{ p: "10px" }}
                           // onClick={}
                         >

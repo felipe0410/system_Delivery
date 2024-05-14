@@ -1,5 +1,8 @@
 "use client";
 import ConfirmTable from "@/components/confirmTable/ConfirmTable";
+import EnhancedTable from "@/components/confirmTable/table2";
+import CustomizedTables from "@/components/confirmTable/table2";
+import DataTable from "@/components/confirmTable/table2";
 import { getAllShipmentsData } from "@/firebase/firebase";
 import { Box, Paper, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
@@ -41,7 +44,7 @@ const Page = () => {
           minHeight: "17.8125rem",
         }}
       >
-        <Box sx={{ textAlign: "-webkit-center" }}>
+        {/* <Box sx={{ textAlign: "-webkit-center" }}>
           <Box>
             <Typography
               sx={{
@@ -72,9 +75,10 @@ const Page = () => {
               Acontinuacion se presenta los paquetes por confirmar datos
             </Typography>
           </Box>
-        </Box>
-        <Box id='container-table' mt={4}>
-          <ConfirmTable data={firebaseData} />
+        </Box> */}
+        <Box id="container-table" mt={4}>
+          {/* <ConfirmTable data={firebaseData} /> */}
+          <CustomizedTables />
         </Box>
       </Paper>
     </Box>
