@@ -142,7 +142,7 @@ export default function CustomizedTables() {
           ? selectedRows[field]
           : row[field] ?? 0
       }
-      prefix="$ "
+      prefix='$ '
       thousandSeparator
       customInput={InputBase}
       sx={
@@ -313,23 +313,23 @@ export default function CustomizedTables() {
       </Box>
 
       <TableContainer
-        id="container"
+        id='container'
         sx={{ height: "100%", overflowY: "scroll", maxHeight: "700px" }}
         component={Paper}
       >
         <SnackbarProvider />
-        <Table sx={{ minWidth: 700 }} aria-label="customized table">
+        <Table sx={{ minWidth: 700 }} aria-label='customized table'>
           <TableHead>
             <TableRow>
               <StyledTableCell>select</StyledTableCell>
               <StyledTableCell># Guía </StyledTableCell>
-              <StyledTableCell align="left">Nombre</StyledTableCell>
-              <StyledTableCell align="right">#Paquete</StyledTableCell>
-              <StyledTableCell align="right">Caja </StyledTableCell>
-              <StyledTableCell align="right">Pago</StyledTableCell>
-              <StyledTableCell align="right">Valor</StyledTableCell>
-              <StyledTableCell align="right">Celular</StyledTableCell>
-              <StyledTableCell align="right">Acciones</StyledTableCell>
+              <StyledTableCell align='left'>Nombre</StyledTableCell>
+              <StyledTableCell align='right'>#Paquete</StyledTableCell>
+              <StyledTableCell align='right'>Caja </StyledTableCell>
+              <StyledTableCell align='right'>Pago</StyledTableCell>
+              <StyledTableCell align='right'>Valor</StyledTableCell>
+              <StyledTableCell align='right'>Celular</StyledTableCell>
+              <StyledTableCell align='right'>Acciones</StyledTableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -345,19 +345,19 @@ export default function CustomizedTables() {
                     }}
                   />
                 </StyledTableCell>
-                <StyledTableCell component="th" scope="row">
+                <StyledTableCell component='th' scope='row'>
                   {row.uid}
                 </StyledTableCell>
-                <StyledTableCell component="th" scope="row">
+                <StyledTableCell component='th' scope='row'>
                   {row.addressee}
                 </StyledTableCell>
-                <StyledTableCell align="right">
+                <StyledTableCell align='right'>
                   {inputBasePersonal(row, "packageNumber", i)}
                 </StyledTableCell>
-                <StyledTableCell align="right">
+                <StyledTableCell align='right'>
                   {inputBasePersonal(row, "box", i)}
                 </StyledTableCell>
-                <StyledTableCell align="right">
+                <StyledTableCell align='right'>
                   {selectedRows.uid === row.uid && check ? (
                     inputSelect(row)
                   ) : (
@@ -374,19 +374,19 @@ export default function CustomizedTables() {
                             : "#a13e3e",
                         color: "#fff",
                       }}
-                      variant="outlined"
+                      variant='outlined'
                       label={row?.pago ?? "no definido"}
                     />
                   )}
                 </StyledTableCell>
-                <StyledTableCell align="right">
+                <StyledTableCell align='right'>
                   {amountInput(row, "shippingCost")}
                 </StyledTableCell>
-                <StyledTableCell align="right">
+                <StyledTableCell align='right'>
                   {row?.destinatario?.celular ?? ""}
                 </StyledTableCell>
                 <StyledTableCell
-                  align="right"
+                  align='right'
                   sx={{
                     display: "flex",
                     alignItems: "center",
@@ -426,7 +426,7 @@ export default function CustomizedTables() {
                           });
                         }
                       }}
-                      type="button"
+                      type='button'
                       sx={{ p: "10px" }}
                     >
                       <SaveIcon
