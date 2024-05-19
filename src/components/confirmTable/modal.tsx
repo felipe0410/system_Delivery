@@ -3,6 +3,7 @@ import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
+import { useState } from "react";
 
 const style = {
   position: "absolute" as "absolute",
@@ -19,14 +20,65 @@ const style = {
 };
 
 export default function ModalComponent({
+  data,
   numPackages,
   totalPackages,
   base,
+  isDomicilary,
 }: {
+  data: any;
   numPackages: string;
   totalPackages: string;
   base: string;
+  isDomicilary: boolean;
 }) {
+  const [value, setValue] = useState({});
+
+  const processData = () => {
+    const processedData = data.map((item: any, index: number) => {
+      return {
+        ...item,
+        packageNumber: index + 1,
+      };
+    });
+
+    const numPackages = processedData.length;
+
+    const totalPackages = processedData.reduce(
+      (acc: any, item: { pago: string; valor: any }) => {
+        const pagoNormalized = item.pago.replace(/\s+/g, "").toLowerCase();
+        if (pagoNormalized === "alcobro") {
+          return acc + item.valor;
+        }
+        return acc;
+      },
+      0
+    );
+
+    const formatNumber = (num: {
+      toLocaleString: (
+        arg0: string,
+        arg1: { style: string; minimumFractionDigits: number }
+      ) => any;
+    }) => {
+      return num.toLocaleString("es-CO", {
+        style: "decimal",
+        minimumFractionDigits: 0,
+      });
+    };
+
+    const formattedTotalPackages = formatNumber(totalPackages);
+
+    return {
+      processedData,
+      numPackages,
+      totalPackages: formattedTotalPackages,
+    };
+  };
+
+  console.log(processData());
+
+  console.log("data", data);
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => {
     setOpen(true);
@@ -120,11 +172,16 @@ export default function ModalComponent({
               color: "#002A96",
             }}
           >
-            ESTAS SEGURO DE FINALIZAR LOS PAQUETES DEL MENSAJERO ?
+            {isDomicilary
+              ? "¿ESTAS SEGURO DE FINALIZAR LOS PAQUETES DEL MENSAJERO ?"
+              : "¿ESTAS SEGURO DE FINALIZAR LOS PAQUETES DE LA OFICINA ? "}
           </Typography>
           <Box sx={{ display: "flex" }}>
             <Box>
-              <Box component={"img"} src="/delivery.png" />
+              <Box
+                component={"img"}
+                src={isDomicilary ? "/delivery.png" : "/oficina.png"}
+              />
             </Box>
             <Box
               sx={{
@@ -137,7 +194,7 @@ export default function ModalComponent({
               }}
             >
               <Box sx={{ width: "100%" }}>
-                {box("PAQUETES ASIGNADOS:", `${numPackages}`)}
+                {box("PAQUETES ASIGNADOS:", `${data?.length ?? 0}`)}
               </Box>
               <Box sx={{ width: "100%" }}>
                 {box("TOTAL PAQUETES:", `${totalPackages}`)}
