@@ -10,15 +10,23 @@ const style = {
   left: "50%",
   transform: "translate(-50%, -50%)",
   width: 900,
-  bgcolor: "background.paper",
-  border: "2px solid #000",
+  bgcolor: "#fff",
   boxShadow: 24,
+  borderRadius: "40px",
   pt: 2,
   px: 4,
   pb: 3,
 };
 
-export default function ModalComponent() {
+export default function ModalComponent({
+  numPackages,
+  totalPackages,
+  base,
+}: {
+  numPackages: string;
+  totalPackages: string;
+  base: string;
+}) {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => {
     setOpen(true);
@@ -33,14 +41,11 @@ export default function ModalComponent() {
         sx={{ display: "flex", width: "100%", justifyContent: "space-between" }}
       >
         <Typography
-          align="left"
           sx={{
-            textAlign: "left",
-            textAlignLast: "left",
             fontFamily: "Nunito",
-            fontSize: "35px",
-            fontweight: 800,
-            lineHeight: "50.47px",
+            textAlignLast: "left",
+            fontSize: "30px",
+            fontWeight: 800,
             color: "#002A96",
           }}
         >
@@ -56,7 +61,7 @@ export default function ModalComponent() {
             textAlign: "center",
             padding: "10px",
             borderRadius: "30px",
-            width: "100px",
+            width: "170px",
           }}
         >
           {" "}
@@ -68,14 +73,43 @@ export default function ModalComponent() {
 
   return (
     <div>
-      <Button onClick={handleOpen}>Open modal</Button>
+      <Button
+        onClick={() => {
+          setOpen(true);
+        }}
+        sx={{
+          padding: "10px 20px",
+          borderRadius: "40px",
+          background: "#5C68D4",
+          boxShadow:
+            "0px 4px 4px 0px rgba(0, 0, 0, 0.25), 0px 4px 4px 0px rgba(0, 0, 0, 0.25)",
+          textAlign: "center",
+          "&:hover": { backgroundColor: "#364094" },
+        }}
+      >
+        <Typography
+          sx={{
+            color: "#fff",
+            textAlign: "center",
+            fontFamily: "Nunito",
+            fontSize: "1.5rem",
+            fontStyle: "normal",
+            fontWeight: 700,
+            lineHeight: "normal",
+          }}
+        >
+          TERMINAR
+        </Typography>
+      </Button>
       <Modal
+        id="modal"
         open={open}
+        sx={{ borderRadius: "40px" }}
         onClose={handleClose}
         aria-labelledby="parent-modal-title"
         aria-describedby="parent-modal-description"
       >
-        <Box sx={{ ...style, width: "50%" }}>
+        <Box id="content" sx={{ ...style, width: "50%" }}>
           <Typography
             sx={{
               fontFamily: "Nunito",
@@ -95,21 +129,71 @@ export default function ModalComponent() {
             <Box
               sx={{
                 marginLeft: "-60px",
-                background: "red",
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "flex-start",
                 width: "100%",
+                justifyContent: "space-around",
               }}
             >
               <Box sx={{ width: "100%" }}>
-                {box("PAQUETES ASIGNADOS:", "80")}
+                {box("PAQUETES ASIGNADOS:", `${numPackages}`)}
               </Box>
               <Box sx={{ width: "100%" }}>
-                {box("TOTAL PAQUETES:", "$ 2.900.000")}
+                {box("TOTAL PAQUETES:", `${totalPackages}`)}
               </Box>
-              <Box sx={{ width: "100%" }}>{box("BASE:", "$ 50.000")}</Box>
+              <Box sx={{ width: "100%" }}>{box("BASE:", `${base}`)}</Box>
             </Box>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-around",
+            }}
+          >
+            <Button
+              onClick={() => setOpen(false)}
+              sx={{
+                boxShadow: "0px 4px 4px 0px #00000040",
+                background: "#982400",
+                fontFamily: "Nunito",
+                fontSize: "24px",
+                fontWeight: 700,
+                lineHeight: "32.74px",
+                textAlign: "center",
+                color: "#FFF",
+                borderRadius: "20px",
+                padding: "10px",
+                width: "40%",
+                "&:hover": {
+                  opacity: "60%",
+                  background: "#982400",
+                },
+              }}
+            >
+              CANCELAR
+            </Button>
+            <Button
+              sx={{
+                boxShadow: "0px 4px 4px 0px #00000040",
+                background: "#106D14",
+                fontFamily: "Nunito",
+                fontSize: "24px",
+                fontWeight: 700,
+                lineHeight: "32.74px",
+                textAlign: "center",
+                color: "#FFF",
+                borderRadius: "20px",
+                padding: "10px",
+                width: "40%",
+                "&:hover": {
+                  opacity: "60%",
+                  background: "#106D14",
+                },
+              }}
+            >
+              FINALIZAR
+            </Button>
           </Box>
         </Box>
       </Modal>

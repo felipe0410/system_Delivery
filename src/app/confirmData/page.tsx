@@ -22,7 +22,6 @@ const Page = () => {
     getFirebaseData();
   }, []);
 
-  console.log("aqui esta", firebaseData);
   return (
     <Box
       sx={{

@@ -12,6 +12,7 @@ import { getAllShipmentsData, shipments } from "@/firebase/firebase";
 import {
   Box,
   Button,
+  ButtonGroup,
   Checkbox,
   Chip,
   IconButton,
@@ -26,6 +27,7 @@ import { NumericFormat } from "react-number-format";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
 import { SnackbarProvider, enqueueSnackbar } from "notistack";
 import ModalComponent from "./modal";
+import DeliveryModal from "./detailGuide";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -41,7 +43,6 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   "&:nth-of-type(odd)": {
     backgroundColor: theme.palette.action.hover,
   },
-  // hide last border
   "&:last-child td, &:last-child th": {
     border: 0,
   },
@@ -51,6 +52,7 @@ export default function CustomizedTables() {
   const [firebaseData, setFirebaseData] = React.useState<
     { [x: string]: any }[]
   >([]);
+  const [open, setOpen] = useState(false);
   const [selectedRows, setSelectedRows] = useState<any>([]);
   const [allData, setAllData] = useState<any>([]);
   const [check, setCheck] = useState(false);
@@ -227,6 +229,17 @@ export default function CustomizedTables() {
     };
     getFirebaseData();
   }, [sucessFull]);
+
+  const deliveryTo = (opcion: string) => {
+    if (opcion === "ENTREGA EN DIRECCION") {
+      return "DIRECCION";
+    } else if (opcion === "RECLAME EN OFICINA") {
+      return "OFICINA";
+    } else {
+      return "OFICINA";
+    }
+  };
+
   React.useEffect(() => {
     const allData = async () => {
       const allData: ShipmentData[] = await getAllShipmentsData();
@@ -314,7 +327,7 @@ export default function CustomizedTables() {
 
       <TableContainer
         id="container"
-        sx={{ height: "100%", overflowY: "scroll", maxHeight: "700px" }}
+        sx={{ overflowY: "scroll", maxHeight: "50vh" }}
         component={Paper}
       >
         <SnackbarProvider />
@@ -329,11 +342,12 @@ export default function CustomizedTables() {
               <StyledTableCell align="right">Pago</StyledTableCell>
               <StyledTableCell align="right">Valor</StyledTableCell>
               <StyledTableCell align="right">Celular</StyledTableCell>
+              <StyledTableCell align="right">Entregar en:</StyledTableCell>
               <StyledTableCell align="right">Acciones</StyledTableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {firebaseData?.map((row, i) => (
+            {firebaseData?.map((row: any, i) => (
               <StyledTableRow key={row.uid}>
                 <StyledTableCell>
                   <Checkbox
@@ -384,6 +398,22 @@ export default function CustomizedTables() {
                 </StyledTableCell>
                 <StyledTableCell align="right">
                   {row?.destinatario?.celular ?? ""}
+                </StyledTableCell>
+                <StyledTableCell align="right">
+                  <Chip
+                    sx={{
+                      display: "flex",
+                      m: 1,
+                      borderRadius: "3rem",
+                      background:
+                        deliveryTo(row?.deliverTo) === "DIRECCION"
+                          ? "#6D1010"
+                          : "#106d14",
+                      color: "#fff",
+                    }}
+                    variant="outlined"
+                    label={deliveryTo(row?.deliverTo) ?? ""}
+                  />
                 </StyledTableCell>
                 <StyledTableCell
                   align="right"
@@ -450,6 +480,7 @@ export default function CustomizedTables() {
                   >
                     <DoneAllIcon sx={{ color: "#00A907" }} />
                   </Box>
+                  <DeliveryModal data={row} />
                 </StyledTableCell>
               </StyledTableRow>
             ))}
@@ -465,34 +496,11 @@ export default function CustomizedTables() {
           justifyContent: "space-evenly",
         }}
       >
-        <Button
-          onClick={() => {}}
-          sx={{
-            padding: "10px",
-            width: "23%",
-            borderRadius: "40px",
-            background: "#5C68D4",
-            boxShadow:
-              "0px 4px 4px 0px rgba(0, 0, 0, 0.25), 0px 4px 4px 0px rgba(0, 0, 0, 0.25)",
-            textAlign: "center",
-            "&:hover": { backgroundColor: "#364094" },
-          }}
-        >
-          <ModalComponent />
-          <Typography
-            sx={{
-              color: "#0A0F37",
-              textAlign: "center",
-              fontFamily: "Nunito",
-              fontSize: "1.5rem",
-              fontStyle: "normal",
-              fontWeight: 700,
-              lineHeight: "normal",
-            }}
-          >
-            TERMINAR
-          </Typography>
-        </Button>
+        <ModalComponent
+          numPackages={"20"}
+          totalPackages={"2.900.000"}
+          base={"50.000"}
+        />
       </Box>
     </Box>
   );
