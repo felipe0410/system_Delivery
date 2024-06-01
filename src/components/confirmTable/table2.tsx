@@ -10,8 +10,9 @@ import Paper from "@mui/material/Paper";
 import TagIcon from "@mui/icons-material/Tag";
 import { getAllShipmentsData, shipments } from "@/firebase/firebase";
 import {
+  BottomNavigation,
+  BottomNavigationAction,
   Box,
-  Button,
   Checkbox,
   Chip,
   IconButton,
@@ -26,6 +27,9 @@ import { NumericFormat } from "react-number-format";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
 import { SnackbarProvider, enqueueSnackbar } from "notistack";
 import ModalComponent from "./modal";
+import DeliveryModal from "./detailGuide";
+import DeliveryDiningIcon from "@mui/icons-material/DeliveryDining";
+import ApartmentIcon from "@mui/icons-material/Apartment";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -41,7 +45,6 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   "&:nth-of-type(odd)": {
     backgroundColor: theme.palette.action.hover,
   },
-  // hide last border
   "&:last-child td, &:last-child th": {
     border: 0,
   },
@@ -52,10 +55,16 @@ export default function CustomizedTables() {
     { [x: string]: any }[]
   >([]);
   const [selectedRows, setSelectedRows] = useState<any>([]);
-  const [allData, setAllData] = useState<any>([]);
+  const [allData, setAllData] = useState<any>({
+    domiciliario: [],
+    oficina: [],
+  });
   const [check, setCheck] = useState(false);
   const [sucessFull, setsucessFull] = useState<any>({});
   const [num, setNumm] = useState(0);
+  const [value, setValue] = React.useState(0);
+  console.log(allData);
+  console.log("firebaseData::::>", firebaseData);
 
   const inputBasePersonal = (row: any, field: any, index: any) => {
     return (
@@ -76,7 +85,6 @@ export default function CustomizedTables() {
               ...updatedFirebaseData[index],
               [field]: e.target.value,
             };
-
             setFirebaseData(updatedFirebaseData);
           }
         }}
@@ -193,23 +201,26 @@ export default function CustomizedTables() {
     </Box>
   );
 
-  const updateData = (newRow: any, check: boolean) => {
+  const updateData = (newRow: { uid: any }, check: boolean) => {
+    const field = value === 0 ? "domiciliario" : "oficina";
     if (check) {
-      const existingIndex = allData.findIndex(
+      const existingIndex = allData[field].findIndex(
         (item: { uid: any }) => item.uid === newRow.uid
       );
       let updatedData;
       if (existingIndex !== -1) {
         updatedData = [
-          ...allData.slice(0, existingIndex),
+          ...allData[field].slice(0, existingIndex),
           newRow,
-          ...allData.slice(existingIndex + 1),
+          ...allData[field].slice(existingIndex + 1),
         ];
       } else {
-        updatedData = [...allData, newRow];
+        updatedData = [...allData[field], newRow];
       }
-
-      setAllData(updatedData);
+      setAllData((prev: any) => ({
+        ...prev,
+        [field]: updatedData,
+      }));
     }
   };
 
@@ -227,29 +238,47 @@ export default function CustomizedTables() {
     };
     getFirebaseData();
   }, [sucessFull]);
-  React.useEffect(() => {
-    const allData = async () => {
-      const allData: ShipmentData[] = await getAllShipmentsData();
-      const array: any = [];
-      allData.map((data) => {
-        array.push(data.packageNumber);
-      });
-      const numerosOrdenados = array
-        .map(Number)
-        .sort((a: any, b: any) => a - b);
-      let numeroFaltante = 1;
-      for (const numero of numerosOrdenados) {
-        if (numero === numeroFaltante) {
-          numeroFaltante++;
-        } else if (numero > numeroFaltante) {
-          break;
-        }
+
+  const deliveryTo = (opcion: string) => {
+    if (opcion === "ENTREGA EN DIRECCION") {
+      return "DIRECCION";
+    } else if (opcion === "RECLAME EN OFICINA") {
+      return "OFICINA";
+    } else {
+      return "OFICINA";
+    }
+  };
+
+  const allDataFuntion = async () => {
+    const array: any = [];
+    firebaseData.map((data) => {
+      array.push(data.packageNumber);
+    });
+    const numerosOrdenados = array.map(Number).sort((a: any, b: any) => a - b);
+    let numeroFaltante = 1;
+    for (const numero of numerosOrdenados) {
+      if (numero === numeroFaltante) {
+        numeroFaltante++;
+      } else if (numero > numeroFaltante) {
+        break;
       }
-      setNumm(numeroFaltante);
-    };
-    allData();
+    }
+    setNumm(numeroFaltante);
+  };
+  const filterDataByUid = (filterArray: any[]) => {
+    if (filterArray?.length > 0) {
+      const filterUids = new Set(
+        filterArray.map((item: { uid: any }) => item.uid)
+      );
+      return firebaseData.filter((item) => filterUids.has(item.uid));
+    }
+  };
+
+  React.useEffect(() => {
+    allDataFuntion();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [firebaseData]);
+
   return (
     <Box>
       <Box sx={{ display: "flex", justifyContent: "right" }}>
@@ -311,10 +340,25 @@ export default function CustomizedTables() {
           </Typography>
         </Box>
       </Box>
-
+      <Paper elevation={3}>
+        <BottomNavigation
+          sx={{ borderRadius: "20px 20px 0 0" }}
+          showLabels
+          value={value}
+          onChange={(event, newValue) => {
+            setValue(newValue);
+          }}
+        >
+          <BottomNavigationAction
+            label='Domiciliario'
+            icon={<DeliveryDiningIcon />}
+          />
+          <BottomNavigationAction label='Oficina' icon={<ApartmentIcon />} />
+        </BottomNavigation>
+      </Paper>
       <TableContainer
         id='container'
-        sx={{ height: "100%", overflowY: "scroll", maxHeight: "700px" }}
+        sx={{ overflowY: "scroll", maxHeight: "50vh" }}
         component={Paper}
       >
         <SnackbarProvider />
@@ -329,13 +373,30 @@ export default function CustomizedTables() {
               <StyledTableCell align='right'>Pago</StyledTableCell>
               <StyledTableCell align='right'>Valor</StyledTableCell>
               <StyledTableCell align='right'>Celular</StyledTableCell>
+              <StyledTableCell align='right'>Entregar en:</StyledTableCell>
               <StyledTableCell align='right'>Acciones</StyledTableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {firebaseData?.map((row, i) => (
-              <StyledTableRow key={row.uid}>
+            {firebaseData?.map((row: any, i) => (
+              <StyledTableRow
+                sx={{
+                  display:
+                    value === 0 && deliveryTo(row?.deliverTo) === "DIRECCION"
+                      ? ""
+                      : value === 1 && deliveryTo(row?.deliverTo) === "OFICINA"
+                      ? ""
+                      : "none",
+                }}
+                key={row.uid}
+              >
                 <StyledTableCell>
+                  <>
+                    {console.log(
+                      "selectedRows?.uid === row.uid:::>",
+                      selectedRows?.uid === row.uid
+                    )}
+                  </>
                   <Checkbox
                     checked={selectedRows?.uid === row.uid ? check : false}
                     onChange={() => {
@@ -385,6 +446,22 @@ export default function CustomizedTables() {
                 <StyledTableCell align='right'>
                   {row?.destinatario?.celular ?? ""}
                 </StyledTableCell>
+                <StyledTableCell align='right'>
+                  <Chip
+                    sx={{
+                      display: "flex",
+                      m: 1,
+                      borderRadius: "3rem",
+                      background:
+                        deliveryTo(row?.deliverTo) === "DIRECCION"
+                          ? "#6D1010"
+                          : "#106d14",
+                      color: "#fff",
+                    }}
+                    variant='outlined'
+                    label={deliveryTo(row?.deliverTo) ?? ""}
+                  />
+                </StyledTableCell>
                 <StyledTableCell
                   align='right'
                   sx={{
@@ -396,7 +473,9 @@ export default function CustomizedTables() {
                   {
                     <IconButton
                       disabled={
-                        allData.findIndex(
+                        allData[
+                          value === 0 ? "domiciliario" : "oficina"
+                        ].findIndex(
                           (item: { uid: any }) => item.uid === row.uid
                         ) === -1
                       }
@@ -432,7 +511,9 @@ export default function CustomizedTables() {
                       <SaveIcon
                         sx={{
                           color:
-                            allData.findIndex(
+                            allData[
+                              value === 0 ? "domiciliario" : "oficina"
+                            ].findIndex(
                               (item: { uid: any }) => item.uid === row.uid
                             ) === -1
                               ? "gray"
@@ -450,6 +531,7 @@ export default function CustomizedTables() {
                   >
                     <DoneAllIcon sx={{ color: "#00A907" }} />
                   </Box>
+                  <DeliveryModal data={row} />
                 </StyledTableCell>
               </StyledTableRow>
             ))}
@@ -465,34 +547,13 @@ export default function CustomizedTables() {
           justifyContent: "space-evenly",
         }}
       >
-        <Button
-          onClick={() => {}}
-          sx={{
-            padding: "10px",
-            width: "23%",
-            borderRadius: "40px",
-            background: "#5C68D4",
-            boxShadow:
-              "0px 4px 4px 0px rgba(0, 0, 0, 0.25), 0px 4px 4px 0px rgba(0, 0, 0, 0.25)",
-            textAlign: "center",
-            "&:hover": { backgroundColor: "#364094" },
-          }}
-        >
-          <ModalComponent />
-          <Typography
-            sx={{
-              color: "#0A0F37",
-              textAlign: "center",
-              fontFamily: "Nunito",
-              fontSize: "1.5rem",
-              fontStyle: "normal",
-              fontWeight: 700,
-              lineHeight: "normal",
-            }}
-          >
-            TERMINAR
-          </Typography>
-        </Button>
+        <ModalComponent
+          numPackages={"20"}
+          totalPackages={"2.900.000"}
+          base={"50.000"}
+          isDomicilary={value === 0}
+          data={filterDataByUid(allData["domiciliario"]) ?? []}
+        />
       </Box>
     </Box>
   );

@@ -179,7 +179,6 @@ const ConfirmTable = ({ data }: { [x: string]: any }) => {
                         checked={selectedRows?.uid === row.uid}
                         onChange={() => {
                           setSelectedRows(row);
-                          console.log(row);
                         }}
                       />
                     </StyledTableCell>

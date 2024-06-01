@@ -145,7 +145,6 @@ const Page = () => {
   };
 
   useEffect(() => {
-    console.log('enntro aqui')
     setData({
       ...data,
       intakeDate: getCurrentDateTime(),
@@ -154,7 +153,6 @@ const Page = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   useEffect(() => {
-    console.log('enntro aqui2')
     const allData = async () => {
       const allData: ShipmentData[] = await getAllShipmentsData();
       const array: any = [];

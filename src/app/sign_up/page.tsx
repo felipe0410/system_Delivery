@@ -147,7 +147,6 @@ const Sing_up = () => {
       const creation: any = await creteUser(data.email, data.password);
       saveDataUser(creation.uid, data);
       if (creation?.errorCode === "auth/email-already-in-use") {
-        console.log("entro aqui");
         enqueueSnackbar("El correo ya esta en uso", {
           variant: "error",
           anchorOrigin: {

@@ -98,7 +98,6 @@ export default function BasicTable({ tableData }: { [x: string]: any }) {
       return false;
     });
   }
-  console.log(tableData);
 
   return (
     <Box>

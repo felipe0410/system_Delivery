@@ -8,9 +8,7 @@ import {
   Typography,
   Button,
 } from "@mui/material";
-import CircularProgress from "@mui/material/CircularProgress";
 import React, { useEffect, useState } from "react";
-
 import Image from "next/image";
 import imgBack from "/public/images/af4e63708de6ec3a46f9cfb41f4c5075.png";
 import { enqueueSnackbar, SnackbarProvider } from "notistack";
@@ -32,6 +30,129 @@ const Page = () => {
   const [load, setLoad] = useState(false);
   const [timer, setTimer] = useState(180);
   const [shipmentsSave, setShipmentsSave] = useState(0);
+  const nnn = [
+    {
+      addressee: "Oscar avella    ",
+      box: null,
+      courierAttempt1: null,
+      courierAttempt2: null,
+      courierAttempt3: null,
+      deliverTo: "ENTREGA EN DIRECCION",
+      deliveryDate: null,
+      guide: "240010917187",
+      intakeDate: "2024-05-19T05:38:06.122Z",
+      packageNumber: null,
+      returnDate: null,
+      shippingCost: "$ 75.000,00",
+      status: "oficina",
+      uid: "240010917187",
+      updateDate: null,
+      revision: false,
+      remitente: {
+        tipo_identificacion: "NIT",
+        numero_identificacion: "901508804",
+        nombre: "117459 - SKYDROPX/TECHSONY",
+        direccion: "CRA 8 #20-70 CC BELLA GIO BG 3",
+        celular: "3170551237",
+        correo: "nani881109@gmail.com",
+      },
+      destinatario: {
+        tipo_identificacion: "Cedula de Ciudadania",
+        numero_identificacion: "399406",
+        nombre: "Oscar avella    ",
+        direccion: "OFICINA  AQUITANIA",
+        celular: "573219366871",
+        correo: "negociaciones@skydropx.com",
+      },
+      pago: "Crédito",
+      ciudad:
+        "PTO/CALI/VALL/COL/R.O OF PRINCIPAL-CLL 66 #1 NORTE-67 DETRÁS CCIAL LA 14 CALIMA",
+      servicio: "Mensajería",
+      destino: "AQUITANIA\\BOYA\\COL",
+      fecha_de_admision: "22/04/2024 5:17:59 p. m.",
+      fecha_estimada_de_entrega: "29/04/2024 6:00:00 p. m.",
+    },
+    {
+      addressee: "",
+      box: null,
+      courierAttempt1: null,
+      courierAttempt2: null,
+      courierAttempt3: null,
+      deliverTo: "",
+      deliveryDate: null,
+      guide: "24001091718",
+      intakeDate: "2024-05-19T05:38:07.613Z",
+      packageNumber: null,
+      returnDate: null,
+      shippingCost: "",
+      status: "oficina",
+      uid: "24001091718",
+      updateDate: null,
+      revision: false,
+      remitente: {
+        tipo_identificacion: "",
+        numero_identificacion: "",
+        nombre: "",
+        direccion: "",
+        celular: "",
+        correo: "",
+      },
+      destinatario: {
+        tipo_identificacion: "",
+        numero_identificacion: "",
+        nombre: "",
+        direccion: "",
+        celular: "",
+        correo: "",
+      },
+      pago: "",
+      ciudad: "",
+      servicio: "",
+      destino: "",
+      fecha_de_admision: "",
+      fecha_estimada_de_entrega: "",
+    },
+    {
+      addressee: "",
+      box: null,
+      courierAttempt1: null,
+      courierAttempt2: null,
+      courierAttempt3: null,
+      deliverTo: "",
+      deliveryDate: null,
+      guide: "2400109171",
+      intakeDate: "2024-05-19T05:38:08.803Z",
+      packageNumber: null,
+      returnDate: null,
+      shippingCost: "",
+      status: "oficina",
+      uid: "2400109171",
+      updateDate: null,
+      revision: false,
+      remitente: {
+        tipo_identificacion: "",
+        numero_identificacion: "",
+        nombre: "",
+        direccion: "",
+        celular: "",
+        correo: "",
+      },
+      destinatario: {
+        tipo_identificacion: "",
+        numero_identificacion: "",
+        nombre: "",
+        direccion: "",
+        celular: "",
+        correo: "",
+      },
+      pago: "",
+      ciudad: "",
+      servicio: "",
+      destino: "",
+      fecha_de_admision: "",
+      fecha_estimada_de_entrega: "",
+    },
+  ];
 
   const handleInputChange = (event: any) => {
     setInputValue(event.target.value);
@@ -61,7 +182,7 @@ const Page = () => {
           });
         }
       }
-      setInputValue(""); // Clear input after adding
+      setInputValue("");
     }
   };
 
@@ -77,18 +198,61 @@ const Page = () => {
     setSearchTerm(event.target.value);
   };
 
-  const fetchGuideDetails = () => {
+  function convertirMonedaANumero(monto: string): number {
+    const montoSinSimbolos = monto.replace(/[^0-9,]/g, "");
+    const montoFormateado = montoSinSimbolos.replace(/,/g, ".");
+    const numero = parseFloat(montoFormateado);
+    if (isNaN(numero)) {
+      return 0;
+    }
+    return numero;
+  }
+
+  const fetchGuideDetails = (domiciliary: boolean) => {
     setLoad(true);
     axios
-      .post("http://localhost:8080/consult", { guias: guide })
+      .post(
+        "http://lb-interrapidismo-2-392370646.us-east-2.elb.amazonaws.com/consult",
+        { guias: guide }
+      )
       .then(async (response: { data: any }) => {
-        console.log(response.data);
+        const shipment = response.data.find(
+          (item: { shippingCost: string | any[] }) =>
+            item.shippingCost.length > 0
+        );
+
+        if (shipment) {
+          const index = guide.indexOf(shipment.guide);
+          if (index !== -1) {
+            const updatedGuides = [...guide];
+            updatedGuides.splice(index, 1);
+            setGuide(updatedGuides);
+          }
+        }
+
         for (const shipment of response.data) {
           const uid = shipment.uid;
-          const result = await shipments(uid, shipment);
+          const result = await shipments(
+            uid,
+            domiciliary
+              ? {
+                  ...shipment,
+                  status: "mensajero",
+                  box: "0",
+                  packageNumber: "0",
+                  valor: convertirMonedaANumero(shipment?.shippingCost ?? "0"),
+                }
+              : {
+                  ...shipment,
+                  status: "oficina",
+                  valor: convertirMonedaANumero(shipment?.shippingCost ?? "0"),
+                }
+          );
           if (result) {
-            console.log(`Datos guardados para el envío con UID: ${uid}`);
-            setShipmentsSave((prevCount) => prevCount + 1);
+            if (shipment?.shippingCost?.length > 0) {
+              console.log(`Datos guardados para el envío con UID: ${uid}`);
+              setShipmentsSave((prevCount) => prevCount + 1);
+            }
           } else {
             console.error(
               `Error al guardar los datos para el envío con UID: ${uid}`
@@ -107,6 +271,7 @@ const Page = () => {
         setLoad(false);
       });
   };
+
   useEffect(() => {
     const element: any = document.querySelector("#container-inputs");
 
@@ -321,7 +486,7 @@ const Page = () => {
           sx={{ textAlignLast: "center", display: "flex", flexWrap: "wrap" }}
         >
           <Button
-            onClick={fetchGuideDetails}
+            onClick={() => fetchGuideDetails(false)}
             disabled={!(guide.length > 0) || load}
             sx={{
               filter: guide.length > 0 ? "auto" : "grayscale(1)",
@@ -344,7 +509,7 @@ const Page = () => {
             {"OFICINA"}
           </Button>
           <Button
-            onClick={fetchGuideDetails}
+            onClick={() => fetchGuideDetails(true)}
             disabled={!(guide.length > 0) || load}
             sx={{
               filter: guide.length > 0 ? "auto" : "grayscale(1)",

@@ -4,6 +4,7 @@ import { getAllShipmentsData } from "@/firebase/firebase";
 import { Box, Paper, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import TableDomi from "./TableDomi";
+import Sidebar from "./Sidebar";
 
 const Page = () => {
   const [firebaseData, setFirebaseData] = useState<{ [x: string]: any }[]>([]);
@@ -24,7 +25,6 @@ const Page = () => {
     <Box
       sx={{
         display: "flex",
-        flexDirection: "row",
         height: "100%",
         alignItems: "center",
         justifyContent: "center",
@@ -71,27 +71,12 @@ const Page = () => {
                 lineHeight: "normal",
               }}
             >
-              RESUMEN DOMICILIARIO
-            </Typography>
-          </Box>
-          <Box mt={1} width={"39.5625rem"}>
-            <Typography
-              sx={{
-                color: "#000",
-                textAlign: "center",
-                fontFamily: "Nunito",
-                fontSize: "1.25rem",
-                fontStyle: "normal",
-                fontWeight: 600,
-                lineHeight: "normal",
-              }}
-            >
-              Paquetes asignados al domiciliario
+              ADICIONAL
             </Typography>
           </Box>
         </Box>
-        <Box id='container-table' mt={4}>
-          TABLA
+        <Box id='container-adicional' mt={4}>
+          <Sidebar />
         </Box>
       </Paper>
     </Box>

@@ -230,7 +230,7 @@ export default function TableDomi() {
 
       <TableContainer
         id='container'
-        sx={{ height: "100%", overflowY: "scroll", maxHeight: "700px" }}
+        sx={{ height: "100%", overflowY: "scroll", maxHeight: "350px" }}
         component={Paper}
       >
         <SnackbarProvider />
