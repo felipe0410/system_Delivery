@@ -8,7 +8,7 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import TagIcon from "@mui/icons-material/Tag";
-import { getAllShipmentsData, shipments } from "@/firebase/firebase";
+import { getAllShipmentsData, getEnvios, shipments } from "@/firebase/firebase";
 import {
   BottomNavigation,
   BottomNavigationAction,
@@ -22,7 +22,7 @@ import {
   Typography,
 } from "@mui/material";
 import SaveIcon from "@mui/icons-material/Save";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NumericFormat } from "react-number-format";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
 import { SnackbarProvider, enqueueSnackbar } from "notistack";
@@ -30,6 +30,7 @@ import ModalComponent from "./modal";
 import DeliveryModal from "./detailGuide";
 import DeliveryDiningIcon from "@mui/icons-material/DeliveryDining";
 import ApartmentIcon from "@mui/icons-material/Apartment";
+import { RawOff } from "@mui/icons-material";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -56,15 +57,93 @@ export default function CustomizedTables() {
   >([]);
   const [selectedRows, setSelectedRows] = useState<any>([]);
   const [allData, setAllData] = useState<any>({
+    domiciliario: [{}],
+    oficina: [{}],
+  });
+  const [separateData, setSeparateData] = useState<any>({
     domiciliario: [],
     oficina: [],
   });
+  const [mensajeroSummary, setMensajeroSummary] = useState({
+    totalCount: 0,
+    totalValue: 0,
+    alCobroCount: 0,
+    formattedTotalValue: "$0",
+  });
+
+  const [oficinaSummary, setOficinaSummary] = useState({
+    totalCount: 0,
+    totalValue: 0,
+    alCobroCount: 0,
+    formattedTotalValue: "$0",
+  });
+
   const [check, setCheck] = useState(false);
   const [sucessFull, setsucessFull] = useState<any>({});
   const [num, setNumm] = useState(0);
   const [value, setValue] = React.useState(0);
-  console.log(allData);
-  console.log("firebaseData::::>", firebaseData);
+  const [save, setSave] = useState(0);
+  const [arrayUniqueValue, setArrayUniqueValue] = useState<any>([]);
+
+  const calculateSummary: any = (shipments: any[]) => {
+    if (shipments.length === 0) {
+      return {
+        totalCount: 0,
+        totalValue: 0,
+        alCobroCount: 0,
+        formattedTotalValue: "$0",
+      };
+    }
+
+    const summary = shipments.reduce(
+      (
+        acc: { totalCount: number; totalValue: any; alCobroCount: number },
+        shipment: { pago: string; valor: string }
+      ) => {
+        if (shipment.pago === "Al Cobro") {
+          acc.totalCount++;
+          // Asegúrate de que 'valor' es un número y no una cadena de texto con comas o puntos incorrectos
+          const valorNumerico =
+            typeof shipment.valor === "string"
+              ? parseFloat(shipment.valor.replace(/[^0-9.-]+/g, ""))
+              : shipment.valor;
+
+          acc.totalValue += valorNumerico;
+          acc.alCobroCount++;
+        } else {
+          acc.totalCount++;
+        }
+        return acc;
+      },
+      { totalCount: 0, totalValue: 0, alCobroCount: 0 }
+    );
+
+    // Formatear el valor total con signo de pesos y separadores de miles
+    const formatter = new Intl.NumberFormat("es-CO", {
+      style: "currency",
+      currency: "COP",
+      minimumFractionDigits: 0,
+    });
+    summary.formattedTotalValue = formatter.format(summary.totalValue);
+
+    return summary;
+  };
+  useEffect(() => {
+    const mensajeroShipments = firebaseData.filter(
+      (shipment) => shipment.status === "mensajero"
+    );
+    const oficinaShipments = firebaseData.filter(
+      (shipment) => shipment.status === "oficina"
+    );
+    setSeparateData({
+      domiciliario: [...mensajeroShipments],
+      oficina: [...oficinaShipments],
+    });
+    const mensajeroSummary = calculateSummary(mensajeroShipments);
+    const oficinaSummary = calculateSummary(oficinaShipments);
+    setMensajeroSummary(mensajeroSummary);
+    setOficinaSummary(oficinaSummary);
+  }, [firebaseData]);
 
   const inputBasePersonal = (row: any, field: any, index: any) => {
     return (
@@ -135,20 +214,28 @@ export default function CustomizedTables() {
     );
   };
 
-  const amountInput = (row: any, field: any) => (
+  const amountInput = (row: any, field: any, i: any) => (
     <NumericFormat
-      onChange={(e) => {
+      onValueChange={(e) => {
         if (selectedRows.uid === row.uid && check) {
           setSelectedRows({
             ...selectedRows,
-            [field]: e.target.value,
+            [field]: e.formattedValue,
+            valor: e.floatValue,
           });
+          const updatedFirebaseData = [...firebaseData];
+          updatedFirebaseData[i] = {
+            ...updatedFirebaseData[i],
+            [field]: e.formattedValue,
+            valor: e.floatValue,
+          };
+          setFirebaseData(updatedFirebaseData);
         }
       }}
       value={
         selectedRows.uid === row.uid && check
-          ? selectedRows[field]
-          : row[field] ?? 0
+          ? selectedRows["valor"]
+          : row["valor"] ?? 0
       }
       prefix="$ "
       thousandSeparator
@@ -174,15 +261,22 @@ export default function CustomizedTables() {
     />
   );
 
-  const inputSelect = (row: any) => (
+  const inputSelect = (row: any, index: any) => (
     <Box>
       <Select
         onChange={(e) => {
           if (selectedRows.uid === row.uid) {
+            console.log();
             setSelectedRows({
               ...selectedRows,
               pago: e.target.value,
             });
+            const updatedFirebaseData = [...firebaseData];
+            updatedFirebaseData[index] = {
+              ...updatedFirebaseData[index],
+              ["pago"]: e.target.value,
+            };
+            setFirebaseData(updatedFirebaseData);
           }
         }}
         value={selectedRows["pago"]}
@@ -237,34 +331,48 @@ export default function CustomizedTables() {
       }
     };
     getFirebaseData();
-  }, [sucessFull]);
+  }, [sucessFull, save]);
 
   const deliveryTo = (opcion: string) => {
-    if (opcion === "ENTREGA EN DIRECCION") {
-      return "DIRECCION";
-    } else if (opcion === "RECLAME EN OFICINA") {
+    if (opcion === "mensajero") {
+      return "MENSAJERO";
+    } else if (opcion === "oficina") {
       return "OFICINA";
     } else {
       return "OFICINA";
     }
   };
 
-  const allDataFuntion = async () => {
-    const array: any = [];
-    firebaseData.map((data) => {
-      array.push(data.packageNumber);
-    });
-    const numerosOrdenados = array.map(Number).sort((a: any, b: any) => a - b);
+  const allDataFunction = async () => {
+    const getArrayEnvios = await getEnvios();
+    // Convertir getArrayEnvios a números y filtrar los no numéricos
+    const arrayEnvios = getArrayEnvios.map(Number).filter(Number.isFinite);
+
+    // Crear un array con los packageNumber de firebaseData
+    const array = firebaseData
+      .map((data) => Number(data.packageNumber))
+      .filter(Number.isFinite);
+    console.log("Array de firebaseData:", array);
+
+    // Fusionar y ordenar los números
+    const numerosFusionados = [...arrayEnvios, ...array].sort((a, b) => a - b);
+    setArrayUniqueValue(numerosFusionados);
+
+    // Encontrar el número faltante en el array fusionado
     let numeroFaltante = 1;
-    for (const numero of numerosOrdenados) {
+    for (const numero of numerosFusionados) {
       if (numero === numeroFaltante) {
         numeroFaltante++;
       } else if (numero > numeroFaltante) {
         break;
       }
     }
+    console.log("Número faltante final:", numeroFaltante);
+
+    // Setear el número faltante
     setNumm(numeroFaltante);
   };
+
   const filterDataByUid = (filterArray: any[]) => {
     if (filterArray?.length > 0) {
       const filterUids = new Set(
@@ -275,37 +383,174 @@ export default function CustomizedTables() {
   };
 
   React.useEffect(() => {
-    allDataFuntion();
+    allDataFunction();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [firebaseData]);
 
+  const saveshipment = (i: any) => {
+    return sucessFull[i] ?? false;
+  };
+
   return (
     <Box>
-      <Box sx={{ display: "flex", justifyContent: "right" }}>
+      <Box
+        sx={{
+          width: "70%",
+          background: "#FFFFFF",
+          boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)",
+          borderRadius: "53px",
+          padding: "10px",
+          margin: "0 auto",
+        }}
+      >
         <Typography
           sx={{
-            fontFamily: "Nunito",
             fontSize: "30px",
-            fontWeight: 800,
-            lineHeight: "46.38px",
             textAlign: "center",
-            marginRight: "10px",
+            fontweight: 700,
           }}
         >
-          #PAQUETE
+          RESUMEN
         </Typography>
         <Box
           sx={{
-            borderRadius: "35px",
-            opacity: "0px",
-            background: "#11192F",
-            padding: "12px",
-            color: "#fff",
-            width: "70px",
-            textAlignLast: "center",
+            display: "flex",
+            justifyContent: "space-evenly",
+            margin: "0 auto",
+            marginBottom: "15px",
           }}
         >
-          {num}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              flexWrap: "wrap",
+              width: "60%",
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <Typography
+                sx={{
+                  fontFamily: "Inter",
+                  fontStyle: "normal",
+                  fontWeight: 500,
+                  fontSize: "21px",
+                  lineHeight: "24px",
+                  color: "#7E7E7E",
+                }}
+              >
+                recaudo al cobros:
+              </Typography>
+              <Chip
+                label={
+                  value > 0
+                    ? oficinaSummary.formattedTotalValue
+                    : mensajeroSummary.formattedTotalValue
+                }
+                sx={{
+                  background: "#85d39680",
+                  color: "#03781D",
+                  borderRadius: "solid #85d39680 1px",
+                  fontSize: "16px",
+                  marginLeft: "10px",
+                }}
+                variant="outlined"
+              />
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                marginY: "10px",
+              }}
+            >
+              <Typography
+                sx={{
+                  fontFamily: "Inter",
+                  fontStyle: "normal",
+                  fontWeight: 500,
+                  fontSize: "21px",
+                  lineHeight: "24px",
+                  color: "#7E7E7E",
+                }}
+              >
+                # paq con cobro:
+              </Typography>
+              <Chip
+                label={
+                  value > 0
+                    ? oficinaSummary.alCobroCount
+                    : mensajeroSummary.alCobroCount
+                }
+                sx={{
+                  background: "#DFA87433",
+                  color: "#D58D49",
+                  borderRadius: "solid #D58D49 1px",
+                  fontSize: "16px",
+                  marginLeft: "10px",
+                }}
+                variant="outlined"
+              />
+            </Box>
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <Typography
+                sx={{
+                  fontFamily: "Inter",
+                  fontStyle: "normal",
+                  fontWeight: 500,
+                  fontSize: "21px",
+                  lineHeight: "24px",
+                  color: "#7E7E7E",
+                }}
+              >
+                Total paquetes:
+              </Typography>
+              <Chip
+                label={
+                  value > 0
+                    ? oficinaSummary.totalCount
+                    : mensajeroSummary.totalCount
+                }
+                sx={{
+                  background: "#ECECEC",
+                  color: "#000",
+                  borderRadius: "solid #9E9E9E 1px",
+                  fontSize: "16px",
+                  marginLeft: "10px",
+                }}
+                variant="outlined"
+              />
+            </Box>
+          </Box>
+          <Box
+            sx={{ display: "flex", justifyContent: "right", height: "40px" }}
+          >
+            <Typography
+              sx={{
+                fontFamily: "Nunito",
+                fontSize: "30px",
+                fontWeight: 800,
+                lineHeight: "46.38px",
+                textAlign: "center",
+                marginRight: "10px",
+              }}
+            >
+              #PAQUETE
+            </Typography>
+            <Box
+              sx={{
+                borderRadius: "35px",
+                opacity: "0px",
+                background: "#11192F",
+                padding: "12px",
+                color: "#fff",
+                width: "70px",
+                textAlignLast: "center",
+              }}
+            >
+              {num}
+            </Box>
+          </Box>
         </Box>
       </Box>
       <Box sx={{ textAlign: "-webkit-center" }}>
@@ -378,25 +623,20 @@ export default function CustomizedTables() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {firebaseData?.map((row: any, i) => (
+            {firebaseData.map((row: any, i) => (
               <StyledTableRow
-                sx={{
+                style={{
                   display:
-                    value === 0 && deliveryTo(row?.deliverTo) === "DIRECCION"
+                    value > 0 && row.status === "oficina"
                       ? ""
-                      : value === 1 && deliveryTo(row?.deliverTo) === "OFICINA"
+                      : value === 0 && row.status === "mensajero"
                       ? ""
                       : "none",
+                  background: saveshipment(i) ? "#8edb8e" : "none",
                 }}
                 key={row.uid}
               >
                 <StyledTableCell>
-                  <>
-                    {console.log(
-                      "selectedRows?.uid === row.uid:::>",
-                      selectedRows?.uid === row.uid
-                    )}
-                  </>
                   <Checkbox
                     checked={selectedRows?.uid === row.uid ? check : false}
                     onChange={() => {
@@ -420,7 +660,7 @@ export default function CustomizedTables() {
                 </StyledTableCell>
                 <StyledTableCell align="right">
                   {selectedRows.uid === row.uid && check ? (
-                    inputSelect(row)
+                    inputSelect(row, i)
                   ) : (
                     <Chip
                       sx={{
@@ -441,7 +681,7 @@ export default function CustomizedTables() {
                   )}
                 </StyledTableCell>
                 <StyledTableCell align="right">
-                  {amountInput(row, "shippingCost")}
+                  {amountInput(row, "shippingCost", i)}
                 </StyledTableCell>
                 <StyledTableCell align="right">
                   {row?.destinatario?.celular ?? ""}
@@ -453,13 +693,13 @@ export default function CustomizedTables() {
                       m: 1,
                       borderRadius: "3rem",
                       background:
-                        deliveryTo(row?.deliverTo) === "DIRECCION"
+                        deliveryTo(row?.status) === "MENSAJERO"
                           ? "#6D1010"
                           : "#106d14",
                       color: "#fff",
                     }}
                     variant="outlined"
-                    label={deliveryTo(row?.deliverTo) ?? ""}
+                    label={deliveryTo(row?.status) ?? ""}
                   />
                 </StyledTableCell>
                 <StyledTableCell
@@ -470,68 +710,76 @@ export default function CustomizedTables() {
                     flexDirection: "row",
                   }}
                 >
-                  {
-                    <IconButton
-                      disabled={
-                        allData[
-                          value === 0 ? "domiciliario" : "oficina"
-                        ].findIndex(
-                          (item: { uid: any }) => item.uid === row.uid
-                        ) === -1
-                      }
-                      onClick={async () => {
-                        try {
-                          const save = await shipments(
-                            selectedRows.uid,
-                            selectedRows
-                          );
-                          if (save !== null) {
-                            setsucessFull({ ...sucessFull, [i]: true });
-                          }
-                          enqueueSnackbar("Envio Actualizado con exito", {
-                            variant: "success",
-                            anchorOrigin: {
-                              vertical: "bottom",
-                              horizontal: "right",
-                            },
-                          });
-                        } catch (error) {
-                          enqueueSnackbar("Error al actualizar el envio", {
-                            variant: "error",
-                            anchorOrigin: {
-                              vertical: "bottom",
-                              horizontal: "right",
-                            },
-                          });
-                        }
-                      }}
-                      type="button"
-                      sx={{ p: "10px" }}
-                    >
-                      <SaveIcon
-                        sx={{
-                          color:
-                            allData[
-                              value === 0 ? "domiciliario" : "oficina"
-                            ].findIndex(
-                              (item: { uid: any }) => item.uid === row.uid
-                            ) === -1
-                              ? "gray"
-                              : "#00A907",
-                        }}
-                      />
-                    </IconButton>
-                  }
                   <Box
-                    display={
-                      (sucessFull ? sucessFull[i] ?? false : false)
-                        ? "block"
-                        : "none"
+                    sx={
+                      saveshipment(i)
+                        ? {
+                            background: "#fff",
+                            borderRadius: "10px",
+                            display: "flex",
+                            alignItems: "center",
+                          }
+                        : {}
                     }
                   >
-                    <DoneAllIcon sx={{ color: "#00A907" }} />
+                    {
+                      <IconButton
+                        disabled={
+                          allData[
+                            value === 0 ? "domiciliario" : "oficina"
+                          ].findIndex(
+                            (item: { uid: any }) => item.uid === row.uid
+                          ) === -1
+                        }
+                        onClick={async () => {
+                          try {
+                            const save = await shipments(
+                              selectedRows.uid,
+                              selectedRows
+                            );
+                            if (save !== null) {
+                              setsucessFull({ ...sucessFull, [i]: true });
+                              setCheck(false);
+                              enqueueSnackbar("Envio Actualizado con exito", {
+                                variant: "success",
+                                anchorOrigin: {
+                                  vertical: "bottom",
+                                  horizontal: "right",
+                                },
+                              });
+                            }
+                          } catch (error) {
+                            enqueueSnackbar("Error al actualizar el envio", {
+                              variant: "error",
+                              anchorOrigin: {
+                                vertical: "bottom",
+                                horizontal: "right",
+                              },
+                            });
+                          }
+                        }}
+                        type="button"
+                        sx={{ p: "10px" }}
+                      >
+                        <SaveIcon
+                          sx={{
+                            color:
+                              allData[
+                                value === 0 ? "domiciliario" : "oficina"
+                              ].findIndex(
+                                (item: { uid: any }) => item.uid === row.uid
+                              ) === -1
+                                ? "gray"
+                                : "#00A907",
+                          }}
+                        />
+                      </IconButton>
+                    }
+                    <Box display={saveshipment(i) ? "block" : "none"}>
+                      <DoneAllIcon sx={{ color: "#00A907" }} />
+                    </Box>
+                    <DeliveryModal data={row} />
                   </Box>
-                  <DeliveryModal data={row} />
                 </StyledTableCell>
               </StyledTableRow>
             ))}
@@ -548,11 +796,22 @@ export default function CustomizedTables() {
         }}
       >
         <ModalComponent
-          numPackages={"20"}
-          totalPackages={"2.900.000"}
+          arrayEnvios={arrayUniqueValue}
+          totalPackages={
+            value > 0
+              ? oficinaSummary.formattedTotalValue
+              : mensajeroSummary.formattedTotalValue
+          }
           base={"50.000"}
           isDomicilary={value === 0}
-          data={filterDataByUid(allData["domiciliario"]) ?? []}
+          data={
+            filterDataByUid(
+              value === 0
+                ? separateData["domiciliario"]
+                : separateData["oficina"]
+            ) ?? []
+          }
+          setSave={setSave}
         />
       </Box>
     </Box>

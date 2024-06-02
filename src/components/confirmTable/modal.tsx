@@ -4,6 +4,7 @@ import Modal from "@mui/material/Modal";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import { useState } from "react";
+import { saveEnvios, shipments } from "@/firebase/firebase";
 
 const style = {
   position: "absolute" as "absolute",
@@ -21,68 +22,23 @@ const style = {
 
 export default function ModalComponent({
   data,
-  numPackages,
+  arrayEnvios,
   totalPackages,
   base,
   isDomicilary,
+  setSave,
 }: {
   data: any;
-  numPackages: string;
+  arrayEnvios: string;
   totalPackages: string;
   base: string;
   isDomicilary: boolean;
+  setSave: any;
 }) {
-  const [value, setValue] = useState({});
 
-  const processData = () => {
-    const processedData = data.map((item: any, index: number) => {
-      return {
-        ...item,
-        packageNumber: index + 1,
-      };
-    });
 
-    const numPackages = processedData.length;
-
-    const totalPackages = processedData.reduce(
-      (acc: any, item: { pago: string; valor: any }) => {
-        const pagoNormalized = item.pago.replace(/\s+/g, "").toLowerCase();
-        if (pagoNormalized === "alcobro") {
-          return acc + item.valor;
-        }
-        return acc;
-      },
-      0
-    );
-
-    const formatNumber = (num: {
-      toLocaleString: (
-        arg0: string,
-        arg1: { style: string; minimumFractionDigits: number }
-      ) => any;
-    }) => {
-      return num.toLocaleString("es-CO", {
-        style: "decimal",
-        minimumFractionDigits: 0,
-      });
-    };
-
-    const formattedTotalPackages = formatNumber(totalPackages);
-
-    return {
-      processedData,
-      numPackages,
-      totalPackages: formattedTotalPackages,
-    };
-  };
-
-  console.log(processData());
-
-  console.log("data", data);
   const [open, setOpen] = React.useState(false);
-  const handleOpen = () => {
-    setOpen(true);
-  };
+
   const handleClose = () => {
     setOpen(false);
   };
@@ -231,6 +187,18 @@ export default function ModalComponent({
               CANCELAR
             </Button>
             <Button
+              onClick={() => {
+                data.map(async (e: { uid: any }) => {
+                  try {
+                    await shipments(e.uid, { ...e, revision: true });
+                    saveEnvios(arrayEnvios)
+                    handleClose();
+                  } catch (error) {
+                    console.log(error);
+                  }
+                });
+                setSave((prev: number)=>prev+1)
+              }}
               sx={{
                 boxShadow: "0px 4px 4px 0px #00000040",
                 background: "#106D14",
