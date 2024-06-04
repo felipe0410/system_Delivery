@@ -87,7 +87,15 @@ const Sidebar = () => {
   }, []);
 
   return (
-    <>
+    <Box
+      sx={{
+        height: "90%",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "space-around",
+      }}
+    >
       <Box
         sx={{
           backgroundColor: "#FFF",
@@ -120,7 +128,7 @@ const Sidebar = () => {
               background: "#E0E0E0",
               color: "#000",
             }}
-            variant='outlined'
+            variant="outlined"
             label={"$50.000"}
           />
         </Box>
@@ -142,7 +150,7 @@ const Sidebar = () => {
               background: "#73d5a0",
               color: "#006400",
             }}
-            variant='outlined'
+            variant="outlined"
             label={"50"}
           />
         </Box>
@@ -158,7 +166,7 @@ const Sidebar = () => {
               background: "#FDC463",
               color: "#D14900",
             }}
-            variant='outlined'
+            variant="outlined"
             label={"20"}
           />
         </Box>
@@ -191,7 +199,7 @@ const Sidebar = () => {
             background: "#73d5a0",
             color: "#006400",
           }}
-          variant='outlined'
+          variant="outlined"
           label={result.formattedTotal}
         />
       </Box>
@@ -217,7 +225,7 @@ const Sidebar = () => {
         <Box sx={{ display: "flex", flexDirection: "row" }}>
           <Box
             component={"img"}
-            className='responsive-image'
+            className="responsive-image"
             alt={`img avatar`}
             src={"/images/noPerson.png"}
             style={{
@@ -229,7 +237,7 @@ const Sidebar = () => {
           </Typography>
         </Box>
       </Box>
-    </>
+    </Box>
   );
 };
 

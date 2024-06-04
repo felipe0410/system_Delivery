@@ -28,6 +28,8 @@ const Page = () => {
         height: "100%",
         alignItems: "center",
         justifyContent: "center",
+        marginLeft: "60px",
+        paddingRight: "40px",
       }}
     >
       <Paper
@@ -38,11 +40,12 @@ const Page = () => {
             "0px 4px 4px 0px rgba(0, 0, 0, 0.25), 0px 4px 4px 0px rgba(0, 0, 0, 0.25)",
           padding: "2%",
           marginTop: "3rem",
-          minWidth: "70%",
+          minWidth: "80%",
           minHeight: "17.8125rem",
+          height: "95%",
         }}
       >
-        <Box id='container-table'>
+        <Box sx={{ height:'100%'}} id="container-table">
           <TableDomi />
         </Box>
       </Paper>
@@ -54,8 +57,10 @@ const Page = () => {
             "0px 4px 4px 0px rgba(0, 0, 0, 0.25), 0px 4px 4px 0px rgba(0, 0, 0, 0.25)",
           padding: "2%",
           marginTop: "3rem",
-          minWidth: "25%",
+          minWidth: "15%",
           minHeight: "17.8125rem",
+          height: "95%",
+          marginLeft: "10px",
         }}
       >
         <Box sx={{ textAlign: "-webkit-center" }}>
@@ -75,7 +80,7 @@ const Page = () => {
             </Typography>
           </Box>
         </Box>
-        <Box id='container-adicional' mt={4}>
+        <Box id="container-adicional" sx={{ height: "90%" }} mt={4}>
           <Sidebar />
         </Box>
       </Paper>

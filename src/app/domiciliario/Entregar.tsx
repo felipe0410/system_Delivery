@@ -99,15 +99,16 @@ export default function EntregarModal({
 
       await Promise.all(updatePromises);
 
-      enqueueSnackbar("Guías guardadas con éxito", {
+      enqueueSnackbar("Guías entregadas con éxito", {
         variant: "success",
         anchorOrigin: {
           vertical: "bottom",
           horizontal: "right",
         },
       });
+      setOpen(false);
     } catch (error) {
-      enqueueSnackbar("Error al guardar los paquetes", {
+      enqueueSnackbar("Error al entregar los paquetes", {
         variant: "error",
         anchorOrigin: {
           vertical: "bottom",
@@ -204,14 +205,14 @@ export default function EntregarModal({
       </Button>
       <SnackbarProvider />
       <Modal
-        id='modal'
+        id="modal"
         open={open}
         sx={{ borderRadius: "40px" }}
         onClose={handleClose}
-        aria-labelledby='parent-modal-title'
-        aria-describedby='parent-modal-description'
+        aria-labelledby="parent-modal-title"
+        aria-describedby="parent-modal-description"
       >
-        <Box id='content' sx={{ ...style, width: "50%" }}>
+        <Box id="content" sx={{ ...style, width: "50%" }}>
           <Typography
             sx={{
               fontFamily: "Nunito",
@@ -237,14 +238,14 @@ export default function EntregarModal({
               }}
             >
               <Box sx={{ width: "100%", marginBottom: "3%", marginTop: "5%" }}>
-                {box("PAQUETES ASIGNADOS:", `${data?.length ?? 0}`)}
+                {box("# PAQUETES:", `${data?.length ?? 0}`)}
               </Box>
               <Box sx={{ width: "100%", marginBottom: "3%" }}>
-                {box("TOTAL PAQUETES:", `${result.formattedTotalPackages}`)}
+                {box("$ AL COBROS:", `${result.formattedTotalPackages}`)}
               </Box>
-              <Box sx={{ width: "100%" }}>
+              {/* <Box sx={{ width: "100%" }}>
                 {box("BASE:", `${result.baseFormatted}`)}
-              </Box>
+              </Box> */}
             </Box>
           </Box>
           <Box

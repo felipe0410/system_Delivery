@@ -105,7 +105,7 @@ export default function TableDomi() {
   }, []);
 
   return (
-    <Box>
+    <Box sx={{ height: "100%" }}>
       <Box sx={{ display: "flex", justifyContent: "right" }}>
         <Typography
           sx={{
@@ -167,22 +167,22 @@ export default function TableDomi() {
       </Box>
 
       <TableContainer
-        id='container'
-        sx={{ height: "100%", overflowY: "scroll", maxHeight: "350px" }}
+        id="container"
+        sx={{ height: "900px", overflowY: "scroll", maxHeight: "450px" }}
         component={Paper}
       >
         <SnackbarProvider />
-        <Table sx={{ minWidth: 700 }} aria-label='customized table'>
+        <Table sx={{ minWidth: 700 }} aria-label="customized table">
           <TableHead>
             <TableRow>
               <StyledTableCell></StyledTableCell>
               <StyledTableCell># Guía </StyledTableCell>
-              <StyledTableCell align='left'>Nombre</StyledTableCell>
-              <StyledTableCell align='center'>Recibido</StyledTableCell>
-              <StyledTableCell align='center'>Pago</StyledTableCell>
-              <StyledTableCell align='center'>Valor</StyledTableCell>
-              <StyledTableCell align='center'>Celular</StyledTableCell>
-              <StyledTableCell align='center'>Acciones</StyledTableCell>
+              <StyledTableCell align="left">Nombre</StyledTableCell>
+              <StyledTableCell align="center">Recibido</StyledTableCell>
+              <StyledTableCell align="center">Pago</StyledTableCell>
+              <StyledTableCell align="center">Valor</StyledTableCell>
+              <StyledTableCell align="center">Celular</StyledTableCell>
+              <StyledTableCell align="center">Acciones</StyledTableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -202,16 +202,16 @@ export default function TableDomi() {
                       onChange={() => handleCheckboxChange(row)}
                     />
                   </StyledTableCell>
-                  <StyledTableCell component='th' scope='row'>
+                  <StyledTableCell component="th" scope="row">
                     {row.uid}
                   </StyledTableCell>
-                  <StyledTableCell component='th' scope='row'>
+                  <StyledTableCell component="th" scope="row">
                     {row.addressee}
                   </StyledTableCell>
-                  <StyledTableCell align='center'>
+                  <StyledTableCell align="center">
                     {dateAndTime}
                   </StyledTableCell>
-                  <StyledTableCell align='right'>
+                  <StyledTableCell align="right">
                     <Chip
                       sx={{
                         display: "flex",
@@ -225,17 +225,17 @@ export default function TableDomi() {
                             : "#106D14",
                         color: "#fff",
                       }}
-                      variant='outlined'
+                      variant="outlined"
                       label={row?.pago ?? "no definido"}
                     />
                   </StyledTableCell>
-                  <StyledTableCell align='right'>
+                  <StyledTableCell align="right">
                     {row.shippingCost}
                   </StyledTableCell>
-                  <StyledTableCell align='right'>
+                  <StyledTableCell align="right">
                     {row?.destinatario?.celular ?? ""}
                   </StyledTableCell>
-                  <StyledTableCell align='right'>
+                  <StyledTableCell align="right">
                     <DeliveryModal data={row} />
                   </StyledTableCell>
                 </StyledTableRow>
@@ -255,7 +255,7 @@ export default function TableDomi() {
       >
         <Autocomplete
           multiple
-          id='tags-outlined'
+          id="tags-outlined"
           options={firebaseData}
           getOptionLabel={(option) => option?.uid}
           value={selectedRows}
@@ -264,7 +264,7 @@ export default function TableDomi() {
           renderInput={(params) => (
             <TextField
               {...params}
-              placeholder='Guias'
+              placeholder="Guias"
               sx={{
                 backgroundColor: "white",
                 borderRadius: "0.28rem",
@@ -272,7 +272,7 @@ export default function TableDomi() {
               }}
             />
           )}
-          popupIcon={<QrCodeScannerIcon fontSize='inherit' />}
+          popupIcon={<QrCodeScannerIcon fontSize="inherit" />}
           sx={{ width: "60%", marginTop: "1rem" }}
         />
       </Box>

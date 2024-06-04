@@ -199,3 +199,32 @@ export const getAllShipmentsDataRealTime = (
     return null;
   }
 };
+
+export const getEnvios = async () => {
+  try {
+    const docRef = doc(db, "consecutivo", "consecutivos");
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      const envios = data.envios; // Asumiendo que 'envios' es el campo que necesitas
+      return envios;
+    } else {
+      console.log("No such document!");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error getting document:", error);
+  }
+};
+
+
+export const saveEnvios = async (updatedEnvios: any) => {
+  try {
+    const docRef = doc(db, "consecutivo", "consecutivos");
+    await setDoc(docRef, { envios: updatedEnvios });
+    console.log("Envios guardados con éxito!");
+  } catch (error) {
+    console.error("Error saving document:", error);
+  }
+};

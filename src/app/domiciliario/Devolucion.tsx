@@ -99,7 +99,7 @@ export default function DevolucionModal({
 
       await Promise.all(updatePromises);
 
-      enqueueSnackbar("Guías guardadas con éxito", {
+      enqueueSnackbar("Guías retornadas a la oficina", {
         variant: "success",
         anchorOrigin: {
           vertical: "bottom",
@@ -107,7 +107,7 @@ export default function DevolucionModal({
         },
       });
     } catch (error) {
-      enqueueSnackbar("Error al guardar los paquetes", {
+      enqueueSnackbar("Error al retornar los paquetes", {
         variant: "error",
         anchorOrigin: {
           vertical: "bottom",
@@ -242,9 +242,9 @@ export default function DevolucionModal({
               <Box sx={{ width: "100%", marginBottom: "3%" }}>
                 {box("TOTAL PAQUETES:", `${result.formattedTotalPackages}`)}
               </Box>
-              <Box sx={{ width: "100%" }}>
+              {/* <Box sx={{ width: "100%" }}>
                 {box("BASE:", `${result.baseFormatted}`)}
-              </Box>
+              </Box> */}
             </Box>
           </Box>
           <Box

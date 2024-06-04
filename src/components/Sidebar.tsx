@@ -13,10 +13,12 @@ import {
   SwipeableDrawer,
 } from "@mui/material";
 import { usePathname } from "next/navigation";
-import HomeIcon from "@mui/icons-material/Home";
-import LocalShippingIcon from "@mui/icons-material/LocalShipping";
-import ContentPasteGoIcon from "@mui/icons-material/ContentPasteGo";
-import AssignmentIcon from "@mui/icons-material/Assignment";
+import MarkAsUnreadTwoToneIcon from '@mui/icons-material/MarkAsUnreadTwoTone';
+import AnalyticsTwoToneIcon from '@mui/icons-material/AnalyticsTwoTone';
+import ReceiptLongTwoToneIcon from '@mui/icons-material/ReceiptLongTwoTone';
+import AppRegistrationRoundedIcon from '@mui/icons-material/AppRegistrationRounded';
+import DeliveryDiningTwoToneIcon from "@mui/icons-material/DeliveryDiningTwoTone";
+import AssignmentTwoToneIcon from '@mui/icons-material/AssignmentTwoTone';
 import Link from "next/link";
 import Image from "next/image";
 import logo from "/public/images/logo.svg";
@@ -24,7 +26,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import { singOut } from "@/firebase/firebase";
 import { useCookies } from "react-cookie";
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
-import QrCodeIcon from "@mui/icons-material/QrCode";
+import QrCode2OutlinedIcon from '@mui/icons-material/QrCode2Outlined';
 
 const Sidebar = () => {
   const [open, setOpen] = useState(false);
@@ -37,8 +39,8 @@ const Sidebar = () => {
     {
       section: "Inicio",
       icon: (
-        <HomeIcon
-          id='content icon home'
+        <AnalyticsTwoToneIcon
+          id="content icon home"
           sx={{ fontSize: { sm: "40px" } }}
           style={{ color: pathname === "/" ? "#0A0F37" : "#fff" }}
         />
@@ -48,7 +50,7 @@ const Sidebar = () => {
     {
       section: "Scanear envios",
       icon: (
-        <QrCodeIcon
+        <QrCode2OutlinedIcon
           sx={{ fontSize: { sm: "40px" } }}
           style={{
             color: pathname.startsWith("/getData") ? "#0A0F37" : "#fff",
@@ -60,7 +62,7 @@ const Sidebar = () => {
     {
       section: "Envios",
       icon: (
-        <LocalShippingIcon
+        <MarkAsUnreadTwoToneIcon
           sx={{ fontSize: { sm: "40px" } }}
           style={{
             color: pathname.startsWith("/Shipments") ? "#0A0F37" : "#fff",
@@ -72,7 +74,7 @@ const Sidebar = () => {
     {
       section: "Registro de Envios",
       icon: (
-        <AssignmentIcon
+        <AssignmentTwoToneIcon
           sx={{ fontSize: { sm: "40px" } }}
           style={{
             color: pathname.startsWith("/TableShipments") ? "#0A0F37" : "#fff",
@@ -84,7 +86,7 @@ const Sidebar = () => {
     {
       section: "Generar Reporte",
       icon: (
-        <AssignmentIcon
+        <ReceiptLongTwoToneIcon
           sx={{ fontSize: { sm: "40px" } }}
           style={{
             color: pathname.startsWith("/GenerateReport") ? "#0A0F37" : "#fff",
@@ -96,7 +98,7 @@ const Sidebar = () => {
     {
       section: "Confirmar Datos",
       icon: (
-        <ContentPasteGoIcon
+        <AppRegistrationRoundedIcon
           sx={{ fontSize: { sm: "40px" } }}
           style={{
             color: pathname.startsWith("/confirmData") ? "#0A0F37" : "#fff",
@@ -104,6 +106,18 @@ const Sidebar = () => {
         />
       ),
       id: "/confirmData",
+    },
+    {
+      section: "Domicilairio",
+      icon: (
+        <DeliveryDiningTwoToneIcon
+          sx={{ fontSize: { sm: "40px" } }}
+          style={{
+            color: pathname.startsWith("/domiciliario") ? "#0A0F37" : "#fff",
+          }}
+        />
+      ),
+      id: "/domiciliario",
     },
   ];
 
@@ -113,9 +127,9 @@ const Sidebar = () => {
         <MenuRoundedIcon sx={{ color: "#0A0F37C2", fontSize: "35px" }} />
       </Button>
       <SwipeableDrawer
-        id='Drawer'
+        id="Drawer"
         variant={matchesSM ? undefined : "permanent"}
-        anchor='left'
+        anchor="left"
         open={open}
         onClose={() => setOpen(false)}
         onOpen={() => setOpen(true)}
@@ -136,7 +150,7 @@ const Sidebar = () => {
           }}
         >
           <Box
-            id='containerIMG'
+            id="containerIMG"
             sx={{
               textAlignLast: "center",
               marginTop: "30px",
@@ -145,7 +159,7 @@ const Sidebar = () => {
           >
             <Image
               style={{ width: "80%", height: "auto" }}
-              alt='company-logo'
+              alt="company-logo"
               src={logo}
             />
             <Box sx={{ textAlign: "-webkit-center", marginBottom: "20px" }}>
@@ -156,7 +170,7 @@ const Sidebar = () => {
               />
             </Box>
           </Box>
-          <Box id='containerSections'>
+          <Box id="containerSections">
             {sections.map((section: any) => (
               <Box sx={{ marginY: "2px" }} key={crypto.randomUUID()}>
                 <Link
