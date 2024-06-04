@@ -101,6 +101,22 @@ export const saveDataUser = async (uid: any, userData: any) => {
   }
 };
 
+export const getAllUserData = async () => {
+  try {
+    const shipmentsCollectionRef = collection(db, "user");
+    const querySnapshot = await getDocs(shipmentsCollectionRef);
+    const shipmentsData: any = [];
+    querySnapshot.forEach((doc) => {
+      shipmentsData.push(doc.data());
+    });
+    console.log(shipmentsData);
+    return shipmentsData;
+  } catch (error) {
+    console.error("Error al obtener la información de la colección: ", error);
+    return null;
+  }
+};
+
 export const shipments = async (uid: any, userData: any) => {
   try {
     const userCollectionRef = collection(db, "envios");
@@ -165,7 +181,9 @@ export const getAllShipmentsData = async () => {
   }
 };
 
-export const getAllShipmentsDataRealTime = (callback: (arg0: any[]) => void) => {
+export const getAllShipmentsDataRealTime = (
+  callback: (arg0: any[]) => void
+) => {
   try {
     const shipmentsCollectionRef = collection(db, "envios");
     const shipmentsData: any[] = [];
@@ -175,7 +193,7 @@ export const getAllShipmentsDataRealTime = (callback: (arg0: any[]) => void) => 
       });
       callback(shipmentsData);
     });
-    return shipmentsData
+    return shipmentsData;
   } catch (error) {
     console.error("Error al obtener la información de la colección: ", error);
     return null;

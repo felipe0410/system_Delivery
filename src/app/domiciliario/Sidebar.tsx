@@ -1,9 +1,10 @@
-import { getAllShipmentsData } from "@/firebase/firebase";
+import { getAllShipmentsData, getAllUserData } from "@/firebase/firebase";
 import { Box, Chip, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 
 const Sidebar = () => {
   const [firebaseData, setFirebaseData] = useState<any[]>([]);
+  const [firebaseUserData, setFirebaseUserData] = useState<any[]>([]);
 
   const getCurrentDateTime = () => {
     const now = new Date();
@@ -27,14 +28,57 @@ const Sidebar = () => {
     return `${day}-${month}-${year}`;
   };
 
+  const processData = () => {
+    const totalMoney = firebaseData.reduce(
+      (acc: any, item: { pago: string; valor: any }) => {
+        const pagoNormalized = item.pago.replace(/\s+/g, "").toLowerCase();
+        if (pagoNormalized === "alcobro") {
+          return acc + item.valor;
+        }
+        return acc;
+      },
+      0
+    );
+
+    const formatNumber = (num: number) => {
+      return num.toLocaleString("es-CO", {
+        minimumFractionDigits: 0,
+        style: "currency",
+        currency: "COP",
+      });
+    };
+    const formattedTotal = formatNumber(totalMoney);
+
+    return {
+      formattedTotal,
+    };
+  };
+
+  const result = processData();
+
   useEffect(() => {
     const getFirebaseData = async () => {
       try {
         const dataRef = await getAllShipmentsData();
         const filteredData = dataRef.filter(
-          (item: { revision: boolean }) => item?.revision === false
+          (item: { status: string }) => item?.status === "mensajero"
         );
         setFirebaseData(filteredData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    getFirebaseData();
+  }, []);
+
+  useEffect(() => {
+    const getFirebaseData = async () => {
+      try {
+        const dataRef = await getAllUserData();
+        const filteredData = dataRef.filter(
+          (item: { rol: string }) => item?.rol === "Mensajero"
+        );
+        setFirebaseUserData(filteredData);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -148,7 +192,7 @@ const Sidebar = () => {
             color: "#006400",
           }}
           variant='outlined'
-          label={"$50.000"}
+          label={result.formattedTotal}
         />
       </Box>
       <Box
@@ -181,7 +225,7 @@ const Sidebar = () => {
             }}
           />
           <Typography sx={{ textAlign: "center", alignContent: "center" }}>
-            FELIPE MONTAÑA R
+            {firebaseUserData[1]?.name.toUpperCase()}
           </Typography>
         </Box>
       </Box>

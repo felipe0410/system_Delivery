@@ -20,6 +20,9 @@ import {
 import { useState, useEffect } from "react";
 import { SnackbarProvider, enqueueSnackbar } from "notistack";
 import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
+import DeliveryModal from "@/components/confirmTable/detailGuide";
+import DevolucionModal from "./Devolucion";
+import EntregarModal from "./Entregar";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -63,77 +66,12 @@ export default function TableDomi() {
     handleSelectionChange(newValue);
   };
 
-  const getCurrentDateTime = () => {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, "0");
-    const day = String(now.getDate()).padStart(2, "0");
-    const hours = String(now.getHours()).padStart(2, "0");
-    const minutes = String(now.getMinutes()).padStart(2, "0");
-    return `${year}-${month}-${day} ${hours}:${minutes}`;
-  };
-
-  const createOnClickHandler = async (status: string) => {
-    try {
-      for (const selectedRow of selectedRows) {
-        const guideStatus = selectedRow.status;
-
-        if (guideStatus === status) {
-          enqueueSnackbar(`El paquete ya está ${guideStatus}`, {
-            variant: "warning",
-            anchorOrigin: {
-              vertical: "bottom",
-              horizontal: "right",
-            },
-          });
-          continue;
-        }
-        await shipments(selectedRow.guide, {
-          ...selectedRow,
-          status: status,
-          returnDate: status === "devolucion" ? getCurrentDateTime() : null,
-          deliveryDate: status === "entregado" ? getCurrentDateTime() : null,
-        });
-        enqueueSnackbar("Guía guardada con éxito", {
-          variant: "success",
-          anchorOrigin: {
-            vertical: "bottom",
-            horizontal: "right",
-          },
-        });
-      }
-    } catch (error) {
-      enqueueSnackbar("Error al guardar el paquete", {
-        variant: "error",
-        anchorOrigin: {
-          vertical: "bottom",
-          horizontal: "right",
-        },
-      });
-    }
-  };
-
-  const buttons = [
-    {
-      name: "DEVOLVER AGENCIA",
-      background: "#5C68D4",
-      src: "/devolucion.png",
-      onclick: () => createOnClickHandler("devolucion"),
-    },
-    {
-      name: "ENTREGAR",
-      background: "#00A410",
-      src: "/oficina.png",
-      onclick: () => createOnClickHandler("entregado"),
-    },
-  ];
-
   useEffect(() => {
     const getFirebaseData = async () => {
       try {
         const dataRef = await getAllShipmentsData();
         const filteredData = dataRef.filter(
-          (item: { revision: boolean }) => item?.revision === false
+          (item: { status: string }) => item?.status === "mensajero"
         );
         setFirebaseData(filteredData);
       } catch (error) {
@@ -240,36 +178,40 @@ export default function TableDomi() {
               <StyledTableCell></StyledTableCell>
               <StyledTableCell># Guía </StyledTableCell>
               <StyledTableCell align='left'>Nombre</StyledTableCell>
-              <StyledTableCell align='right'>#Paquete</StyledTableCell>
-              <StyledTableCell align='right'>Caja </StyledTableCell>
-              <StyledTableCell align='right'>Pago</StyledTableCell>
-              <StyledTableCell align='right'>Valor</StyledTableCell>
-              <StyledTableCell align='right'>Celular</StyledTableCell>
+              <StyledTableCell align='center'>Recibido</StyledTableCell>
+              <StyledTableCell align='center'>Pago</StyledTableCell>
+              <StyledTableCell align='center'>Valor</StyledTableCell>
+              <StyledTableCell align='center'>Celular</StyledTableCell>
+              <StyledTableCell align='center'>Acciones</StyledTableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {firebaseData?.map((row, i) => (
-              <StyledTableRow key={row.uid}>
-                <StyledTableCell>
-                  <Checkbox
-                    checked={selectedRows.some(
-                      (selectedRow) => selectedRow.uid === row.uid
-                    )}
-                    onChange={() => handleCheckboxChange(row)}
-                  />
-                </StyledTableCell>
-                <StyledTableCell component='th' scope='row'>
-                  {row.uid}
-                </StyledTableCell>
-                <StyledTableCell component='th' scope='row'>
-                  {row.addressee}
-                </StyledTableCell>
-                <StyledTableCell align='right'>
-                  {row.packageNumber}
-                </StyledTableCell>
-                <StyledTableCell align='right'>{row.box}</StyledTableCell>
-                <StyledTableCell align='right'>
-                  {
+            {firebaseData?.map((row, i) => {
+              const dateTimeString = row.intakeDate;
+              const dateAndTime = dateTimeString
+                .substring(0, 19)
+                .replace("T", " ");
+
+              return (
+                <StyledTableRow key={row.uid}>
+                  <StyledTableCell>
+                    <Checkbox
+                      checked={selectedRows.some(
+                        (selectedRow) => selectedRow.uid === row.uid
+                      )}
+                      onChange={() => handleCheckboxChange(row)}
+                    />
+                  </StyledTableCell>
+                  <StyledTableCell component='th' scope='row'>
+                    {row.uid}
+                  </StyledTableCell>
+                  <StyledTableCell component='th' scope='row'>
+                    {row.addressee}
+                  </StyledTableCell>
+                  <StyledTableCell align='center'>
+                    {dateAndTime}
+                  </StyledTableCell>
+                  <StyledTableCell align='right'>
                     <Chip
                       sx={{
                         display: "flex",
@@ -286,16 +228,19 @@ export default function TableDomi() {
                       variant='outlined'
                       label={row?.pago ?? "no definido"}
                     />
-                  }
-                </StyledTableCell>
-                <StyledTableCell align='right'>
-                  {row.shippingCost}
-                </StyledTableCell>
-                <StyledTableCell align='right'>
-                  {row?.destinatario?.celular ?? ""}
-                </StyledTableCell>
-              </StyledTableRow>
-            ))}
+                  </StyledTableCell>
+                  <StyledTableCell align='right'>
+                    {row.shippingCost}
+                  </StyledTableCell>
+                  <StyledTableCell align='right'>
+                    {row?.destinatario?.celular ?? ""}
+                  </StyledTableCell>
+                  <StyledTableCell align='right'>
+                    <DeliveryModal data={row} />
+                  </StyledTableCell>
+                </StyledTableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>
@@ -340,45 +285,8 @@ export default function TableDomi() {
           justifyContent: "space-evenly",
         }}
       >
-        {buttons.map((button) => (
-          <Button
-            onClick={button.onclick}
-            key={crypto.randomUUID()}
-            sx={{
-              display: "flex",
-              width: "40%",
-              padding: { xs: "8px", sm: "15px" },
-              borderRadius: "40px",
-              background: button.background,
-              boxShadow:
-                "0px 4px 4px 0px rgba(0, 0, 0, 0.25), 0px 4px 4px 0px rgba(0, 0, 0, 0.25)",
-              textAlign: "center",
-              justifyContent: "space-around",
-              "&:hover": { backgroundColor: button.background },
-            }}
-            endIcon={
-              <Box
-                component={"img"}
-                src={button.src}
-                sx={{ width: { xs: "24px" } }}
-              />
-            }
-          >
-            <Typography
-              sx={{
-                color: "#FFF",
-                textAlign: "center",
-                fontFamily: "Nunito",
-                fontSize: { xs: "0.58rem", sm: "0.875rem" },
-                fontStyle: "normal",
-                fontWeight: 700,
-                lineHeight: "normal",
-              }}
-            >
-              {button.name}
-            </Typography>
-          </Button>
-        ))}
+        <DevolucionModal base={50000} data={selectedRows} />
+        <EntregarModal base={50000} data={selectedRows} />
       </Box>
     </Box>
   );
