@@ -4,26 +4,16 @@ import TableBody from "@mui/material/TableBody";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import {
-  Box,
-  Button,
-  Checkbox,
-  Chip,
-  InputBase,
-  TablePagination,
-} from "@mui/material";
+import { Box, Button, Checkbox, InputBase } from "@mui/material";
 import { updatedShipments } from "@/firebase/firebase";
 import { enqueueSnackbar } from "notistack";
 import { styled } from "@mui/material/styles";
 import TableCell, { tableCellClasses } from "@mui/material/TableCell";
 import { useEffect, useState } from "react";
-import DeliveryModal from "@/components/confirmTable/detailGuide";
 
-export default function BasicTable({ tableData }: { [x: string]: any }) {
-  const [result, setResult] = useState<any[]>([]);
-  const [search, setSearch] = useState({});
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(70);
+export default function BasicTable2({ tableData }: { [x: string]: any }) {
+  const [result, setResult] = useState([]);
+  const [search, setsearch] = useState({});
 
   const getCurrentDateTime = () => {
     const now = new Date();
@@ -37,11 +27,8 @@ export default function BasicTable({ tableData }: { [x: string]: any }) {
 
   const StyledTableCell = styled(TableCell)(({ theme }) => ({
     [`&.${tableCellClasses.head}`]: {
-      backgroundColor: "#000041",
-      // color: "red",
-      position: "sticky",
-      top: 0, // Fija la cabecera en la parte superior
-      zIndex: theme.zIndex.appBar, // Asegura que esté encima de otras filas
+      backgroundColor: "red",
+      color: "red",
     },
     [`&.${tableCellClasses.body}`]: {
       fontSize: 14,
@@ -112,115 +99,59 @@ export default function BasicTable({ tableData }: { [x: string]: any }) {
     });
   }
 
-  type StatusStyle = {
-    background: string;
-    color: string;
-    border: string;
-  };
-
-  const getStatusStyle = (status: string): StatusStyle => {
-    switch (status) {
-      case "entregado":
-        return {
-          background: "#4caf5047",
-          border: "solid #0b5412 1px",
-          color: "#0b5412",
-        };
-      case "oficina":
-        return {
-          background: "#ffe50169",
-          border: "solid #c58f0a 1px",
-          color: "#000000",
-        };
-      case "mensajero":
-        return {
-          background: "#2421f352",
-          border: "solid #1976d2 1px",
-          color: "#000",
-        };
-      case "devolucion":
-        return {
-          background: "#f4433666",
-          border: "solid #d32f2f 1px",
-          color: "#ffffff",
-        };
-      default:
-        return {
-          background: "#9e9e9e",
-          border: "solid #757575 1px",
-          color: "#ffffff",
-        };
-    }
-  };
-
-  const handleChangePage = (event: unknown, newPage: number) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  const displayedRows = result.length > 0 ? result : tableData;
-  const rowsToDisplay = displayedRows.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
-
   return (
     <Box>
-      <TableContainer
-        id={"table container"}
-        sx={{ maxHeight: 840, borderRadius: "20px", overflow: "auto" }}
-      >
+      <Box sx={{ display: "flex", gap: 1, justifyContent: "center" }}>
+        <Button sx={{ width: "30%" }} variant="contained">
+          Edit
+        </Button>
+        <Button sx={{ width: "30%" }} variant="contained">
+          Delete
+        </Button>
+        <Button sx={{ width: "30%" }} variant="contained">
+          {"Entregado"}
+        </Button>
+      </Box>
+
+      <TableContainer id={"table container"} sx={{ borderRadius: "20px" }}>
         <Table
           id={"table container"}
           sx={{ minWidth: 650 }}
           aria-label="simple table"
-          stickyHeader
         >
           <TableHead sx={{ background: "#3C47A3" }}>
             <TableRow>
-              <StyledTableCell sx={{ color: "#fff" }} align="center">
+              <TableCell sx={{ color: "#fff" }} align="center">
                 {"select"}
-              </StyledTableCell>
-              <StyledTableCell sx={{ color: "#fff" }} align="center">
+              </TableCell>
+              <TableCell sx={{ color: "#fff" }} align="center">
                 Nª GUIA
                 {inputSearch("guide")}
-              </StyledTableCell>
-              <StyledTableCell sx={{ color: "#fff" }} align="center">
+              </TableCell>
+              <TableCell sx={{ color: "#fff" }} align="center">
                 Destinatario
                 {inputSearch("addressee")}
-              </StyledTableCell>
-              <StyledTableCell sx={{ color: "#fff" }} align="center">
+              </TableCell>
+              <TableCell sx={{ color: "#fff" }} align="center">
                 Entregar en:
                 {inputSearch("deliverTo")}
-              </StyledTableCell>
-              <StyledTableCell sx={{ color: "#fff" }} align="center">
+              </TableCell>
+              <TableCell sx={{ color: "#fff" }} align="center">
                 Caja
                 {inputSearch("box")}
-              </StyledTableCell>
-              <StyledTableCell sx={{ color: "#fff" }} align="center">
+              </TableCell>
+              <TableCell sx={{ color: "#fff" }} align="center">
                 Paquete
                 {inputSearch("packageNumber")}
-              </StyledTableCell>
-              <StyledTableCell sx={{ color: "#fff" }} align="center">
+              </TableCell>
+              <TableCell sx={{ color: "#fff" }} align="center">
                 Valor
                 {inputSearch("shippingCost")}
-              </StyledTableCell>
-              <StyledTableCell sx={{ color: "#fff" }} align="center">
-                Estado
-              </StyledTableCell>
-              <StyledTableCell sx={{ color: "#fff" }} align="center">
-                Detalles
-              </StyledTableCell>
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {rowsToDisplay.map((row: any) => (
+            {(result.length > 0 ? result : tableData).map((row: any) => (
               <StyledTableRow
                 key={row.uid}
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
@@ -242,35 +173,11 @@ export default function BasicTable({ tableData }: { [x: string]: any }) {
                 <StyledTableCell align="center">
                   {row.shippingCost}
                 </StyledTableCell>
-                <StyledTableCell>
-                  <Chip
-                    label={row.status}
-                    sx={{
-                      ...getStatusStyle(row.status),
-                      fontSize: "16px",
-                      marginLeft: "10px",
-                      width: "100%",
-                      fontWeight: 700,
-                    }}
-                  />
-                </StyledTableCell>
-                <StyledTableCell>
-                  <DeliveryModal data={row} />
-                </StyledTableCell>
               </StyledTableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[10, 20, 50, 70]}
-        component="div"
-        count={displayedRows.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      />
     </Box>
   );
 }

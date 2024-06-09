@@ -133,6 +133,22 @@ export const shipments = async (uid: any, userData: any) => {
   }
 };
 
+export const shipmentsDeliver = async (uid: any, newStatus?: string) => {
+  try {
+    const userCollectionRef = collection(db, "envios");
+    const userDocRef = doc(userCollectionRef, uid);    
+    await updateDoc(userDocRef, {
+      status: newStatus
+    });
+    console.log(`El estado ha sido actualizado a '${newStatus}' para el documento con ID:`, uid);
+    return uid;
+  } catch (error) {
+    console.error("Error al actualizar el estado en /envios: ", error);
+    return null;
+  }
+};
+
+
 export const updatedShipments = async (uid: any, updatedData: any) => {
   try {
     const userCollectionRef = collection(db, "envios");
