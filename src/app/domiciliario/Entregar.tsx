@@ -54,6 +54,7 @@ export default function EntregarModal({
     return {
       formattedTotalPackages,
       baseFormatted,
+      totalPackages,
     };
   };
 
@@ -116,6 +117,23 @@ export default function EntregarModal({
         },
       });
     }
+  };
+
+  const handleButtonClick = () => {
+    const currentData = localStorage.getItem("entregados");
+    const currentCount = currentData ? parseInt(currentData) : 0;
+    const newDataLength = data ? data.length : 0;
+    const total = currentCount + newDataLength;
+
+    const totalAmount = localStorage.getItem("total");
+    const currentAmount = totalAmount ? parseInt(totalAmount) : 0;
+    const newAmount = data ? result.totalPackages : 0;
+    const totalNewAmount = currentAmount + newAmount;
+
+    localStorage.setItem("total", JSON.stringify(totalNewAmount));
+    localStorage.setItem("entregados", JSON.stringify(total));
+
+    createOnClickHandler("entregado");
   };
 
   const box = (title: string, value: string) => {
@@ -205,14 +223,14 @@ export default function EntregarModal({
       </Button>
       <SnackbarProvider />
       <Modal
-        id="modal"
+        id='modal'
         open={open}
         sx={{ borderRadius: "40px" }}
         onClose={handleClose}
-        aria-labelledby="parent-modal-title"
-        aria-describedby="parent-modal-description"
+        aria-labelledby='parent-modal-title'
+        aria-describedby='parent-modal-description'
       >
-        <Box id="content" sx={{ ...style, width: "50%" }}>
+        <Box id='content' sx={{ ...style, width: "50%" }}>
           <Typography
             sx={{
               fontFamily: "Nunito",
@@ -277,7 +295,7 @@ export default function EntregarModal({
               CANCELAR
             </Button>
             <Button
-              onClick={() => createOnClickHandler("entregado")}
+              onClick={handleButtonClick}
               sx={{
                 boxShadow: "0px 4px 4px 0px #00000040",
                 background: "#106D14",

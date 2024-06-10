@@ -276,7 +276,15 @@ export default function DevolucionModal({
               CANCELAR
             </Button>
             <Button
-              onClick={() => createOnClickHandler("devolucion")}
+              onClick={() => {
+                const currentData = localStorage.getItem("devolucion");
+                const currentCount = currentData ? parseInt(currentData) : 0;
+                const newDataLength = data ? data.length : 0;
+                const total = currentCount + newDataLength;
+
+                localStorage.setItem("devolucion", JSON.stringify(total));
+                createOnClickHandler("devolucion");
+              }}
               sx={{
                 boxShadow: "0px 4px 4px 0px #00000040",
                 background: "#106D14",

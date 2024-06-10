@@ -7,7 +7,11 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-import { getAllShipmentsData, shipments } from "@/firebase/firebase";
+import {
+  getAllShipmentsData,
+  shipments,
+  getStatusShipmentsData,
+} from "@/firebase/firebase";
 import {
   Autocomplete,
   Box,
@@ -67,18 +71,8 @@ export default function TableDomi() {
   };
 
   useEffect(() => {
-    const getFirebaseData = async () => {
-      try {
-        const dataRef = await getAllShipmentsData();
-        const filteredData = dataRef.filter(
-          (item: { status: string }) => item?.status === "mensajero"
-        );
-        setFirebaseData(filteredData);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-    getFirebaseData();
+    const status = "mensajero";
+    getStatusShipmentsData(status, setFirebaseData);
   }, []);
 
   useEffect(() => {
@@ -167,22 +161,22 @@ export default function TableDomi() {
       </Box>
 
       <TableContainer
-        id="container"
+        id='container'
         sx={{ height: "900px", overflowY: "scroll", maxHeight: "450px" }}
         component={Paper}
       >
         <SnackbarProvider />
-        <Table sx={{ minWidth: 700 }} aria-label="customized table">
+        <Table sx={{ minWidth: 700 }} aria-label='customized table'>
           <TableHead>
             <TableRow>
               <StyledTableCell></StyledTableCell>
               <StyledTableCell># Guía </StyledTableCell>
-              <StyledTableCell align="left">Nombre</StyledTableCell>
-              <StyledTableCell align="center">Recibido</StyledTableCell>
-              <StyledTableCell align="center">Pago</StyledTableCell>
-              <StyledTableCell align="center">Valor</StyledTableCell>
-              <StyledTableCell align="center">Celular</StyledTableCell>
-              <StyledTableCell align="center">Acciones</StyledTableCell>
+              <StyledTableCell align='left'>Nombre</StyledTableCell>
+              <StyledTableCell align='center'>Recibido</StyledTableCell>
+              <StyledTableCell align='center'>Pago</StyledTableCell>
+              <StyledTableCell align='center'>Valor</StyledTableCell>
+              <StyledTableCell align='center'>Celular</StyledTableCell>
+              <StyledTableCell align='center'>Acciones</StyledTableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -202,16 +196,16 @@ export default function TableDomi() {
                       onChange={() => handleCheckboxChange(row)}
                     />
                   </StyledTableCell>
-                  <StyledTableCell component="th" scope="row">
+                  <StyledTableCell component='th' scope='row'>
                     {row.uid}
                   </StyledTableCell>
-                  <StyledTableCell component="th" scope="row">
+                  <StyledTableCell component='th' scope='row'>
                     {row.addressee}
                   </StyledTableCell>
-                  <StyledTableCell align="center">
+                  <StyledTableCell align='center'>
                     {dateAndTime}
                   </StyledTableCell>
-                  <StyledTableCell align="right">
+                  <StyledTableCell align='right'>
                     <Chip
                       sx={{
                         display: "flex",
@@ -225,17 +219,17 @@ export default function TableDomi() {
                             : "#106D14",
                         color: "#fff",
                       }}
-                      variant="outlined"
+                      variant='outlined'
                       label={row?.pago ?? "no definido"}
                     />
                   </StyledTableCell>
-                  <StyledTableCell align="right">
+                  <StyledTableCell align='right'>
                     {row.shippingCost}
                   </StyledTableCell>
-                  <StyledTableCell align="right">
+                  <StyledTableCell align='right'>
                     {row?.destinatario?.celular ?? ""}
                   </StyledTableCell>
-                  <StyledTableCell align="right">
+                  <StyledTableCell align='right'>
                     <DeliveryModal data={row} />
                   </StyledTableCell>
                 </StyledTableRow>
@@ -255,7 +249,7 @@ export default function TableDomi() {
       >
         <Autocomplete
           multiple
-          id="tags-outlined"
+          id='tags-outlined'
           options={firebaseData}
           getOptionLabel={(option) => option?.uid}
           value={selectedRows}
@@ -264,7 +258,7 @@ export default function TableDomi() {
           renderInput={(params) => (
             <TextField
               {...params}
-              placeholder="Guias"
+              placeholder='Guias'
               sx={{
                 backgroundColor: "white",
                 borderRadius: "0.28rem",
@@ -272,7 +266,7 @@ export default function TableDomi() {
               }}
             />
           )}
-          popupIcon={<QrCodeScannerIcon fontSize="inherit" />}
+          popupIcon={<QrCodeScannerIcon fontSize='inherit' />}
           sx={{ width: "60%", marginTop: "1rem" }}
         />
       </Box>

@@ -133,21 +133,39 @@ export const shipments = async (uid: any, userData: any) => {
   }
 };
 
+export const sidebarCollection = async (uid: any, sidebarData: any) => {
+  try {
+    const sidebarCollection = collection(db, "resumen");
+    const userDocRef = doc(sidebarCollection, uid);
+    await setDoc(userDocRef, {
+      uid: uid,
+      ...sidebarData,
+    });
+    console.log("Documento guardado con ID: ", uid);
+    return uid;
+  } catch (error) {
+    console.error("Error al guardar información en /user: ", error);
+    return null;
+  }
+};
+
 export const shipmentsDeliver = async (uid: any, newStatus?: string) => {
   try {
     const userCollectionRef = collection(db, "envios");
-    const userDocRef = doc(userCollectionRef, uid);    
+    const userDocRef = doc(userCollectionRef, uid);
     await updateDoc(userDocRef, {
-      status: newStatus
+      status: newStatus,
     });
-    console.log(`El estado ha sido actualizado a '${newStatus}' para el documento con ID:`, uid);
+    console.log(
+      `El estado ha sido actualizado a '${newStatus}' para el documento con ID:`,
+      uid
+    );
     return uid;
   } catch (error) {
     console.error("Error al actualizar el estado en /envios: ", error);
     return null;
   }
 };
-
 
 export const updatedShipments = async (uid: any, updatedData: any) => {
   try {
@@ -216,6 +234,29 @@ export const getAllShipmentsDataRealTime = (
   }
 };
 
+export const getStatusShipmentsData = (
+  status: string,
+  callback: (arg0: any[]) => void
+) => {
+  try {
+    const db = getFirestore();
+    const shipmentsCollectionRef = collection(db, "envios");
+
+    onSnapshot(shipmentsCollectionRef, (querySnapshot) => {
+      const shipmentsData: any[] = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        if (data.status === status) {
+          shipmentsData.push(data);
+        }
+      });
+      callback(shipmentsData);
+    });
+  } catch (error) {
+    console.error("Error al obtener la información de la colección: ", error);
+  }
+};
+
 export const getEnvios = async () => {
   try {
     const docRef = doc(db, "consecutivo", "consecutivos");
@@ -233,7 +274,6 @@ export const getEnvios = async () => {
     console.error("Error getting document:", error);
   }
 };
-
 
 export const saveEnvios = async (updatedEnvios: any) => {
   try {
