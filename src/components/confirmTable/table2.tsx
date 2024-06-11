@@ -30,7 +30,6 @@ import ModalComponent from "./modal";
 import DeliveryModal from "./detailGuide";
 import DeliveryDiningIcon from "@mui/icons-material/DeliveryDining";
 import ApartmentIcon from "@mui/icons-material/Apartment";
-import { RawOff } from "@mui/icons-material";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -237,7 +236,7 @@ export default function CustomizedTables() {
           ? selectedRows["valor"]
           : row["valor"] ?? 0
       }
-      prefix="$ "
+      prefix='$ '
       thousandSeparator
       customInput={InputBase}
       sx={
@@ -595,31 +594,31 @@ export default function CustomizedTables() {
           }}
         >
           <BottomNavigationAction
-            label="Domiciliario"
+            label='Domiciliario'
             icon={<DeliveryDiningIcon />}
           />
-          <BottomNavigationAction label="Oficina" icon={<ApartmentIcon />} />
+          <BottomNavigationAction label='Oficina' icon={<ApartmentIcon />} />
         </BottomNavigation>
       </Paper>
       <TableContainer
-        id="container"
+        id='container'
         sx={{ overflowY: "scroll", maxHeight: "50vh" }}
         component={Paper}
       >
         <SnackbarProvider />
-        <Table sx={{ minWidth: 700 }} aria-label="customized table">
+        <Table sx={{ minWidth: 700 }} aria-label='customized table'>
           <TableHead>
             <TableRow>
               <StyledTableCell>select</StyledTableCell>
               <StyledTableCell># Guía </StyledTableCell>
-              <StyledTableCell align="left">Nombre</StyledTableCell>
-              <StyledTableCell align="right">#Paquete</StyledTableCell>
-              <StyledTableCell align="right">Caja </StyledTableCell>
-              <StyledTableCell align="right">Pago</StyledTableCell>
-              <StyledTableCell align="right">Valor</StyledTableCell>
-              <StyledTableCell align="right">Celular</StyledTableCell>
-              <StyledTableCell align="right">Entregar en:</StyledTableCell>
-              <StyledTableCell align="right">Acciones</StyledTableCell>
+              <StyledTableCell align='left'>Nombre</StyledTableCell>
+              <StyledTableCell align='right'>#Paquete</StyledTableCell>
+              <StyledTableCell align='right'>Caja </StyledTableCell>
+              <StyledTableCell align='right'>Pago</StyledTableCell>
+              <StyledTableCell align='right'>Valor</StyledTableCell>
+              <StyledTableCell align='right'>Celular</StyledTableCell>
+              <StyledTableCell align='right'>Entregar en:</StyledTableCell>
+              <StyledTableCell align='right'>Acciones</StyledTableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -646,19 +645,19 @@ export default function CustomizedTables() {
                     }}
                   />
                 </StyledTableCell>
-                <StyledTableCell component="th" scope="row">
+                <StyledTableCell component='th' scope='row'>
                   {row.uid}
                 </StyledTableCell>
-                <StyledTableCell component="th" scope="row">
+                <StyledTableCell component='th' scope='row'>
                   {row.addressee}
                 </StyledTableCell>
-                <StyledTableCell align="right">
+                <StyledTableCell align='right'>
                   {inputBasePersonal(row, "packageNumber", i)}
                 </StyledTableCell>
-                <StyledTableCell align="right">
+                <StyledTableCell align='right'>
                   {inputBasePersonal(row, "box", i)}
                 </StyledTableCell>
-                <StyledTableCell align="right">
+                <StyledTableCell align='right'>
                   {selectedRows.uid === row.uid && check ? (
                     inputSelect(row, i)
                   ) : (
@@ -675,7 +674,7 @@ export default function CustomizedTables() {
                             : "#a13e3e",
                         color: "#fff",
                       }}
-                      variant="outlined"
+                      variant='outlined'
                       label={row?.pago ?? "no definido"}
                     />
                   )}
@@ -683,10 +682,10 @@ export default function CustomizedTables() {
                 <StyledTableCell align="right">
                   {amountInput(row, "shippingCost", i)}
                 </StyledTableCell>
-                <StyledTableCell align="right">
+                <StyledTableCell align='right'>
                   {row?.destinatario?.celular ?? ""}
                 </StyledTableCell>
-                <StyledTableCell align="right">
+                <StyledTableCell align='right'>
                   <Chip
                     sx={{
                       display: "flex",
@@ -703,13 +702,65 @@ export default function CustomizedTables() {
                   />
                 </StyledTableCell>
                 <StyledTableCell
-                  align="right"
+                  align='right'
                   sx={{
                     display: "flex",
                     alignItems: "center",
                     flexDirection: "row",
                   }}
                 >
+                  {/* {
+                    <IconButton
+                      disabled={
+                        allData[
+                          value === 0 ? "domiciliario" : "oficina"
+                        ].findIndex(
+                          (item: { uid: any }) => item.uid === row.uid
+                        ) === -1
+                      }
+                      onClick={async () => {
+                        try {
+                          const save = await shipments(
+                            selectedRows.uid,
+                            selectedRows
+                          );
+                          if (save !== null) {
+                            setsucessFull({ ...sucessFull, [i]: true });
+                          }
+                          enqueueSnackbar("Envio Actualizado con exito", {
+                            variant: "success",
+                            anchorOrigin: {
+                              vertical: "bottom",
+                              horizontal: "right",
+                            },
+                          });
+                        } catch (error) {
+                          enqueueSnackbar("Error al actualizar el envio", {
+                            variant: "error",
+                            anchorOrigin: {
+                              vertical: "bottom",
+                              horizontal: "right",
+                            },
+                          });
+                        }
+                      }}
+                      type='button'
+                      sx={{ p: "10px" }}
+                    >
+                      <SaveIcon
+                        sx={{
+                          color:
+                            allData[
+                              value === 0 ? "domiciliario" : "oficina"
+                            ].findIndex(
+                              (item: { uid: any }) => item.uid === row.uid
+                            ) === -1
+                              ? "gray"
+                              : "#00A907",
+                        }}
+                      />
+                    </IconButton>
+                  } */}
                   <Box
                     sx={
                       saveshipment(i)
