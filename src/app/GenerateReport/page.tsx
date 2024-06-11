@@ -1,5 +1,5 @@
 "use client";
-import { Box, Paper, Typography } from "@mui/material";
+import { Box, Paper, Typography, Button } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import imgBack from "/public/images/af4e63708de6ec3a46f9cfb41f4c5075.png";
@@ -9,6 +9,7 @@ import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import DocumentScannerOutlinedIcon from "@mui/icons-material/DocumentScannerOutlined";
 import TableReport from "@/components/TableReport";
+import GuidesGroup from "./modal_guias";
 
 const Page = () => {
   const [firebaseData, setFirebaseData] = useState<{ [x: string]: any }[]>([]);
@@ -76,13 +77,20 @@ const Page = () => {
                 lineHeight: "normal",
               }}
             >
-              A cotinucacion ESCANEE las guias que desea descargar en formato
-              excel.
+              A continuación, ingrese las guías que desea agregar y presione el
+              botón para añadirlas al listado.
             </Typography>
+          </Box>
+
+          <Box mt={2}>
+            <GuidesGroup
+              firebaseData={firebaseData}
+              setTagsValue={setTagsValue}
+            />
           </Box>
           <Autocomplete
             multiple
-            id='tags-outlined'
+            id="tags-outlined"
             options={firebaseData}
             getOptionLabel={(option) => option.guide}
             value={tagsValue}
@@ -91,13 +99,13 @@ const Page = () => {
             }}
             filterSelectedOptions
             renderInput={(params) => (
-              <TextField {...params} placeholder='Favorites' />
+              <TextField {...params} placeholder="Guías Seleccionadas" />
             )}
             popupIcon={<DocumentScannerOutlinedIcon />}
             sx={{ width: "60%", marginTop: "1rem" }}
           />
         </Box>
-        <Box id='container-table' mt={4}>
+        <Box id="container-table" mt={4}>
           <TableReport data={tagsValue} />
         </Box>
       </Paper>
@@ -109,7 +117,7 @@ const Page = () => {
           bottom: "10px",
         }}
       >
-        <Image alt='img-background' src={imgBack} width={594} height={456} />
+        <Image alt="img-background" src={imgBack} width={594} height={456} />
       </Box>
     </Box>
   );

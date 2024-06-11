@@ -35,6 +35,15 @@ export const firebaseConfig = {
 const app: FirebaseApp = initializeApp(firebaseConfig);
 export const db: Firestore = getFirestore(app);
 const auth = getAuth();
+const getCurrentDateTime = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  const hours = String(now.getHours()).padStart(2, "0");
+  const minutes = String(now.getMinutes()).padStart(2, "0");
+  return `${year}-${month}-${day} ${hours}:${minutes}`;
+};
 
 export const creteUser = async (email: any, password: any) => {
   try {
@@ -136,18 +145,21 @@ export const shipments = async (uid: any, userData: any) => {
 export const shipmentsDeliver = async (uid: any, newStatus?: string) => {
   try {
     const userCollectionRef = collection(db, "envios");
-    const userDocRef = doc(userCollectionRef, uid);    
+    const userDocRef = doc(userCollectionRef, uid);
     await updateDoc(userDocRef, {
-      status: newStatus
+      status: newStatus,
+      deliveryDate: getCurrentDateTime(),
     });
-    console.log(`El estado ha sido actualizado a '${newStatus}' para el documento con ID:`, uid);
+    console.log(
+      `El estado ha sido actualizado a '${newStatus}' para el documento con ID:`,
+      uid
+    );
     return uid;
   } catch (error) {
-    console.error("Error al actualizar el estado en /envios: ", error);
+    console.error("Error al actualizar el estado en /envios:", error);
     return null;
   }
 };
-
 
 export const updatedShipments = async (uid: any, updatedData: any) => {
   try {
@@ -223,7 +235,7 @@ export const getEnvios = async () => {
 
     if (docSnap.exists()) {
       const data = docSnap.data();
-      const envios = data.envios; // Asumiendo que 'envios' es el campo que necesitas
+      const envios = data.envios;
       return envios;
     } else {
       console.log("No such document!");
@@ -234,6 +246,36 @@ export const getEnvios = async () => {
   }
 };
 
+export const removePackageNumberFromEnvios = async (uid: string) => {
+  try {
+    const shipmentDocRef = doc(db, "envios", uid);
+    const shipmentSnap = await getDoc(shipmentDocRef);
+    if (shipmentSnap.exists()) {
+      const shipmentData = shipmentSnap.data();
+      const packageNumber = shipmentData.packageNumber;
+      if (packageNumber !== null) {
+        const envios = await getEnvios();
+        if (envios && Array.isArray(envios)) {
+          const updatedEnvios = envios.filter(number => number !== packageNumber);
+          await saveEnvios(updatedEnvios);
+          console.log(`Package number ${packageNumber} removed from envios.`);
+          return updatedEnvios;
+        } else {
+          console.log("No envíos found or invalid data format.");
+          return null;
+        }
+      } else {
+        console.log("The packageNumber is null.");
+        return null;
+      }
+    } else {
+      console.log("The document does not exist.");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error removing package number from envios:", error);
+  }
+};
 
 export const saveEnvios = async (updatedEnvios: any) => {
   try {

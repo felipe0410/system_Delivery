@@ -169,6 +169,33 @@ const DeliveryModal: React.FC<DeliveryModalProps> = ({ data }) => {
                           {data.intakeDate}
                         </Typography>
                       </Box>
+                      <Box
+                        display={
+                          data.status == "oficina" || data.status == "mensajero"
+                            ? "none"
+                            : "flex"
+                        }
+                        justifyContent="space-between"
+                        alignItems="center"
+                        mt={1}
+                        bgcolor={
+                          data.status == "entregado" ? "#003A02" : "#a56b00"
+                        }
+                        color="white"
+                        p={1}
+                        borderRadius={"25px 0px 0px 25px"}
+                      >
+                        <Typography sx={{ fontWeight: 800 }} variant="body2">
+                          {data.status == "entregado"
+                            ? "ENTREGA:"
+                            : data.status == "devolucion"
+                            ? "DEVOLUCION"
+                            : ""}
+                        </Typography>
+                        <Typography variant="body2">
+                          {data?.deliveryDate ?? ""}
+                        </Typography>
+                      </Box>
                     </Box>
                   </Box>
                 </Box>

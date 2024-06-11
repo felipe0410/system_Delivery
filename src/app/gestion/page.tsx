@@ -20,16 +20,13 @@ import HomeWorkTwoToneIcon from "@mui/icons-material/HomeWorkTwoTone";
 import ReplaySharpIcon from "@mui/icons-material/ReplaySharp";
 import SaveIcon from "@mui/icons-material/Save";
 import QrCode2Icon from "@mui/icons-material/QrCode2";
-import axios from "axios";
 import {
-  getShipmentData,
-  shipments,
+  removePackageNumberFromEnvios,
   shipmentsDeliver,
 } from "@/firebase/firebase";
 import DeliveryDiningTwoToneIcon from "@mui/icons-material/DeliveryDiningTwoTone";
 
 const Page = () => {
-  const [password, setPassword] = useState("");
   const [guide, setGuide] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
@@ -45,6 +42,9 @@ const Page = () => {
     const updatePromises = guide.map(async (uid) => {
       try {
         const status = await shipmentsDeliver(uid, newStatus);
+        if(['entregado','devolucion'].includes(uid)){
+          removePackageNumberFromEnvios(uid);
+        }
         if (status) {
           setGuide((prevGuide) => prevGuide.filter((id) => id !== uid));
           setShipmentsSave((prevCount) => prevCount + 1);
@@ -69,7 +69,6 @@ const Page = () => {
 
   const handleInputKeyPress = async (event: { key: string }) => {
     if (event.key === "Enter" && inputValue.trim() !== "") {
-      const dataDB = (await getShipmentData(inputValue.trim())) ?? null;
       if (!guide.includes(inputValue.trim())) {
         setGuide((prevGuides) => [...prevGuides, inputValue.trim()]);
       } else {
@@ -95,71 +94,6 @@ const Page = () => {
     target: { value: React.SetStateAction<string> };
   }) => {
     setSearchTerm(event.target.value);
-  };
-
-  function convertirMonedaANumero(monto: string): number {
-    const montoSinSimbolos = monto.replace(/[^0-9,]/g, "");
-    const montoFormateado = montoSinSimbolos.replace(/,/g, ".");
-    const numero = parseFloat(montoFormateado);
-    if (isNaN(numero)) {
-      return 0;
-    }
-    return numero;
-  }
-
-  const fetchGuideDetails = (domiciliary: boolean) => {
-    setLoad(true);
-    axios
-      .post("http://0.0.0.0:8080/consult", { guias: guide, password })
-      .then(async (response: { data: any }) => {
-        const responseData = response.data;
-        const processedUids = responseData.map(
-          (item: { uid: string }) => item.uid
-        );
-        const updatedGuides = guide.filter(
-          (g: string) => !processedUids.includes(g)
-        );
-        setGuide(updatedGuides);
-
-        for (const shipment of response.data) {
-          const uid = shipment.uid;
-          const result = await shipments(
-            uid,
-            domiciliary
-              ? {
-                  ...shipment,
-                  status: "mensajero",
-                  box: "0",
-                  packageNumber: "0",
-                  courierAttempt1: Date.now(),
-                  valor: convertirMonedaANumero(shipment?.shippingCost ?? "0"),
-                }
-              : {
-                  ...shipment,
-                  status: "oficina",
-                  valor: convertirMonedaANumero(shipment?.shippingCost ?? "0"),
-                }
-          );
-          if (result) {
-            if (shipment?.shippingCost?.length > 0) {
-              console.log(`Datos guardados para el envío con UID: ${uid}`);
-            }
-          } else {
-            console.error(
-              `Error al guardar los datos para el envío con UID: ${uid}`
-            );
-          }
-        }
-        enqueueSnackbar("Datos cargados correctamente.", {
-          variant: "success",
-        });
-        setLoad(false);
-      })
-      .catch((error: any) => {
-        console.error("Error al cargar los datos:", error);
-        enqueueSnackbar("Error al cargar los datos.", { variant: "error" });
-        setLoad(false);
-      });
   };
 
   useEffect(() => {
@@ -243,7 +177,7 @@ const Page = () => {
                 lineHeight: "normal",
               }}
             >
-              Debes ingresar las guias ya actualizar su estado
+              Debes ingresar las guias para actualizar su estado
             </Typography>
           </Box>
           <InputBase
