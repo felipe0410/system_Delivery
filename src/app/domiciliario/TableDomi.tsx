@@ -50,7 +50,6 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 export default function TableDomi() {
   const [firebaseData, setFirebaseData] = useState<any[]>([]);
   const [selectedRows, setSelectedRows] = useState<any[]>([]);
-  const [num, setNumm] = useState(0);
 
   const handleSelectionChange = (newSelectedRows: any[]) => {
     setSelectedRows(newSelectedRows);
@@ -73,29 +72,6 @@ export default function TableDomi() {
   useEffect(() => {
     const status = "mensajero";
     getStatusShipmentsData(status, setFirebaseData);
-  }, []);
-
-  useEffect(() => {
-    const allData = async () => {
-      const allData: any[] = await getAllShipmentsData();
-      const array: any = [];
-      allData.map((data) => {
-        array.push(data.packageNumber);
-      });
-      const numerosOrdenados = array
-        .map(Number)
-        .sort((a: any, b: any) => a - b);
-      let numeroFaltante = 1;
-      for (const numero of numerosOrdenados) {
-        if (numero === numeroFaltante) {
-          numeroFaltante++;
-        } else if (numero > numeroFaltante) {
-          break;
-        }
-      }
-      setNumm(numeroFaltante);
-    };
-    allData();
   }, []);
 
   return (
@@ -124,7 +100,7 @@ export default function TableDomi() {
             textAlignLast: "center",
           }}
         >
-          {num}
+          {firebaseData.length}
         </Box>
       </Box>
       <Box sx={{ textAlign: "-webkit-center" }}>
