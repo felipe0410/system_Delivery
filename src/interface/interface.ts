@@ -14,5 +14,5 @@ interface ShipmentData {
   courierAttempt1: string | null;
   courierAttempt2: string | null;
   courierAttempt3: string | null;
-  [key: string]: string | null; // Firma de índice
+  [key: string]: string | null;
 }

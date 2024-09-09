@@ -30,7 +30,6 @@ import ModalComponent from "./modal";
 import DeliveryModal from "./detailGuide";
 import DeliveryDiningIcon from "@mui/icons-material/DeliveryDining";
 import ApartmentIcon from "@mui/icons-material/Apartment";
-import { RawOff } from "@mui/icons-material";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -345,10 +344,9 @@ export default function CustomizedTables() {
 
   const allDataFunction = async () => {
     const getArrayEnvios = await getEnvios();
-    // Convertir getArrayEnvios a números y filtrar los no numéricos
-    const arrayEnvios = getArrayEnvios.map(Number).filter(Number.isFinite);
-
-    // Crear un array con los packageNumber de firebaseData
+    const arrayEnvios = (getArrayEnvios ?? [0])
+      .map(Number)
+      .filter(Number.isFinite);
     const array = firebaseData
       .map((data) => Number(data.packageNumber))
       .filter(Number.isFinite);
@@ -410,7 +408,7 @@ export default function CustomizedTables() {
             fontweight: 700,
           }}
         >
-          RESUMEN
+          RESUMEN2
         </Typography>
         <Box
           sx={{
@@ -710,6 +708,58 @@ export default function CustomizedTables() {
                     flexDirection: "row",
                   }}
                 >
+                  {/* {
+                    <IconButton
+                      disabled={
+                        allData[
+                          value === 0 ? "domiciliario" : "oficina"
+                        ].findIndex(
+                          (item: { uid: any }) => item.uid === row.uid
+                        ) === -1
+                      }
+                      onClick={async () => {
+                        try {
+                          const save = await shipments(
+                            selectedRows.uid,
+                            selectedRows
+                          );
+                          if (save !== null) {
+                            setsucessFull({ ...sucessFull, [i]: true });
+                          }
+                          enqueueSnackbar("Envio Actualizado con exito", {
+                            variant: "success",
+                            anchorOrigin: {
+                              vertical: "bottom",
+                              horizontal: "right",
+                            },
+                          });
+                        } catch (error) {
+                          enqueueSnackbar("Error al actualizar el envio", {
+                            variant: "error",
+                            anchorOrigin: {
+                              vertical: "bottom",
+                              horizontal: "right",
+                            },
+                          });
+                        }
+                      }}
+                      type='button'
+                      sx={{ p: "10px" }}
+                    >
+                      <SaveIcon
+                        sx={{
+                          color:
+                            allData[
+                              value === 0 ? "domiciliario" : "oficina"
+                            ].findIndex(
+                              (item: { uid: any }) => item.uid === row.uid
+                            ) === -1
+                              ? "gray"
+                              : "#00A907",
+                        }}
+                      />
+                    </IconButton>
+                  } */}
                   <Box
                     sx={
                       saveshipment(i)
