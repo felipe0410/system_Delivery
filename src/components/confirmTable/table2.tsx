@@ -300,7 +300,7 @@ export default function CustomizedTables() {
       const existingIndex = allData[field].findIndex(
         (item: { uid: any }) => item.uid === newRow.uid
       );
-      let updatedData;
+      let updatedData: any;
       if (existingIndex !== -1) {
         updatedData = [
           ...allData[field].slice(0, existingIndex),
@@ -350,13 +350,10 @@ export default function CustomizedTables() {
     const array = firebaseData
       .map((data) => Number(data.packageNumber))
       .filter(Number.isFinite);
-    console.log("Array de firebaseData:", array);
 
-    // Fusionar y ordenar los números
     const numerosFusionados = [...arrayEnvios, ...array].sort((a, b) => a - b);
     setArrayUniqueValue(numerosFusionados);
 
-    // Encontrar el número faltante en el array fusionado
     let numeroFaltante = 1;
     for (const numero of numerosFusionados) {
       if (numero === numeroFaltante) {
@@ -365,9 +362,6 @@ export default function CustomizedTables() {
         break;
       }
     }
-    console.log("Número faltante final:", numeroFaltante);
-
-    // Setear el número faltante
     setNumm(numeroFaltante);
   };
 
@@ -408,7 +402,7 @@ export default function CustomizedTables() {
             fontweight: 700,
           }}
         >
-          RESUMEN2
+          RESUMEN
         </Typography>
         <Box
           sx={{
