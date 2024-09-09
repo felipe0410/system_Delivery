@@ -142,6 +142,42 @@ export const shipments = async (uid: any, userData: any) => {
   }
 };
 
+export const sidebarCollection = async (uid: any, sidebarData: any) => {
+  try {
+    console.log(sidebarData);
+    const sidebarCollection = collection(db, "resumen");
+    const userDocRef = doc(sidebarCollection, uid);
+    await setDoc(userDocRef, {
+      uid: uid,
+      ...sidebarData,
+    });
+    console.log("Documento guardado con ID: ", uid);
+    return uid;
+  } catch (error) {
+    console.error("Error al guardar información en /user: ", error);
+    return null;
+  }
+};
+
+export const getDocumentFromResumen = async (
+  date: string
+): Promise<any | null> => {
+  try {
+    const docRef = doc(db, "resumen", date);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      console.log("Documento encontrado:", docSnap.data());
+      return docSnap.data();
+    } else {
+      console.log("No existe un documento con la fecha proporcionada.");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error al obtener el documento de /resumen:", error);
+    return null;
+  }
+};
+
 export const shipmentsDeliver = async (uid: any, newStatus?: string) => {
   try {
     const userCollectionRef = collection(db, "envios");
@@ -228,6 +264,29 @@ export const getAllShipmentsDataRealTime = (
   }
 };
 
+export const getStatusShipmentsData = (
+  status: string,
+  callback: (arg0: any[]) => void
+) => {
+  try {
+    const db = getFirestore();
+    const shipmentsCollectionRef = collection(db, "envios");
+
+    onSnapshot(shipmentsCollectionRef, (querySnapshot) => {
+      const shipmentsData: any[] = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        if (data.status === status) {
+          shipmentsData.push(data);
+        }
+      });
+      callback(shipmentsData);
+    });
+  } catch (error) {
+    console.error("Error al obtener la información de la colección: ", error);
+  }
+};
+
 export const getEnvios = async () => {
   try {
     const docRef = doc(db, "consecutivo", "consecutivos");
@@ -248,39 +307,94 @@ export const getEnvios = async () => {
 
 export const removePackageNumberFromEnvios = async (uid: string) => {
   try {
+    // Obtener el documento del envío con el UID proporcionado
     const shipmentDocRef = doc(db, "envios", uid);
     const shipmentSnap = await getDoc(shipmentDocRef);
+
     if (shipmentSnap.exists()) {
       const shipmentData = shipmentSnap.data();
       const packageNumber = shipmentData.packageNumber;
-      if (packageNumber !== null) {
+
+      // Verificar si el número de paquete no es nulo
+      if (packageNumber) {
+        // Obtener los envíos actuales
         const envios = await getEnvios();
-        if (envios && Array.isArray(envios)) {
-          const updatedEnvios = envios.filter(number => number !== packageNumber);
-          await saveEnvios(updatedEnvios);
-          console.log(`Package number ${packageNumber} removed from envios.`);
-          return updatedEnvios;
-        } else {
-          console.log("No envíos found or invalid data format.");
-          return null;
-        }
+
+        // Filtrar el número de paquete para eliminarlo de la lista
+        const updatedEnvios = envios.filter(
+          (number: any) => number !== packageNumber
+        );
+
+        // Guardar los envíos actualizados
+        await saveEnvios(updatedEnvios);
+
+        console.log(`Número de paquete ${packageNumber} eliminado de envios.`);
+        return updatedEnvios;
       } else {
-        console.log("The packageNumber is null.");
+        console.log("El número de paquete es nulo.");
         return null;
       }
     } else {
-      console.log("The document does not exist.");
+      console.log("El documento no existe.");
       return null;
     }
   } catch (error) {
-    console.error("Error removing package number from envios:", error);
+    console.error("Error al eliminar el número de paquete:", error);
+    return null;
   }
 };
 
+
+export const addPackageNumberToEnvios = async (uid: string) => {
+  try {
+    // Obtener el documento del envío con el UID proporcionado
+    const shipmentDocRef = doc(db, "envios", uid);
+    const shipmentSnap = await getDoc(shipmentDocRef);
+
+    if (shipmentSnap.exists()) {
+      const shipmentData = shipmentSnap.data();
+      const packageNumber = shipmentData.packageNumber;
+
+      // Verificar si el número de paquete no es nulo
+      if (packageNumber) {
+        // Obtener los envíos actuales
+        const envios = await getEnvios();
+
+        // Verificar si el número de paquete ya está en la lista de envíos
+        if (!envios.includes(packageNumber)) {
+          // Agregar el número de paquete a la lista de envíos
+          const updatedEnvios = [...envios, packageNumber];
+          await saveEnvios(updatedEnvios);
+          console.log(`Número de paquete ${packageNumber} agregado a envios.`);
+          return updatedEnvios;
+        } else {
+          console.log(`Número de paquete ${packageNumber} ya está en envios.`);
+          return envios;
+        }
+      } else {
+        console.log("El número de paquete es nulo.");
+        return null;
+      }
+    } else {
+      console.log("El documento no existe.");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error al agregar el número de paquete a envios:", error);
+    return null;
+  }
+};
+
+
 export const saveEnvios = async (updatedEnvios: any) => {
   try {
+    console.log("updatedEnvios::::>", updatedEnvios);
+    const uniqueEnvios = Array.from(new Set(updatedEnvios));
+    console.log("uniqueEnvios::::>", uniqueEnvios);
     const docRef = doc(db, "consecutivo", "consecutivos");
-    await setDoc(docRef, { envios: updatedEnvios });
+
+    await setDoc(docRef, { envios: uniqueEnvios }, { merge: true });
+
     console.log("Envios guardados con éxito!");
   } catch (error) {
     console.error("Error saving document:", error);

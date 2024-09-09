@@ -3,9 +3,9 @@ import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import { useState } from "react";
 import { shipments } from "@/firebase/firebase";
 import { SnackbarProvider, enqueueSnackbar } from "notistack";
+import { useGlobalContext } from "./context";
 
 const style = {
   position: "absolute" as "absolute",
@@ -28,6 +28,8 @@ export default function EntregarModal({
   data: any;
   base: number;
 }) {
+  const { setStep, setEntregados, entregados, total, setTotal } =
+    useGlobalContext();
   const processData = () => {
     const totalPackages = data.reduce(
       (acc: any, item: { pago: string; valor: any }) => {
@@ -54,6 +56,7 @@ export default function EntregarModal({
     return {
       formattedTotalPackages,
       baseFormatted,
+      totalPackages,
     };
   };
 
@@ -95,6 +98,7 @@ export default function EntregarModal({
           status: status,
           deliveryDate: getCurrentDateTime(),
         });
+        setStep((prev: number) => prev + 1);
       });
 
       await Promise.all(updatePromises);
@@ -116,6 +120,18 @@ export default function EntregarModal({
         },
       });
     }
+  };
+
+  const handleButtonClick = () => {
+    const currentData = entregados;
+    const newDataLength = data ? data.length : 0;
+    const length_entregados = currentData + newDataLength;
+    const currentAmount = total ?? 0;
+    const newAmount = data ? result.totalPackages : 0;
+    const totalNewAmount = currentAmount + newAmount;
+    setTotal(totalNewAmount);
+    setEntregados(length_entregados);
+    createOnClickHandler("entregado");
   };
 
   const box = (title: string, value: string) => {
@@ -277,7 +293,7 @@ export default function EntregarModal({
               CANCELAR
             </Button>
             <Button
-              onClick={() => createOnClickHandler("entregado")}
+              onClick={handleButtonClick}
               sx={{
                 boxShadow: "0px 4px 4px 0px #00000040",
                 background: "#106D14",

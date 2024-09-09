@@ -21,6 +21,7 @@ import ReplaySharpIcon from "@mui/icons-material/ReplaySharp";
 import SaveIcon from "@mui/icons-material/Save";
 import QrCode2Icon from "@mui/icons-material/QrCode2";
 import {
+  addPackageNumberToEnvios,
   removePackageNumberFromEnvios,
   shipmentsDeliver,
 } from "@/firebase/firebase";
@@ -42,9 +43,17 @@ const Page = () => {
     const updatePromises = guide.map(async (uid) => {
       try {
         const status = await shipmentsDeliver(uid, newStatus);
-        if(['entregado','devolucion'].includes(uid)){
-          removePackageNumberFromEnvios(uid);
+
+        // Si el estado es "entregado" o "devolución", removemos el número del set de envíos
+        if (["entregado", "devolucion"].includes(newStatus)) {
+          await removePackageNumberFromEnvios(uid);
         }
+        // Si el estado es diferente a "entregado" o "devolución", agregamos el número al set
+        else {
+          await addPackageNumberToEnvios(uid);
+        }
+
+        // Si el estado fue actualizado con éxito, actualizamos las guías y el contador
         if (status) {
           setGuide((prevGuide) => prevGuide.filter((id) => id !== uid));
           setShipmentsSave((prevCount) => prevCount + 1);
@@ -56,15 +65,8 @@ const Page = () => {
         );
       }
     });
+
     await Promise.all(updatePromises);
-    enqueueSnackbar("Guias actualizadas", {
-      variant: "success",
-      anchorOrigin: {
-        vertical: "top",
-        horizontal: "right",
-      },
-    });
-    console.log("Proceso de actualización completado para todos los estados.");
   };
 
   const handleInputKeyPress = async (event: { key: string }) => {

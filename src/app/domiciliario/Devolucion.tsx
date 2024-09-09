@@ -3,9 +3,9 @@ import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import { useState } from "react";
 import { shipments } from "@/firebase/firebase";
 import { SnackbarProvider, enqueueSnackbar } from "notistack";
+import { useGlobalContext } from "./context";
 
 const style = {
   position: "absolute" as "absolute",
@@ -28,6 +28,8 @@ export default function DevolucionModal({
   data: any;
   base: number;
 }) {
+  const { setStep, devolucion, setDevolucion, total, setTotal } =
+    useGlobalContext();
   const processData = () => {
     const totalPackages = data.reduce(
       (acc: any, item: { pago: string; valor: any }) => {
@@ -94,11 +96,12 @@ export default function DevolucionModal({
           ...selectedRow,
           status: status,
           returnDate: getCurrentDateTime(),
+          revision: !(status === "oficina"),
         });
       });
 
       await Promise.all(updatePromises);
-
+      setStep((prev: number) => prev + 1);
       enqueueSnackbar("Guías retornadas a la oficina", {
         variant: "success",
         anchorOrigin: {
@@ -204,14 +207,14 @@ export default function DevolucionModal({
       </Button>
       <SnackbarProvider />
       <Modal
-        id='modal'
+        id="modal"
         open={open}
         sx={{ borderRadius: "40px" }}
         onClose={handleClose}
-        aria-labelledby='parent-modal-title'
-        aria-describedby='parent-modal-description'
+        aria-labelledby="parent-modal-title"
+        aria-describedby="parent-modal-description"
       >
-        <Box id='content' sx={{ ...style, width: "50%" }}>
+        <Box id="content" sx={{ ...style, width: "50%" }}>
           <Typography
             sx={{
               fontFamily: "Nunito",
@@ -242,9 +245,6 @@ export default function DevolucionModal({
               <Box sx={{ width: "100%", marginBottom: "3%" }}>
                 {box("TOTAL PAQUETES:", `${result.formattedTotalPackages}`)}
               </Box>
-              {/* <Box sx={{ width: "100%" }}>
-                {box("BASE:", `${result.baseFormatted}`)}
-              </Box> */}
             </Box>
           </Box>
           <Box
@@ -276,7 +276,14 @@ export default function DevolucionModal({
               CANCELAR
             </Button>
             <Button
-              onClick={() => createOnClickHandler("devolucion")}
+              onClick={() => {
+                const currentCount = devolucion;
+                const newDataLength = data ? data.length : 0;
+                const total = currentCount + newDataLength;
+                setDevolucion(total);
+                createOnClickHandler("oficina");
+                handleClose();
+              }}
               sx={{
                 boxShadow: "0px 4px 4px 0px #00000040",
                 background: "#106D14",

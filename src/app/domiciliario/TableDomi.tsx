@@ -7,7 +7,11 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-import { getAllShipmentsData, shipments } from "@/firebase/firebase";
+import {
+  getAllShipmentsData,
+  shipments,
+  getStatusShipmentsData,
+} from "@/firebase/firebase";
 import {
   Autocomplete,
   Box,
@@ -46,8 +50,6 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 export default function TableDomi() {
   const [firebaseData, setFirebaseData] = useState<any[]>([]);
   const [selectedRows, setSelectedRows] = useState<any[]>([]);
-  const [num, setNumm] = useState(0);
-
   const handleSelectionChange = (newSelectedRows: any[]) => {
     setSelectedRows(newSelectedRows);
   };
@@ -67,42 +69,13 @@ export default function TableDomi() {
   };
 
   useEffect(() => {
-    const getFirebaseData = async () => {
-      try {
-        const dataRef = await getAllShipmentsData();
-        const filteredData = dataRef.filter(
-          (item: { status: string }) => item?.status === "mensajero"
-        );
-        setFirebaseData(filteredData);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-    getFirebaseData();
+    const status = "mensajero";
+    getStatusShipmentsData(status, setFirebaseData);
   }, []);
 
   useEffect(() => {
-    const allData = async () => {
-      const allData: any[] = await getAllShipmentsData();
-      const array: any = [];
-      allData.map((data) => {
-        array.push(data.packageNumber);
-      });
-      const numerosOrdenados = array
-        .map(Number)
-        .sort((a: any, b: any) => a - b);
-      let numeroFaltante = 1;
-      for (const numero of numerosOrdenados) {
-        if (numero === numeroFaltante) {
-          numeroFaltante++;
-        } else if (numero > numeroFaltante) {
-          break;
-        }
-      }
-      setNumm(numeroFaltante);
-    };
-    allData();
-  }, []);
+    setSelectedRows([]);
+  }, [firebaseData]);
 
   return (
     <Box sx={{ height: "100%" }}>
@@ -130,7 +103,7 @@ export default function TableDomi() {
             textAlignLast: "center",
           }}
         >
-          {num}
+          {firebaseData.length}
         </Box>
       </Box>
       <Box sx={{ textAlign: "-webkit-center" }}>
