@@ -22,8 +22,21 @@ import "react-calendar/dist/Calendar.css";
 import DeleteIcon from "@mui/icons-material/Delete";
 import DeliveryModal from "@/components/confirmTable/detailGuide";
 
+
+interface TableItem {
+  guide: string;
+  addressee: string;
+  deliverTo: string;
+  box: string;
+  packageNumber: string;
+  shippingCost: string;
+  intakeDate: string; // Asegúrate de tener este campo en el objeto
+  [key: string]: any; // Esta es la firma de índice para permitir claves dinámicas
+}
+
+
 export default function BasicTable({ tableData }: { tableData: any }) {
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<Partial<TableItem>>({
     guide: "",
     addressee: "",
     deliverTo: "",
@@ -57,7 +70,7 @@ export default function BasicTable({ tableData }: { tableData: any }) {
           ? item[key]
               .toString()
               .toLowerCase()
-              .includes(filters[key].toLowerCase())
+              .includes((filters[key]).toLowerCase())
           : true
       );
     });

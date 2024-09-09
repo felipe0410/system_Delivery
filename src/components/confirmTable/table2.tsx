@@ -300,7 +300,7 @@ export default function CustomizedTables() {
       const existingIndex = allData[field].findIndex(
         (item: { uid: any }) => item.uid === newRow.uid
       );
-      let updatedData;
+      let updatedData: any;
       if (existingIndex !== -1) {
         updatedData = [
           ...allData[field].slice(0, existingIndex),
