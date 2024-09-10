@@ -250,7 +250,7 @@ export default function TableDomi() {
           onKeyPress={handleKeyPress}
           onChange={handleAutocompleteChange}
           onInputChange={(event, newInputValue) => {
-            setInputValue(newInputValue); // Para actualizar el valor del input
+            setInputValue(newInputValue);
           }}
           filterSelectedOptions
           renderInput={(params) => (
