@@ -13,7 +13,7 @@ import {
   InputAdornment,
   OutlinedInput,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import imgBack from "/public/images/af4e63708de6ec3a46f9cfb41f4c5075.png";
 import { enqueueSnackbar, SnackbarProvider } from "notistack";
@@ -25,9 +25,30 @@ import DirectionsRunIcon from "@mui/icons-material/DirectionsRun";
 import SaveIcon from "@mui/icons-material/Save";
 import QrCode2Icon from "@mui/icons-material/QrCode2";
 import axios from "axios";
-import { getShipmentData, shipments } from "@/firebase/firebase";
+import {
+  addPackageNumberToEnvios,
+  getEnvios,
+  getShipmentData,
+  saveEnvios,
+  shipments,
+} from "@/firebase/firebase";
 import { VisibilityOff, Visibility } from "@mui/icons-material";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
+import { NumericFormat } from "react-number-format";
+import InventoryIcon from "@mui/icons-material/Inventory";
+import NumbersIcon from "@mui/icons-material/Numbers";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import Shipments from "../Shipments/page";
+
+interface GuideData {
+  guide: string;
+  valor: number;
+  packageNumber: number;
+  pago: string;
+  shippingCost: string;
+  box: string;
+  revision: boolean;
+}
 
 const Page = () => {
   const [password, setPassword] = useState("");
@@ -35,12 +56,24 @@ const Page = () => {
   const [step, setStep] = useState(0);
   const [guide, setGuide] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState("");
+  const [valor, setValor] = useState(0);
+  const [packageNumber, setPackageNumber] = useState(0);
+  const [box, setBox] = useState("0");
+  const [allData, setAllData] = useState<GuideData[]>([]);
+  console.log("allData:::>", allData);
   const [searchTerm, setSearchTerm] = useState("");
   const [guidiesDetails, setGuidiesDetails] = useState([]);
   const [load, setLoad] = useState(false);
   const [timer, setTimer] = useState(180);
   const [shipmentsSave, setShipmentsSave] = useState(0);
   const [showPassword, setShowPassword] = React.useState(false);
+  const inputRef = useRef<HTMLInputElement>(null); // Referencia para el InputBase
+  const [firebaseData, setFirebaseData] = React.useState<
+    { [x: string]: any }[]
+  >([]);
+  const [arrayUniqueValue, setArrayUniqueValue] = useState<any>([]);
+  const [num, setNumm] = useState(0);
+  const [valorFormateado, setValorFormateado] = useState<string>(""); // Valor con formato ($121.200)
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
@@ -55,31 +88,55 @@ const Page = () => {
   };
 
   const handleInputKeyPress = async (event: { key: string }) => {
-    if (event.key === "Enter" && inputValue.trim() !== "") {
-      const dataDB = (await getShipmentData(inputValue.trim())) ?? null;
-      if (!guide.includes(inputValue.trim()) && dataDB === null) {
-        setGuide((prevGuides) => [...prevGuides, inputValue.trim()]);
-      } else {
-        if (dataDB) {
-          enqueueSnackbar("La guía ya se encuentra guardada en el sistema", {
-            variant: "error",
-            anchorOrigin: {
-              vertical: "top",
-              horizontal: "right",
-            },
-          });
-        } else {
-          enqueueSnackbar("La guía ya existe", {
-            variant: "warning",
-            anchorOrigin: {
-              vertical: "top",
-              horizontal: "right",
-            },
-          });
-        }
+    // if (event.key === "Enter" && inputValue.trim() !== "") {
+    //   const dataDB = (await getShipmentData(inputValue.trim())) ?? null;
+    //   if (!guide.includes(inputValue.trim()) && dataDB === null) {
+    //     setGuide((prevGuides) => [...prevGuides, inputValue.trim()]);
+    //   } else {
+    //     if (dataDB) {
+    //       enqueueSnackbar("La guía ya se encuentra guardada en el sistema", {
+    //         variant: "error",
+    //         anchorOrigin: {
+    //           vertical: "top",
+    //           horizontal: "right",
+    //         },
+    //       });
+    //     } else {
+    //       enqueueSnackbar("La guía ya existe", {
+    //         variant: "warning",
+    //         anchorOrigin: {
+    //           vertical: "top",
+    //           horizontal: "right",
+    //         },
+    //       });
+    //     }
+    //   }
+    //   setInputValue("");
+    // }
+  };
+
+  const allDataFunction = async () => {
+    const getArrayEnvios = await getEnvios();
+    console.log("paso de nuevo");
+    const arrayEnvios = (getArrayEnvios ?? [0])
+      .map(Number)
+      .filter(Number.isFinite);
+    const array = firebaseData
+      .map((data) => Number(data.packageNumber))
+      .filter(Number.isFinite);
+
+    const numerosFusionados = [...arrayEnvios, ...array].sort((a, b) => a - b);
+    setArrayUniqueValue(numerosFusionados);
+
+    let numeroFaltante = 1;
+    for (const numero of numerosFusionados) {
+      if (numero === numeroFaltante) {
+        numeroFaltante++;
+      } else if (numero > numeroFaltante) {
+        break;
       }
-      setInputValue("");
     }
+    setNumm(numeroFaltante);
   };
 
   const handleDelete = (chipToDelete: any) => () => {
@@ -104,59 +161,145 @@ const Page = () => {
     return numero;
   }
 
-  const fetchGuideDetails = (domiciliary: boolean) => {
+  const fetchGuideDetails = async (domiciliary: boolean) => {
     setLoad(true);
-    axios
-      .post("http://0.0.0.0:8080/consult", { guias: guide, password })
-      .then(async (response: { data: any }) => {
-        const responseData = response.data;
-        const processedUids = responseData.map((item: { uid: string }) => item.uid);
-        const updatedGuides = guide.filter((g: string) => !processedUids.includes(g));
-        setGuide(updatedGuides);
-        
-        for (const shipment of response.data) {
-          const uid = shipment.uid;
-          const result = await shipments(
-            uid,
-            domiciliary
-              ? {
-                  ...shipment,
-                  status: "mensajero",
-                  box: "0",
-                  packageNumber: "0",
-                  courierAttempt1: Date.now(),
-                  valor: convertirMonedaANumero(shipment?.shippingCost ?? "0"),
-                }
-              : {
-                  ...shipment,
-                  status: "oficina",
-                  valor: convertirMonedaANumero(shipment?.shippingCost ?? "0"),
-                }
-          );
-          if (result) {
-            if (shipment?.shippingCost?.length > 0) {
-              console.log(`Datos guardados para el envío con UID: ${uid}`);
-              setShipmentsSave((prevCount) => prevCount + 1);
-            }
-          } else {
-            console.error(
-              `Error al guardar los datos para el envío con UID: ${uid}`
-            );
-          }
-        }
-        setGuidiesDetails(response.data);
-        enqueueSnackbar("Datos cargados correctamente.", {
-          variant: "success",
-        });
-        setLoad(false);
-      })
-      .catch((error: any) => {
-        console.error("Error al cargar los datos:", error);
-        enqueueSnackbar("Error al cargar los datos.", { variant: "error" });
-        setLoad(false);
+    const guidesArray = allData.map((data) => data.guide);
+
+    try {
+      const response = await axios.post("http://0.0.0.0:8080/consult", {
+        guias: guidesArray,
+        password,
       });
+
+      const responseData = response.data;
+      const processedUids = responseData.map(
+        (item: { uid: string }) => item.uid
+      );
+
+      // Actualizamos las guías que no han sido procesadas
+      const updatedGuides = guide.filter(
+        (g: string) => !processedUids.includes(g)
+      );
+      setGuide(updatedGuides);
+
+      // Filtrar allData y sobrescribir los campos de la respuesta con los valores de allData
+      const updatedAllData = responseData.map((shipment: any) => {
+        // Encontrar la guía correspondiente en allData
+        const originalData = allData.find(
+          (data) => data.guide === shipment.guide
+        );
+        console.log("shipment:::>", shipment);
+        console.log("originalData:::>", originalData);
+
+        if (originalData) {
+          console.log("entro aqui");
+          return {
+            ...shipment,
+            valor:
+              originalData.valor ??
+              convertirMonedaANumero(shipment?.shippingCost ?? "0"),
+            box: originalData.box ?? shipment.box,
+            shippingCost: originalData.shippingCost,
+            packageNumber: originalData.packageNumber ?? shipment.packageNumber,
+            status: domiciliary ? "mensajero" : "oficina",
+            revision: originalData.revision,
+            pago: originalData.pago,
+          };
+        }
+
+        return shipment; // Si no encuentra coincidencia, devuelve el envío tal como está
+      });
+      console.log("updatedAllData:::>", updatedAllData);
+      // Guardar los datos actualizados en la base de datos usando shipments
+      for (const updatedShipment of updatedAllData) {
+        const uid = updatedShipment.uid;
+
+        const result = await shipments(
+          uid,
+          domiciliary
+            ? {
+                ...updatedShipment,
+                status: "mensajero",
+                box: "0",
+                packageNumber: "0",
+                courierAttempt1: Date.now(),
+                // valor: convertirMonedaANumero(
+                //   updatedShipment?.shippingCost ?? "0"
+                // ),
+              }
+            : {
+                ...updatedShipment,
+                status: "oficina",
+                // valor: convertirMonedaANumero(
+                //   updatedShipment?.shippingCost ?? "0"
+                // ),
+              }
+        );
+
+        if (result) {
+          if (updatedShipment?.shippingCost?.length > 0) {
+            console.log(`Datos guardados para el envío con UID: ${uid}`);
+            setShipmentsSave((prevCount) => prevCount + 1);
+          }
+        } else {
+          console.error(
+            `Error al guardar los datos para el envío con UID: ${uid}`
+          );
+        }
+      }
+
+      // Actualizar detalles de las guías
+      setGuidiesDetails(response.data);
+      enqueueSnackbar("Datos cargados correctamente.", { variant: "success" });
+    } catch (error) {
+      console.error("Error al cargar los datos:", error);
+      enqueueSnackbar("Error al cargar los datos.", { variant: "error" });
+    } finally {
+      setLoad(false); // Asegurarse de que el estado de carga se desactive
+    }
   };
 
+  const handleAddPackage = () => {
+    if (inputValue.trim()) {
+      const newGuideData = {
+        guide: inputValue.trim(),
+        valor: valor,
+        packageNumber: packageNumber || 0,
+        box: box.trim() || "0",
+        pago: valor > 0 ? "Al Cobro" : "Contado",
+        shippingCost: valorFormateado,
+        revision: true,
+      };
+      setAllData([...allData, newGuideData]);
+      setInputValue("");
+      setValor(0);
+      setPackageNumber(0);
+      setBox("");
+      if (inputRef.current) {
+        inputRef.current.focus(); // Mueve el cursor al input
+      }
+      console.log("Paquete agregado:", newGuideData);
+    } else {
+      // Mostrar algún mensaje o alerta si la guía está vacía
+      console.log("La guía no puede estar vacía");
+    }
+  };
+
+  const handleEndAdornmentClick = async () => {
+    try {
+      // Asignar el valor de `numm` a `packageNumber`
+      setPackageNumber(num);
+
+      // Guardar el número en la colección "consecutivo"
+      const updatedEnvios = [...arrayUniqueValue, num]; // Agregar el nuevo número al array
+      await saveEnvios(updatedEnvios); // Guardar el array actualizado
+
+      // Recalcular el próximo número de paquete
+      await allDataFunction();
+    } catch (error) {
+      console.error("Error al agregar el número de paquete:", error);
+    }
+  };
   useEffect(() => {
     const element: any = document.querySelector("#container-inputs");
 
@@ -185,6 +328,11 @@ const Page = () => {
     }
     return () => clearInterval(interval);
   }, [load, timer]);
+
+  useEffect(() => {
+    allDataFunction();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Box
@@ -241,6 +389,39 @@ const Page = () => {
               >
                 Ingresa las guias a consultar
               </Typography>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "right",
+                  height: "40px",
+                }}
+              >
+                <Typography
+                  sx={{
+                    fontFamily: "Nunito",
+                    fontSize: "30px",
+                    fontWeight: 800,
+                    lineHeight: "46.38px",
+                    textAlign: "center",
+                    marginRight: "10px",
+                  }}
+                >
+                  #PAQUETE
+                </Typography>
+                <Box
+                  sx={{
+                    borderRadius: "35px",
+                    opacity: "0px",
+                    background: "#11192F",
+                    padding: "12px",
+                    color: "#fff",
+                    width: "70px",
+                    textAlignLast: "center",
+                  }}
+                >
+                  {num}
+                </Box>
+              </Box>
             </Box>
             <Box mt={2} width={{ xs: "auto", lg: "39.5625rem" }}>
               <Typography
@@ -266,12 +447,75 @@ const Page = () => {
                 textAlignLast: "center",
                 marginTop: "10px",
               }}
+              inputRef={inputRef}
               value={inputValue}
               onChange={handleInputChange}
               onKeyPress={handleInputKeyPress}
-              placeholder="Escribe una guía y presiona Enter"
+              placeholder="Escribe una guía"
               endAdornment={<DeliveryDiningIcon sx={{ fontSize: "30px" }} />}
             />
+            <>
+              <NumericFormat
+                prefix="$ "
+                thousandSeparator
+                customInput={InputBase}
+                value={valor}
+                onValueChange={(e: any) => {
+                  setValorFormateado(e.formattedValue);
+                  setValor(e.floatValue);
+                }}
+                sx={{
+                  background: "#f9eded",
+                  padding: "10px",
+                  borderRadius: "30px",
+                  textAlignLast: "center",
+                  marginTop: "10px",
+                  width: "12%",
+                  marginX: "10px",
+                }}
+                placeholder="Valor"
+              />
+            </>
+            <InputBase
+              sx={{
+                background: "#f9eded",
+                padding: "10px",
+                borderRadius: "30px",
+                textAlignLast: "center",
+                marginTop: "10px",
+                width: "10%",
+              }}
+              value={packageNumber}
+              onChange={(e) => setPackageNumber(Number(e.target.value))}
+              onKeyPress={handleInputKeyPress}
+              placeholder="# paquete"
+              endAdornment={
+                <IconButton onClick={handleEndAdornmentClick}>
+                  <NumbersIcon sx={{ fontSize: "30px" }} />
+                </IconButton>
+              }
+            />
+            <InputBase
+              sx={{
+                background: "#f9eded",
+                padding: "10px",
+                borderRadius: "30px",
+                textAlignLast: "center",
+                marginTop: "10px",
+                width: "14%",
+                marginLeft: "10px",
+              }}
+              value={box}
+              onChange={(e) => setBox(e.target.value)}
+              onKeyPress={handleInputKeyPress}
+              placeholder="Caja"
+              endAdornment={<InventoryIcon sx={{ fontSize: "30px" }} />}
+            />
+            <>
+              <IconButton onClick={handleAddPackage}>
+                <CheckCircleIcon sx={{ color: "green", fontSize: "40px" }} />
+              </IconButton>
+            </>
           </Box>
           <Box
             sx={{
@@ -314,7 +558,7 @@ const Page = () => {
                 <QrCode2Icon sx={{ fontSize: "40px" }} />
                 Guias ingresadas:
                 <Chip
-                  label={guide.length}
+                  label={allData.length}
                   sx={{
                     fontSize: "30px",
                     padding: "2px",
@@ -355,13 +599,15 @@ const Page = () => {
           </Box>
           <Divider sx={{ marginY: "10px" }} />
           <Box id="container-inputs">
-            {guide.map((e, i) => (
-              <Chip
-                sx={{ background: "#fff", margin: "5px", fontSize: "15px" }}
-                key={i}
-                label={e}
-                onDelete={handleDelete(e)}
-              />
+            {allData.map((data, index) => (
+              <>
+                <Chip
+                  sx={{ background: "#fff", margin: "5px", fontSize: "15px" }}
+                  key={index}
+                  label={`Guía: ${data.guide}, Valor: $${data.valor}, Paquete: ${data.packageNumber}, Caja: ${data.box}`}
+                  onDelete={handleDelete(data.guide)}
+                />
+              </>
             ))}
           </Box>
           {load && (
@@ -389,7 +635,7 @@ const Page = () => {
           >
             <Button
               onClick={() => fetchGuideDetails(false)}
-              disabled={!(guide.length > 0) || load}
+              // disabled={!(guide.length > 0) || load}
               sx={{
                 filter: guide.length > 0 ? "auto" : "grayscale(1)",
                 background: "#5C68D4",
@@ -415,7 +661,7 @@ const Page = () => {
             </Button>
             <Button
               onClick={() => fetchGuideDetails(true)}
-              disabled={!(guide.length > 0) || load}
+              // disabled={!(guide.length > 0) || load}
               sx={{
                 filter: guide.length > 0 ? "auto" : "grayscale(1)",
                 background: "#5C68D4",

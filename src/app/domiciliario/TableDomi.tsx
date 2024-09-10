@@ -50,6 +50,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 export default function TableDomi() {
   const [firebaseData, setFirebaseData] = useState<any[]>([]);
   const [selectedRows, setSelectedRows] = useState<any[]>([]);
+  const [inputValue, setInputValue] = useState("");
   const handleSelectionChange = (newSelectedRows: any[]) => {
     setSelectedRows(newSelectedRows);
   };
@@ -66,6 +67,20 @@ export default function TableDomi() {
 
   const handleAutocompleteChange = (event: any, newValue: any[]) => {
     handleSelectionChange(newValue);
+  };
+
+  const handleKeyPress = (event: any) => {
+    if (event.key === "Enter") {
+      const matchingItem = firebaseData.find((item) =>
+        item.uid.toLowerCase().includes(inputValue.toLowerCase())
+      );
+      if (matchingItem) {
+        if (!selectedRows.some((row) => row.uid === matchingItem.uid)) {
+          handleSelectionChange([...selectedRows, matchingItem]);
+        }
+        setInputValue("");
+      }
+    }
   };
 
   useEffect(() => {
@@ -232,7 +247,11 @@ export default function TableDomi() {
           options={firebaseData}
           getOptionLabel={(option) => option?.uid}
           value={selectedRows}
+          onKeyPress={handleKeyPress}
           onChange={handleAutocompleteChange}
+          onInputChange={(event, newInputValue) => {
+            setInputValue(newInputValue); // Para actualizar el valor del input
+          }}
           filterSelectedOptions
           renderInput={(params) => (
             <TextField
