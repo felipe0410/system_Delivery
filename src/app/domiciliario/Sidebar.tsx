@@ -36,8 +36,8 @@ const Sidebar = () => {
   };
 
   const result = processData();
-  console.log(result?.totalBase === '$ 50.000')
-  console.log(result?.totalBase )
+  console.log(result?.totalBase === "$ 50.000");
+  console.log(result?.totalBase);
   const createOnClickHandler = async () => {
     try {
       await sidebarCollection(getCurrentDateTime(), {
@@ -258,7 +258,7 @@ const Sidebar = () => {
               fontSize: "18px",
             }}
             variant="outlined"
-            label={result?.totalBase === '$ 50.000' ? 0 : result?.totalBase}
+            label={result?.totalBase === "$ 50.000" ? 0 : result?.totalBase}
           />
         </Box>
       </Box>
@@ -294,7 +294,7 @@ const Sidebar = () => {
             }}
           />
           <Typography sx={{ textAlign: "center", alignContent: "center" }}>
-            {firebaseUserData[1]?.name.toUpperCase()}
+            {"Laly Chaparro"}
           </Typography>
         </Box>
       </Box>
