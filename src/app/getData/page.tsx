@@ -166,7 +166,7 @@ const Page = () => {
     const guidesArray = allData.map((data) => data.guide);
 
     try {
-      const response = await axios.post("http://0.0.0.0:8080/consult", {
+      const response = await axios.post("https://e80b-177-93-44-168.ngrok-free.app/consult", {
         guias: guidesArray,
         password,
       });

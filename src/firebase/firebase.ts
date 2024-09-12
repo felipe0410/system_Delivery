@@ -13,8 +13,10 @@ import {
   getDocs,
   getFirestore,
   onSnapshot,
+  query,
   setDoc,
   updateDoc,
+  where,
 } from "firebase/firestore";
 
 // TODO: Add SDKs for Firebase products that you want to use
@@ -344,7 +346,6 @@ export const removePackageNumberFromEnvios = async (uid: string) => {
   }
 };
 
-
 export const addPackageNumberToEnvios = async (uid: string) => {
   try {
     // Obtener el documento del envío con el UID proporcionado
@@ -385,7 +386,6 @@ export const addPackageNumberToEnvios = async (uid: string) => {
   }
 };
 
-
 export const saveEnvios = async (updatedEnvios: any) => {
   try {
     console.log("updatedEnvios::::>", updatedEnvios);
@@ -398,5 +398,43 @@ export const saveEnvios = async (updatedEnvios: any) => {
     console.log("Envios guardados con éxito!");
   } catch (error) {
     console.error("Error saving document:", error);
+  }
+};
+
+export const getAndSaveEnvios = async () => {
+  try {
+    const oficinaQuery = query(
+      collection(db, "envios"),
+      where("status", "==", "oficina")
+    );
+
+    const mensajeroQuery = query(
+      collection(db, "envios"),
+      where("status", "==", "mensajero")
+    );
+
+    // Ejecutamos ambas consultas en paralelo
+    const [oficinaSnapshot, mensajeroSnapshot] = await Promise.all([
+      getDocs(oficinaQuery),
+      getDocs(mensajeroQuery),
+    ]);
+
+    // Obtenemos los packageNumber de los envíos con status "oficina" y los convertimos a number
+    const oficinaEnvios = oficinaSnapshot.docs.map((doc) =>
+      Number(doc.data().packageNumber)
+    );
+
+    // Obtenemos los packageNumber de los envíos con status "mensajero" y los convertimos a number
+    const mensajeroEnvios = mensajeroSnapshot.docs.map((doc) =>
+      Number(doc.data().packageNumber)
+    );
+
+    // Unimos ambos arrays
+    const updatedEnvios = [...oficinaEnvios, ...mensajeroEnvios];
+
+    console.log("updatedEnvios:::>", updatedEnvios);
+    await saveEnvios(updatedEnvios);
+  } catch (error) {
+    console.error("Error fetching and saving envios:", error);
   }
 };

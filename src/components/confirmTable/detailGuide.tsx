@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -7,7 +7,6 @@ import {
   Typography,
   Button,
   Grid,
-  Chip,
   IconButton,
   Divider,
 } from "@mui/material";
@@ -15,6 +14,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import Inventory2RoundedIcon from "@mui/icons-material/Inventory2Rounded";
 import InfoIcon from "@mui/icons-material/Info";
 import LocalOfferSharpIcon from "@mui/icons-material/LocalOfferSharp";
+import { getAndSaveEnvios } from "@/firebase/firebase";
 
 interface Destinatario {
   celular: string;
@@ -68,7 +68,9 @@ interface DeliveryModalProps {
 
 const DeliveryModal: React.FC<DeliveryModalProps> = ({ data }) => {
   const [open, setOpen] = useState(false);
-
+  useEffect(() => {
+    getAndSaveEnvios()
+  }, [])
   return (
     <>
       <Button onClick={() => setOpen(true)}>
@@ -211,20 +213,20 @@ const DeliveryModal: React.FC<DeliveryModalProps> = ({ data }) => {
                   DESTINATARIO
                 </Typography>
                 <Typography fontWeight={700} variant="body2">
-                  {data?.destinatario.nombre ?? ""}
+                  {data?.destinatario?.nombre ?? ""}
                 </Typography>
                 <Typography variant="body2">
-                  {data?.destinatario.direccion ?? ""}
+                  {data?.destinatario?.direccion ?? ""}
                 </Typography>
                 <Typography variant="body2">
-                  {data?.destinatario.correo ?? ""}
+                  {data?.destinatario?.correo ?? ""}
                 </Typography>
                 <Typography fontWeight={700} variant="body2">
-                  {data?.destinatario.celular ?? ""}
+                  {data?.destinatario?.celular ?? ""}
                 </Typography>
                 <Typography variant="body2">
                   identificacion:{" "}
-                  {data?.destinatario.numero_identificacion ?? ""}
+                  {data?.destinatario?.numero_identificacion ?? ""}
                 </Typography>
               </Grid>
               <Grid item xs={6}>
@@ -238,22 +240,22 @@ const DeliveryModal: React.FC<DeliveryModalProps> = ({ data }) => {
                   REMITENTE
                 </Typography>
                 <Typography fontWeight={700} variant="body2">
-                  {data?.remitente.nombre ?? ""}
+                  {data?.remitente?.nombre ?? ""}
                 </Typography>
                 <Typography variant="body2">
-                  {data?.remitente.direccion ?? ""}
+                  {data?.remitente?.direccion ?? ""}
                 </Typography>
                 <Typography variant="body2">
-                  {data?.remitente.correo ?? ""}
+                  {data?.remitente?.correo ?? ""}
                 </Typography>
                 <Typography fontWeight={700} variant="body2">
-                  {data?.remitente.celular ?? ""}
+                  {data?.remitente?.celular ?? ""}
                 </Typography>
                 <Typography variant="body2">
-                  identificacion: {data?.remitente.numero_identificacion ?? ""}
+                  identificacion: {data?.remitente?.numero_identificacion ?? ""}
                 </Typography>
                 <Typography variant="body2">
-                  {data?.remitente.direccion ?? ""}
+                  {data?.remitente?.direccion ?? ""}
                 </Typography>
               </Grid>
               <Divider
