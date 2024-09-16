@@ -262,8 +262,8 @@ export default function BasicTable({ tableData }: { tableData: any }) {
               ))}
             </TableRow>
             <TableRow>
-              <StyledTableCell style={{ display: "none" }} align="center">
-                Select
+              <StyledTableCell  align="center">
+               
               </StyledTableCell>
               <StyledTableCell
                 style={{
@@ -344,12 +344,11 @@ export default function BasicTable({ tableData }: { tableData: any }) {
               <StyledTableRow key={row.uid}>
                 <StyledTableCell
                   style={{
-                    fontSize: matches ? "10px" : "14px",
-                    display: "none",
+                    width: "10px" ,
                   }}
                   align="center"
                 >
-                  <Checkbox color="primary" />
+                  {/* <Checkbox color="primary" /> */}
                 </StyledTableCell>
                 <StyledTableCell
                   style={{ fontSize: matches ? "10px" : "14px" }}
