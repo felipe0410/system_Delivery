@@ -204,7 +204,6 @@ export const updatedShipments = async (uid: any, updatedData: any) => {
     const userCollectionRef = collection(db, "envios");
     const userDocRef = doc(userCollectionRef, uid);
     await updateDoc(userDocRef, updatedData);
-
     console.log("Documento actualizado con ID: ", uid);
     return uid;
   } catch (error) {

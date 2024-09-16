@@ -13,7 +13,7 @@ import {
   TablePagination,
   TableRow,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
+import { styled, useTheme } from "@mui/material/styles";
 import { tableCellClasses } from "@mui/material/TableCell";
 import { useState, useEffect } from "react";
 import DateRangePicker from "@wojtekmaj/react-daterange-picker";
@@ -21,7 +21,9 @@ import "@wojtekmaj/react-daterange-picker/dist/DateRangePicker.css";
 import "react-calendar/dist/Calendar.css";
 import DeleteIcon from "@mui/icons-material/Delete";
 import DeliveryModal from "@/components/confirmTable/detailGuide";
-
+import useMediaQuery from "@mui/material/useMediaQuery";
+import DeliveryDiningIcon from "@mui/icons-material/DeliveryDining";
+import MapsHomeWorkIcon from "@mui/icons-material/MapsHomeWork";
 
 interface TableItem {
   guide: string;
@@ -33,7 +35,6 @@ interface TableItem {
   intakeDate: string; // Asegúrate de tener este campo en el objeto
   [key: string]: any; // Esta es la firma de índice para permitir claves dinámicas
 }
-
 
 export default function BasicTable({ tableData }: { tableData: any }) {
   const [filters, setFilters] = useState<Partial<TableItem>>({
@@ -48,6 +49,9 @@ export default function BasicTable({ tableData }: { tableData: any }) {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [dateRange, setDateRange] = useState<any>(["", ""]);
+  const themee = useTheme();
+  const matches = useMediaQuery(themee.breakpoints.down("sm"));
+
   useEffect(() => {
     setFilteredData(tableData);
   }, [tableData]);
@@ -70,7 +74,7 @@ export default function BasicTable({ tableData }: { tableData: any }) {
           ? item[key]
               .toString()
               .toLowerCase()
-              .includes((filters[key]).toLowerCase())
+              .includes(filters[key].toLowerCase())
           : true
       );
     });
@@ -103,11 +107,15 @@ export default function BasicTable({ tableData }: { tableData: any }) {
       backgroundColor: "#000041",
       position: "sticky",
       top: 0,
-      // zIndex: theme.zIndex.appBar,
       color: "#fff",
     },
     [`&.${tableCellClasses.body}`]: {
-      fontSize: 14,
+      [theme.breakpoints.up("sm")]: {
+        fontSize: 14,
+      },
+      [theme.breakpoints.down("xs")]: {
+        fontSize: 9,
+      },
     },
   }));
 
@@ -242,6 +250,8 @@ export default function BasicTable({ tableData }: { tableData: any }) {
                       borderRadius: "14px",
                       padding: "8px 10px",
                       marginLeft: "10px",
+                      fontSize: { xs: "10px", sm: "14px" },
+                      width: "100%",
                     }}
                     placeholder={`Buscar `}
                     value={filters[field as keyof typeof filters]}
@@ -252,39 +262,156 @@ export default function BasicTable({ tableData }: { tableData: any }) {
               ))}
             </TableRow>
             <TableRow>
-              <StyledTableCell align="center">Select</StyledTableCell>
-              <StyledTableCell align="center">Nº Guía</StyledTableCell>
-              <StyledTableCell align="center">Destinatario</StyledTableCell>
-              <StyledTableCell align="center">Entregar en</StyledTableCell>
-              <StyledTableCell align="center">Caja</StyledTableCell>
-              <StyledTableCell align="center">Paquete</StyledTableCell>
-              <StyledTableCell align="center">Valor</StyledTableCell>
-              <StyledTableCell align="center">Estado</StyledTableCell>
-              <StyledTableCell align="center">Fecha</StyledTableCell>
-              <StyledTableCell align="center">Detalles</StyledTableCell>
+              <StyledTableCell style={{ display: "none" }} align="center">
+                Select
+              </StyledTableCell>
+              <StyledTableCell
+                style={{
+                  fontSize: matches ? "12px" : "14px",
+                }}
+                align="center"
+              >
+                Nº Guía
+              </StyledTableCell>
+              <StyledTableCell
+                style={{
+                  fontSize: matches ? "12px" : "14px",
+                }}
+                align="center"
+              >
+                Destinatario
+              </StyledTableCell>
+              <StyledTableCell
+                style={{
+                  fontSize: matches ? "12px" : "14px",
+                }}
+                align="center"
+              >
+                Entregar en
+              </StyledTableCell>
+              <StyledTableCell
+                style={{
+                  fontSize: matches ? "12px" : "14px",
+                }}
+                align="center"
+              >
+                Caja
+              </StyledTableCell>
+              <StyledTableCell
+                style={{
+                  fontSize: matches ? "12px" : "14px",
+                }}
+                align="center"
+              >
+                Paquete
+              </StyledTableCell>
+              <StyledTableCell
+                style={{
+                  fontSize: matches ? "12px" : "14px",
+                }}
+                align="center"
+              >
+                Valor
+              </StyledTableCell>
+              <StyledTableCell
+                style={{
+                  fontSize: matches ? "12px" : "14px",
+                }}
+                align="center"
+              >
+                Estado
+              </StyledTableCell>
+              <StyledTableCell
+                style={{
+                  fontSize: matches ? "12px" : "14px",
+                }}
+                align="center"
+              >
+                Fecha
+              </StyledTableCell>
+              <StyledTableCell
+                style={{
+                  fontSize: matches ? "12px" : "14px",
+                }}
+                align="center"
+              >
+                Detalles
+              </StyledTableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {rowsToDisplay.map((row, i) => (
               <StyledTableRow key={row.uid}>
-                <StyledTableCell align="center">
+                <StyledTableCell
+                  style={{
+                    fontSize: matches ? "10px" : "14px",
+                    display: "none",
+                  }}
+                  align="center"
+                >
                   <Checkbox color="primary" />
                 </StyledTableCell>
-                <StyledTableCell align="center">{row.guide}</StyledTableCell>
-                <StyledTableCell align="center">
+                <StyledTableCell
+                  style={{ fontSize: matches ? "10px" : "14px" }}
+                  align="center"
+                >
+                  {row.guide}
+                </StyledTableCell>
+                <StyledTableCell
+                  style={{ fontSize: matches ? "10px" : "14px" }}
+                  align="center"
+                >
                   {row.addressee}
                 </StyledTableCell>
-                <StyledTableCell align="center">
-                  {row.deliverTo}
+                <StyledTableCell
+                  style={{ fontSize: matches ? "10px" : "14px" }}
+                  align="center"
+                >
+                  <Chip
+                    icon={
+                      row.deliverTo === "RECLAME EN OFICINA" ? (
+                        <MapsHomeWorkIcon />
+                      ) : (
+                        <DeliveryDiningIcon />
+                      )
+                    }
+                    label={row.deliverTo}
+                    variant="outlined"
+                    sx={{
+                      ...getStatusStyle(
+                        row.deliverTo === "RECLAME EN OFICINA"
+                          ? "oficina"
+                          : "mensajero"
+                      ),
+                      fontSize: "10px",
+                      marginLeft: "10px",
+                      width: "85%",
+                      fontWeight: 700,
+                    }}
+                  />
                 </StyledTableCell>
-                <StyledTableCell align="center">{row.box}</StyledTableCell>
-                <StyledTableCell align="center">
+                <StyledTableCell
+                  style={{ fontSize: matches ? "10px" : "14px" }}
+                  align="center"
+                >
+                  {row.box}
+                </StyledTableCell>
+                <StyledTableCell
+                  style={{ fontSize: matches ? "10px" : "14px" }}
+                  align="center"
+                >
                   {row.packageNumber}
                 </StyledTableCell>
-                <StyledTableCell align="center">
+                <StyledTableCell
+                  style={{ fontSize: matches ? "10px" : "14px" }}
+                  align="center"
+                >
                   {row.shippingCost}
                 </StyledTableCell>
-                <StyledTableCell align="center">
+                <StyledTableCell
+                  style={{ fontSize: matches ? "10px" : "14px" }}
+                  align="center"
+                >
                   <Chip
                     label={row.status}
                     sx={{
