@@ -60,7 +60,6 @@ const Page = () => {
   const [packageNumber, setPackageNumber] = useState(0);
   const [box, setBox] = useState("0");
   const [allData, setAllData] = useState<GuideData[]>([]);
-  console.log("allData:::>", allData);
   const [searchTerm, setSearchTerm] = useState("");
   const [guidiesDetails, setGuidiesDetails] = useState([]);
   const [load, setLoad] = useState(false);
@@ -140,6 +139,7 @@ const Page = () => {
   };
 
   const handleDelete = (chipToDelete: any) => () => {
+    console.log("chipToDelete:::>", chipToDelete);
     setGuide((prevGuides) =>
       prevGuides.filter((guide) => guide !== chipToDelete)
     );
@@ -166,10 +166,13 @@ const Page = () => {
     const guidesArray = allData.map((data) => data.guide);
 
     try {
-      const response = await axios.post("https://7ff8-2803-1a00-153d-c030-9a57-c4a7-a5d-5468.ngrok-free.app/consult", {
-        guias: guidesArray,
-        password,
-      });
+      const response = await axios.post(
+        "https://7ff8-2803-1a00-153d-c030-9a57-c4a7-a5d-5468.ngrok-free.app/consult",
+        {
+          guias: guidesArray,
+          password,
+        }
+      );
 
       const responseData = response.data;
       const processedUids = responseData.map(
