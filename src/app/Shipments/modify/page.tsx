@@ -16,7 +16,7 @@ import { useRouter } from "next/navigation";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import Image from "next/image";
 import imgBack from "/public/images/9514099e5193291f5148687e8c14464d.png";
-import { getShipmentData, updatedShipments } from "@/firebase/firebase";
+import { getShipmentData, shipments, updatedShipments } from "@/firebase/firebase";
 import { SnackbarProvider, enqueueSnackbar } from "notistack";
 import { inputs } from "@/data/inputs";
 import SearchIcon from "@mui/icons-material/Search";
@@ -111,10 +111,9 @@ const Page = () => {
         });
         return;
       }
-      await updatedShipments(data.guide, {
+      await shipments(data.guide, {
         ...updatedData,
         updateDate: getCurrentDateTime(),
-        modifyBy: user,
       });
       enqueueSnackbar("Sus cambios han sido actualizados", {
         variant: "success",

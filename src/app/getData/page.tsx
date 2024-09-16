@@ -138,10 +138,9 @@ const Page = () => {
     setNumm(numeroFaltante);
   };
 
-  const handleDelete = (chipToDelete: any) => () => {
-    console.log("chipToDelete:::>", chipToDelete);
-    setGuide((prevGuides) =>
-      prevGuides.filter((guide) => guide !== chipToDelete)
+  const handleDelete = (chipToDelete: string) => () => {
+    setAllData((prevAllData) =>
+      prevAllData.filter((data) => data.guide !== chipToDelete)
     );
   };
 
@@ -178,21 +177,14 @@ const Page = () => {
       const processedUids = responseData.map(
         (item: { uid: string }) => item.uid
       );
-
-      // Actualizamos las guías que no han sido procesadas
       const updatedGuides = guide.filter(
         (g: string) => !processedUids.includes(g)
       );
       setGuide(updatedGuides);
-
-      // Filtrar allData y sobrescribir los campos de la respuesta con los valores de allData
       const updatedAllData = responseData.map((shipment: any) => {
-        // Encontrar la guía correspondiente en allData
         const originalData = allData.find(
           (data) => data.guide === shipment.guide
         );
-        console.log("shipment:::>", shipment);
-        console.log("originalData:::>", originalData);
 
         if (originalData) {
           console.log("entro aqui");
@@ -210,10 +202,8 @@ const Page = () => {
           };
         }
 
-        return shipment; // Si no encuentra coincidencia, devuelve el envío tal como está
+        return shipment;
       });
-      console.log("updatedAllData:::>", updatedAllData);
-      // Guardar los datos actualizados en la base de datos usando shipments
       for (const updatedShipment of updatedAllData) {
         const uid = updatedShipment.uid;
 
@@ -226,16 +216,10 @@ const Page = () => {
                 box: "0",
                 packageNumber: "0",
                 courierAttempt1: Date.now(),
-                // valor: convertirMonedaANumero(
-                //   updatedShipment?.shippingCost ?? "0"
-                // ),
               }
             : {
                 ...updatedShipment,
                 status: "oficina",
-                // valor: convertirMonedaANumero(
-                //   updatedShipment?.shippingCost ?? "0"
-                // ),
               }
         );
 
@@ -250,8 +234,6 @@ const Page = () => {
           );
         }
       }
-
-      // Actualizar detalles de las guías
       setGuidiesDetails(response.data);
       enqueueSnackbar("Datos cargados correctamente.", { variant: "success" });
     } catch (error) {
@@ -638,9 +620,9 @@ const Page = () => {
           >
             <Button
               onClick={() => fetchGuideDetails(false)}
-              // disabled={!(guide.length > 0) || load}
+              disabled={!(allData.length > 0) || load}
               sx={{
-                filter: guide.length > 0 ? "auto" : "grayscale(1)",
+                filter: allData.length > 0 ? "auto" : "grayscale(1)",
                 background: "#5C68D4",
                 boxShadow: "0px 4px 4px 0px #00000040",
                 color: "#fff",
@@ -664,9 +646,9 @@ const Page = () => {
             </Button>
             <Button
               onClick={() => fetchGuideDetails(true)}
-              // disabled={!(guide.length > 0) || load}
+              disabled={!(allData.length > 0) || load}
               sx={{
-                filter: guide.length > 0 ? "auto" : "grayscale(1)",
+                filter: allData.length > 0 ? "auto" : "grayscale(1)",
                 background: "#5C68D4",
                 boxShadow: "0px 4px 4px 0px #00000040",
                 color: "#fff",
