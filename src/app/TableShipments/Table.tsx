@@ -5,6 +5,7 @@ import {
   Chip,
   IconButton,
   InputBase,
+  Link,
   Table,
   TableBody,
   TableCell,
@@ -24,7 +25,8 @@ import DeliveryModal from "@/components/confirmTable/detailGuide";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import DeliveryDiningIcon from "@mui/icons-material/DeliveryDining";
 import MapsHomeWorkIcon from "@mui/icons-material/MapsHomeWork";
-
+import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
+import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 interface TableItem {
   guide: string;
   addressee: string;
@@ -262,9 +264,7 @@ export default function BasicTable({ tableData }: { tableData: any }) {
               ))}
             </TableRow>
             <TableRow>
-              <StyledTableCell  align="center">
-               
-              </StyledTableCell>
+              <StyledTableCell align="center"></StyledTableCell>
               <StyledTableCell
                 style={{
                   fontSize: matches ? "12px" : "14px",
@@ -344,11 +344,52 @@ export default function BasicTable({ tableData }: { tableData: any }) {
               <StyledTableRow key={row.uid}>
                 <StyledTableCell
                   style={{
-                    width: "10px" ,
+                    width: "10px",
                   }}
                   align="center"
                 >
-                  {/* <Checkbox color="primary" /> */}
+                  <>
+                    {row?.destinatario?.celular ? (
+                      <Link
+                        href={`tel:${row.destinatario.celular}`}
+                        color="inherit"
+                        underline="none"
+                      >
+                        {row.destinatario.celular}
+                        <Box sx={{ display: "flex" }}>
+                          <IconButton color="primary" aria-label="Llamar">
+                            <LocalPhoneIcon />
+                          </IconButton>
+                          <Link
+                          
+                            href={`https://wa.me/${
+                              row?.destinatario?.celular ?? "null"
+                            }/?text=${encodeURIComponent(
+                              `_*INTERRAPIDISIMO AQUITANIA*_ le informa que su pedido ha llegado\n\n` +
+                                `• *Destinatario*: ${row.addressee}\n` +
+                                `• *Valor*: $${row?.shippingCost ?? 0}\n` +
+                                `Al momento de reclamar indique que su paquete es:\n` +
+                                `• *Número de paquete*: ${row.packageNumber}\n` +
+                                `• *Caja*: ${row.box}\n` +
+                                `puede reclamar su paquete en : *PAPELERIA DONDE NAZLY*, por su seguridad recuerde que es el unico punto fisico para reclamar correspondencia de *INTERRAPIDISIMO* \n`
+                            )}`}
+                            target="_blank"
+                          >
+                            <IconButton
+                              color="success"
+                              aria-label="Enviar mensaje por WhatsApp"
+                            >
+                              <WhatsAppIcon />
+                            </IconButton>
+                          </Link>
+                        </Box>
+                      </Link>
+                    ) : (
+                      "No tiene"
+                    )}
+                  </>
+
+                  <></>
                 </StyledTableCell>
                 <StyledTableCell
                   style={{ fontSize: matches ? "10px" : "14px" }}
