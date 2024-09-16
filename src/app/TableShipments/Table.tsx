@@ -361,6 +361,7 @@ export default function BasicTable({ tableData }: { tableData: any }) {
                             <LocalPhoneIcon />
                           </IconButton>
                           <Link
+                          
                             href={`https://wa.me/${
                               row?.destinatario?.celular ?? "null"
                             }/?text=${encodeURIComponent(
