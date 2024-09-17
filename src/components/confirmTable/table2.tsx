@@ -127,7 +127,6 @@ export default function CustomizedTables() {
       { totalCount: 0, totalValue: 0, alCobroCount: 0 }
     );
 
-    // Formatear el valor total con signo de pesos y separadores de miles
     const formatter = new Intl.NumberFormat("es-CO", {
       style: "currency",
       currency: "COP",
