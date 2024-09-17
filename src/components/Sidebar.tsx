@@ -73,7 +73,7 @@ const Sidebar = () => {
       id: "/getData",
     },
     {
-      section: "Confirmar Datos",
+      section: "Editar Datos",
       icon: (
         <AppRegistrationRoundedIcon
           sx={{ fontSize: { sm: "40px" } }}
