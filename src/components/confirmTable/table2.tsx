@@ -8,7 +8,11 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import TagIcon from "@mui/icons-material/Tag";
-import { getAllShipmentsData, getEnvios, shipments } from "@/firebase/firebase";
+import {
+  getEnvios,
+  getFilteredShipmentsData,
+  shipments,
+} from "@/firebase/firebase";
 import {
   BottomNavigation,
   BottomNavigationAction,
@@ -16,6 +20,8 @@ import {
   Checkbox,
   Chip,
   IconButton,
+  Input,
+  InputAdornment,
   InputBase,
   MenuItem,
   Select,
@@ -30,6 +36,7 @@ import ModalComponent from "./modal";
 import DeliveryModal from "./detailGuide";
 import DeliveryDiningIcon from "@mui/icons-material/DeliveryDining";
 import ApartmentIcon from "@mui/icons-material/Apartment";
+import InventoryIcon from "@mui/icons-material/Inventory";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -80,9 +87,13 @@ export default function CustomizedTables() {
   const [check, setCheck] = useState(false);
   const [sucessFull, setsucessFull] = useState<any>({});
   const [num, setNumm] = useState(0);
-  const [value, setValue] = React.useState(0);
+  const [value, setValue] = React.useState(1);
   const [save, setSave] = useState(0);
   const [arrayUniqueValue, setArrayUniqueValue] = useState<any>([]);
+  const [inputGuideNumber, setInputGuideNumber] = useState("");
+  const [allDataFirebase, setAllDataFirebase] = useState<
+    { [x: string]: any }[]
+  >([]);
 
   const calculateSummary: any = (shipments: any[]) => {
     if (shipments.length === 0) {
@@ -101,7 +112,6 @@ export default function CustomizedTables() {
       ) => {
         if (shipment.pago === "Al Cobro") {
           acc.totalCount++;
-          // Asegúrate de que 'valor' es un número y no una cadena de texto con comas o puntos incorrectos
           const valorNumerico =
             typeof shipment.valor === "string"
               ? parseFloat(shipment.valor.replace(/[^0-9.-]+/g, ""))
@@ -117,7 +127,6 @@ export default function CustomizedTables() {
       { totalCount: 0, totalValue: 0, alCobroCount: 0 }
     );
 
-    // Formatear el valor total con signo de pesos y separadores de miles
     const formatter = new Intl.NumberFormat("es-CO", {
       style: "currency",
       currency: "COP",
@@ -265,7 +274,6 @@ export default function CustomizedTables() {
       <Select
         onChange={(e) => {
           if (selectedRows.uid === row.uid) {
-            console.log();
             setSelectedRows({
               ...selectedRows,
               pago: e.target.value,
@@ -320,7 +328,8 @@ export default function CustomizedTables() {
   React.useEffect(() => {
     const getFirebaseData = async () => {
       try {
-        const dataRef = await getAllShipmentsData();
+        const dataRef = await getFilteredShipmentsData();
+        setAllDataFirebase(dataRef);
         const filteredData = dataRef.filter(
           (item: { revision: boolean }) => item?.revision === false
         );
@@ -381,6 +390,43 @@ export default function CustomizedTables() {
 
   const saveshipment = (i: any) => {
     return sucessFull[i] ?? false;
+  };
+
+  const handleGuideNumberChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setInputGuideNumber(event.target.value);
+  };
+
+  const updateGuideRevision = async () => {
+    try {
+      const foundShipment = allDataFirebase?.find(
+        (shipment) => shipment.guide === inputGuideNumber
+      );
+      const updatedFirebaseData = [...firebaseData];
+      if (foundShipment) {
+        const updatedShipment = { ...foundShipment, revision: false };
+        const existingIndex = updatedFirebaseData.findIndex(
+          (shipment) => shipment.guide === inputGuideNumber
+        );
+
+        if (existingIndex !== -1) {
+          updatedFirebaseData[existingIndex] = updatedShipment;
+        } else {
+          updatedFirebaseData.push(updatedShipment);
+        }
+        setFirebaseData(updatedFirebaseData);
+        enqueueSnackbar("Guía agregada exitosamente", { variant: "success" });
+        setInputGuideNumber("");
+      } else {
+        enqueueSnackbar("No se encontró la guía en allDataFirebase", {
+          variant: "error",
+        });
+      }
+    } catch (error) {
+      console.error("Error actualizando la guía: ", error);
+      enqueueSnackbar("Error al actualizar la guía", { variant: "error" });
+    }
   };
 
   return (
@@ -558,7 +604,7 @@ export default function CustomizedTables() {
               lineHeight: "normal",
             }}
           >
-            CONFIRMAR DATOS
+            EDITAR DATOS
           </Typography>
         </Box>
         <Box mt={1} width={"39.5625rem"}>
@@ -575,6 +621,24 @@ export default function CustomizedTables() {
           >
             Acontinuacion se presenta los paquetes por confirmar datos
           </Typography>
+          <Box sx={{ marginY: "10px", width: "auto" }}>
+            <Input
+              startAdornment={
+                <InputAdornment position="start">
+                  <InventoryIcon />
+                </InputAdornment>
+              }
+              id="filled-basic"
+              placeholder="Nª Guia"
+              value={inputGuideNumber}
+              onChange={handleGuideNumberChange}
+              onKeyPress={(event) => {
+                if (event.key === "Enter") {
+                  updateGuideRevision();
+                }
+              }}
+            />
+          </Box>
         </Box>
       </Box>
       <Paper elevation={3}>
@@ -702,58 +766,6 @@ export default function CustomizedTables() {
                     flexDirection: "row",
                   }}
                 >
-                  {/* {
-                    <IconButton
-                      disabled={
-                        allData[
-                          value === 0 ? "domiciliario" : "oficina"
-                        ].findIndex(
-                          (item: { uid: any }) => item.uid === row.uid
-                        ) === -1
-                      }
-                      onClick={async () => {
-                        try {
-                          const save = await shipments(
-                            selectedRows.uid,
-                            selectedRows
-                          );
-                          if (save !== null) {
-                            setsucessFull({ ...sucessFull, [i]: true });
-                          }
-                          enqueueSnackbar("Envio Actualizado con exito", {
-                            variant: "success",
-                            anchorOrigin: {
-                              vertical: "bottom",
-                              horizontal: "right",
-                            },
-                          });
-                        } catch (error) {
-                          enqueueSnackbar("Error al actualizar el envio", {
-                            variant: "error",
-                            anchorOrigin: {
-                              vertical: "bottom",
-                              horizontal: "right",
-                            },
-                          });
-                        }
-                      }}
-                      type='button'
-                      sx={{ p: "10px" }}
-                    >
-                      <SaveIcon
-                        sx={{
-                          color:
-                            allData[
-                              value === 0 ? "domiciliario" : "oficina"
-                            ].findIndex(
-                              (item: { uid: any }) => item.uid === row.uid
-                            ) === -1
-                              ? "gray"
-                              : "#00A907",
-                        }}
-                      />
-                    </IconButton>
-                  } */}
                   <Box
                     sx={
                       saveshipment(i)

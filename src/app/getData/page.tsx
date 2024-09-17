@@ -52,7 +52,6 @@ interface GuideData {
 
 const Page = () => {
   const [password, setPassword] = useState("");
-  console.log(password);
   const [step, setStep] = useState(0);
   const [guide, setGuide] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState("");
@@ -60,6 +59,7 @@ const Page = () => {
   const [packageNumber, setPackageNumber] = useState(0);
   const [box, setBox] = useState("0");
   const [allData, setAllData] = useState<GuideData[]>([]);
+  console.log("allData;;;>", allData);
   const [searchTerm, setSearchTerm] = useState("");
   const [guidiesDetails, setGuidiesDetails] = useState([]);
   const [load, setLoad] = useState(false);
@@ -177,10 +177,11 @@ const Page = () => {
       const processedUids = responseData.map(
         (item: { uid: string }) => item.uid
       );
-      const updatedGuides = guide.filter(
-        (g: string) => !processedUids.includes(g)
+
+      const updatedAllDataa = allData.filter(
+        (shipment) => !processedUids.includes(shipment.guide)
       );
-      setGuide(updatedGuides);
+      setAllData(updatedAllDataa);
       const updatedAllData = responseData.map((shipment: any) => {
         const originalData = allData.find(
           (data) => data.guide === shipment.guide
@@ -222,12 +223,9 @@ const Page = () => {
                 status: "oficina",
               }
         );
-
         if (result) {
-          if (updatedShipment?.shippingCost?.length > 0) {
             console.log(`Datos guardados para el envío con UID: ${uid}`);
             setShipmentsSave((prevCount) => prevCount + 1);
-          }
         } else {
           console.error(
             `Error al guardar los datos para el envío con UID: ${uid}`
