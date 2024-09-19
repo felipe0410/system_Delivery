@@ -37,7 +37,29 @@ export default function GuidesGroup({
     const filteredData = firebaseData.filter((data: { guide: string }) =>
       guideList.includes(data.guide)
     );
-    setTagsValue(filteredData);
+
+    // Filtrar los paquetes con status "devolucion" o "entregado"
+    const statusGrouped = filteredData.filter(
+      (data: { status: string }) =>
+        data.status === "devolucion" || data.status === "entregado"
+    );
+
+    // Agrupar los paquetes restantes por "box"
+    const nonStatusGrouped = filteredData
+      .filter(
+        (data: { status: string }) =>
+          data.status !== "devolucion" && data.status !== "entregado"
+      )
+      .sort((a: { box: number }, b: { box: number }) => {
+        if (a.box > b.box) return 1;
+        if (a.box < b.box) return -1;
+        return 0;
+      });
+
+    const sortedData = [...nonStatusGrouped, ...statusGrouped];
+
+    setTagsValue(sortedData);
+
     const notFoundGuides = guideList.filter(
       (guide) =>
         !filteredData.some((data: { guide: string }) => data.guide === guide)
@@ -48,6 +70,7 @@ export default function GuidesGroup({
         { variant: "warning" }
       );
     }
+
     setInputGuides("");
     setOpen(false);
   };
