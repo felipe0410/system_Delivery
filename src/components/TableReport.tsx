@@ -24,7 +24,7 @@ const TableReport = ({ data }: { [x: string]: any }) => {
       color: "red",
     },
     [`&.${tableCellClasses.body}`]: {
-      fontSize: 14,
+      fontSize: 20,
     },
   }));
 
@@ -41,7 +41,13 @@ const TableReport = ({ data }: { [x: string]: any }) => {
     const input = document.getElementById("table-to-pdf");
     if (!input) return;
 
-    const canvas = await html2canvas(input);
+    // Aumentar el tamaño de la fuente del contenido antes de capturar
+    input.style.fontSize = "22px"; // Aumentar el tamaño de la fuente a 16px o el valor que prefieras
+
+    const canvas = await html2canvas(input, {
+      scale: 2, // Aumentar la escala para mejorar la calidad y tamaño del texto en el PDF
+    });
+
     const imgData = canvas.toDataURL("image/png");
     const pdf = new jsPDF("p", "mm", "a4");
     const imgWidth = 210; // Width of A4 page in mm
@@ -61,7 +67,17 @@ const TableReport = ({ data }: { [x: string]: any }) => {
       heightLeft -= pageHeight;
     }
 
-    pdf.save("reporte.pdf");
+    const today = new Date();
+    const day = String(today.getDate()).padStart(2, "0");
+    const month = String(today.getMonth() + 1).padStart(2, "0"); // Los meses son 0-indexados
+    const year = today.getFullYear();
+    const formattedDate = `${day}-${month}-${year}`;
+
+    // Guardar el archivo con el nombre "reporte-DD-MM-YYYY.pdf"
+    pdf.save(`reporte-${formattedDate}.pdf`);
+
+    // Restablecer el estilo original después de la generación
+    input.style.fontSize = "";
   };
 
   const buttons = [
@@ -129,23 +145,23 @@ const TableReport = ({ data }: { [x: string]: any }) => {
             >
               <TableHead sx={{ background: "#3C47A3" }}>
                 <TableRow>
-                  <TableCell sx={{ color: "#fff" }}># Guía</TableCell>
-                  <TableCell sx={{ color: "#fff" }} align="center">
+                  <TableCell sx={{ color: "#fff", fontSize:'20px' }}># Guía</TableCell>
+                  <TableCell sx={{ color: "#fff", fontSize:'20px' }} align="center">
                     Nombre
                   </TableCell>
-                  <TableCell sx={{ color: "#fff" }} align="center">
+                  <TableCell sx={{ color: "#fff", fontSize:'20px' }} align="center">
                     Estado del envío
                   </TableCell>
-                  <TableCell sx={{ color: "#fff" }} align="center">
+                  <TableCell sx={{ color: "#fff", fontSize:'20px' }} align="center">
                     Paquete
                   </TableCell>
-                  <TableCell sx={{ color: "#fff" }} align="center">
+                  <TableCell sx={{ color: "#fff", fontSize:'20px' }} align="center">
                     Caja
                   </TableCell>
-                  <TableCell sx={{ color: "#fff" }} align="center">
+                  <TableCell sx={{ color: "#fff", fontSize:'20px' }} align="center">
                     Admision agencia
                   </TableCell>
-                  <TableCell sx={{ color: "#fff" }} align="center">
+                  <TableCell sx={{ color: "#fff", fontSize:'20px' }} align="center">
                     Detalles
                   </TableCell>
                 </TableRow>
