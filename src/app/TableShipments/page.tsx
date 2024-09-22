@@ -4,7 +4,7 @@ import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
-import { Paper } from "@mui/material";
+import { Paper, useMediaQuery, useTheme } from "@mui/material";
 import BasicTable from "./Table";
 import { collection, onSnapshot, query, where, or } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
@@ -17,7 +17,6 @@ interface TabPanelProps {
 
 function CustomTabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props;
-
   return (
     <div
       role="tabpanel"
@@ -75,7 +74,8 @@ const tablesData: {
 export default function BasicTabs() {
   const [value, setValue] = React.useState(0);
   const [tableData, setTableData] = React.useState<{ [x: string]: any }[]>([]);
-
+  const theme = useTheme();
+  const SmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const memoizedTablesData = React.useMemo(() => {
     return tablesData;
   }, []);
@@ -142,12 +142,23 @@ export default function BasicTabs() {
               value={value}
               onChange={handleChange}
               aria-label="basic tabs example"
+               variant={SmallScreen ? "scrollable" : "standard"}
+               scrollButtons={SmallScreen ? "auto" : false} 
+              // sx={{
+              //   ".MuiTabs-flexContainer": {
+              //     justifyContent: SmallScreen ? "start" : "center",
+              //   },
+              // }}
             >
-              {tablesData.map((table, index) => (
+              {tablesData.map((table: any, index: number) => (
                 <Tab
                   key={crypto.randomUUID()}
                   label={table.title}
                   {...a11yProps(index)}
+                  sx={{
+                    fontSize: { xs: "12px", sm: "14px", md: "16px" }, // Ajuste del tamaño de texto
+                    minWidth: { xs: "80px", sm: "100px" }, // Ancho mínimo para que se vean bien los tabs en pantallas pequeñas
+                  }}
                 />
               ))}
             </Tabs>
