@@ -37,6 +37,40 @@ export const firebaseConfig = {
 const app: FirebaseApp = initializeApp(firebaseConfig);
 export const db: Firestore = getFirestore(app);
 const auth = getAuth();
+
+// Función para decodificar Base64
+const decodeBase64 = (encodedString: string): string => {
+  return Buffer.from(encodedString, "base64").toString("utf-8");
+};
+
+// Función para obtener los datos de un usuario a partir de la ruta con un ID codificado en Base64
+export const getUserDataByBase64Id = async (base64Id: string) => {
+  try {
+    // Decodificar el ID en Base64
+    const userId = decodeBase64(base64Id);
+
+    // Referencia al documento específico del usuario en Firestore
+    const userDocRef = doc(db, "user", userId);
+
+    // Obtener los datos del documento
+    const userDoc = await getDoc(userDocRef);
+
+    if (userDoc.exists()) {
+      // Retornar los datos del usuario si el documento existe
+      const userData = userDoc.data();
+      console.log(userData);
+      return userData;
+    } else {
+      console.log("No se encontró el documento del usuario");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error al obtener los datos del usuario: ", error);
+    return null;
+  }
+};
+
+//____________________________________________________________________-
 const getCurrentDateTime = () => {
   const now = new Date();
   const year = now.getFullYear();
@@ -438,7 +472,6 @@ export const getAndSaveEnvios = async () => {
   }
 };
 
-
 export const getFilteredShipmentsData = async () => {
   try {
     // Crear una consulta que busque envíos con status "entregado" o "oficina"
@@ -451,7 +484,7 @@ export const getFilteredShipmentsData = async () => {
     // Ejecutar la consulta
     const querySnapshot = await getDocs(filteredQuery);
     const shipmentsData: any = [];
-    
+
     querySnapshot.forEach((doc) => {
       shipmentsData.push(doc.data());
     });

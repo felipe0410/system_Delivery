@@ -103,17 +103,17 @@ const Sing_up = () => {
 
   const password = () => {
     return (
-      <FormControl fullWidth variant='outlined'>
+      <FormControl fullWidth variant="outlined">
         <OutlinedInput
-          id='outlined-adornment-password'
+          id="outlined-adornment-password"
           type={showPassword ? "text" : "password"}
           endAdornment={
-            <InputAdornment position='end'>
+            <InputAdornment position="end">
               <IconButton
-                aria-label='toggle password visibility'
+                aria-label="toggle password visibility"
                 onClick={handleClickShowPassword}
                 onMouseDown={handleMouseDownPassword}
-                edge='end'
+                edge="end"
               >
                 {showPassword ? <VisibilityOff /> : <Visibility />}
               </IconButton>
@@ -126,7 +126,7 @@ const Sing_up = () => {
             boxShadow: "0px 4px 4px 0px rgba(0, 0, 0, 0.25)",
           }}
           onChange={(e) => setData({ ...data, password: e.target.value })}
-          placeholder='xxxxxxxx'
+          placeholder="xxxxxxxx"
         />
       </FormControl>
     );
@@ -145,7 +145,7 @@ const Sing_up = () => {
     }
     if (!validateLength()) {
       const creation: any = await creteUser(data.email, data.password);
-      saveDataUser(creation.uid, data);
+      saveDataUser(creation?.uid ?? "", data);
       if (creation?.errorCode === "auth/email-already-in-use") {
         enqueueSnackbar("El correo ya esta en uso", {
           variant: "error",
@@ -201,8 +201,8 @@ const Sing_up = () => {
       <Modal
         open={open}
         onClose={handleClose}
-        aria-labelledby='parent-modal-title'
-        aria-describedby='parent-modal-description'
+        aria-labelledby="parent-modal-title"
+        aria-describedby="parent-modal-description"
         sx={{
           position: "absolute" as "absolute",
           top: "50%",
@@ -296,7 +296,7 @@ const Sing_up = () => {
             sx={{ maxWidth: "295px" }}
             width={"50%"}
             component={"img"}
-            src='Loggin/logoInter.png'
+            src="Loggin/logoInter.png"
           />
         </Box>
       </Box>
@@ -351,7 +351,7 @@ const Sing_up = () => {
           >
             Tipo de usuario
           </Typography>
-          <FormControl id='form-control' fullWidth>
+          <FormControl id="form-control" fullWidth>
             <Select
               sx={{
                 background: "#FFFFFFC4",
@@ -359,12 +359,12 @@ const Sing_up = () => {
                 boxShadow: "0px 4px 4px 0px rgba(0, 0, 0, 0.25)",
                 color: data.rol.length === 0 ? "#808080b3" : "#000",
               }}
-              id='demo-simple-select'
+              id="demo-simple-select"
               value={
                 data.rol.length === 0 ? "seleccionar tipo de usuario" : data.rol
               }
               onChange={(e) => setData({ ...data, rol: e.target.value })}
-              placeholder='seleccionar tipo de usuario'
+              placeholder="seleccionar tipo de usuario"
             >
               <MenuItem
                 sx={{ display: "none" }}
@@ -379,7 +379,7 @@ const Sing_up = () => {
           <Box>
             {inputs.map((input, index) => {
               return (
-                <Box key={index*98}>
+                <Box key={index * 98}>
                   <Typography
                     sx={{
                       color: "#0A0F37",
@@ -416,7 +416,7 @@ const Sing_up = () => {
                   )}
                   <Typography
                     display={input.validation() ? "none" : "block"}
-                    color='error'
+                    color="error"
                   >
                     {input.msgErrror}
                   </Typography>

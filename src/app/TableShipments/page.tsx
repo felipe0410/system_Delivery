@@ -6,7 +6,7 @@ import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import { Paper } from "@mui/material";
 import BasicTable from "./Table";
-import { collection, onSnapshot, query, where } from "firebase/firestore";
+import { collection, onSnapshot, query, where, or } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 
 interface TabPanelProps {
@@ -20,7 +20,7 @@ function CustomTabPanel(props: TabPanelProps) {
 
   return (
     <div
-      role='tabpanel'
+      role="tabpanel"
       hidden={value !== index}
       id={`simple-tabpanel-${index}`}
       aria-labelledby={`simple-tab-${index}`}
@@ -46,6 +46,10 @@ const tablesData: {
   title: string;
   estado: string;
 }[] = [
+  {
+    title: "Existentes",
+    estado: "existentes",
+  },
   {
     title: "Todos los envios",
     estado: "todos",
@@ -84,15 +88,33 @@ export default function BasicTabs() {
     const getFirebaseTable = async () => {
       try {
         const tableRef = collection(db, "envios");
-        if (value === 0) {
-          const allDocsQuery = query(tableRef);
-          onSnapshot(allDocsQuery, (snapshot) => {
-            const todaLaData = snapshot.docs.map((doc) => ({
+
+        if (value === 1) {
+          // Pestaña "Todos los envíos" - Traer todos los envíos sin filtrar
+          onSnapshot(tableRef, (snapshot) => {
+            const allData = snapshot.docs.map((doc) => ({
               ...doc.data(),
             }));
-            setTableData(todaLaData);
+            setTableData(allData);
+          });
+        } else if (value === 0) {
+          // Pestaña "Existentes" - Filtrar por status, mensajero, y oficina
+          const statusQuery = query(
+            tableRef,
+            or(
+              where("status", "==", "mensajero"),
+              where("status", "==", "oficina")
+            )
+          );
+
+          onSnapshot(statusQuery, (snapshot) => {
+            const filteredData = snapshot.docs.map((doc) => ({
+              ...doc.data(),
+            }));
+            setTableData(filteredData);
           });
         } else {
+          // Otras pestañas - Filtrar según el estado
           const status = memoizedTablesData[value].estado;
           const statusQuery = query(tableRef, where("status", "==", status));
 
@@ -119,7 +141,7 @@ export default function BasicTabs() {
             <Tabs
               value={value}
               onChange={handleChange}
-              aria-label='basic tabs example'
+              aria-label="basic tabs example"
             >
               {tablesData.map((table, index) => (
                 <Tab

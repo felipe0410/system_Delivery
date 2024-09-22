@@ -12,6 +12,7 @@ import "@fontsource/nunito/600.css";
 import "@fontsource/nunito/700.css";
 import "@fontsource/nunito/800.css";
 import "@fontsource/nunito/900.css";
+import ContainerChildren from "./ContainerChildren";
 // import { useRouter } from "next/navigation";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -33,7 +34,7 @@ export default function RootLayout({
   );
 
   return (
-    <html lang='en' style={{ height: "100%" }}>
+    <html lang="en" style={{ height: "100%" }}>
       <body
         style={{
           height: "100%",
@@ -51,7 +52,7 @@ export default function RootLayout({
           <>
             (
             <Box
-              id='Container Sidebar'
+              id="Container Sidebar"
               sx={{
                 position: "fixed",
                 top: 0,
@@ -74,14 +75,21 @@ export default function RootLayout({
               <Header />
             </Box>
             <Box
-              id='container children layout'
+              id="container children layout"
               sx={{
                 height: validationRoutes ? "100%" : "80%",
                 marginTop: "64px",
                 marginLeft: { sm: "265px" },
               }}
             >
-              {children}
+              {
+                <>
+                  <ContainerChildren
+                    childrenn={children}
+                    validationRoutes={validationRoutes}
+                  />
+                </>
+              }
             </Box>
             )
           </>
