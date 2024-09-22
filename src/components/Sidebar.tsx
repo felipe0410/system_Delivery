@@ -1,5 +1,6 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
@@ -13,53 +14,67 @@ import {
   SwipeableDrawer,
 } from "@mui/material";
 import { usePathname } from "next/navigation";
-import MarkAsUnreadTwoToneIcon from "@mui/icons-material/MarkAsUnreadTwoTone";
-import AnalyticsTwoToneIcon from "@mui/icons-material/AnalyticsTwoTone";
-import ReceiptLongTwoToneIcon from "@mui/icons-material/ReceiptLongTwoTone";
-import AppRegistrationRoundedIcon from "@mui/icons-material/AppRegistrationRounded";
-import DeliveryDiningTwoToneIcon from "@mui/icons-material/DeliveryDiningTwoTone";
-import AssignmentTwoToneIcon from "@mui/icons-material/AssignmentTwoTone";
 import Link from "next/link";
 import Image from "next/image";
 import logo from "/public/images/logo.svg";
 import LogoutIcon from "@mui/icons-material/Logout";
-import { singOut } from "@/firebase/firebase";
+import { getUserDataByBase64Id, singOut } from "@/firebase/firebase";
 import { useCookies } from "react-cookie";
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 import QrCode2OutlinedIcon from "@mui/icons-material/QrCode2Outlined";
 import AppShortcutSharpIcon from "@mui/icons-material/AppShortcutSharp";
+import MarkAsUnreadTwoToneIcon from "@mui/icons-material/MarkAsUnreadTwoTone";
+import AnalyticsTwoToneIcon from "@mui/icons-material/AnalyticsTwoTone";
+import ReceiptLongTwoToneIcon from "@mui/icons-material/ReceiptLongTwoTone";
+import AssignmentTwoToneIcon from "@mui/icons-material/AssignmentTwoTone";
+import DeliveryDiningTwoToneIcon from "@mui/icons-material/DeliveryDiningTwoTone";
+import AppRegistrationRoundedIcon from "@mui/icons-material/AppRegistrationRounded";
 
 const Sidebar = () => {
   const [open, setOpen] = useState(false);
-  const [cookies, removeCookie] = useCookies(["user"]);
+  const [cookies, removeCookie, setCookie] = useCookies(["user", "dataUser"]);
+  const [userRole, setUserRole] = useState<string | null>(null);
   const theme = useTheme();
   const matchesSM = useMediaQuery(theme.breakpoints.down("sm"));
   const pathname = usePathname();
 
-  const sections = [
-    {
-      section: "Inicio",
-      icon: (
-        <AnalyticsTwoToneIcon
-          id="content icon home"
-          sx={{ fontSize: { sm: "40px" } }}
-          style={{ color: pathname === "/" ? "#0A0F37" : "#fff" }}
-        />
-      ),
-      id: "/",
-    },
-    {
-      section: "Registro de Envios",
-      icon: (
-        <AssignmentTwoToneIcon
-          sx={{ fontSize: { sm: "40px" } }}
-          style={{
-            color: pathname.startsWith("/TableShipments") ? "#0A0F37" : "#fff",
-          }}
-        />
-      ),
-      id: "/TableShipments",
-    },
+  // Función para redirigir según el rol
+  const checkPermissions = (path: string, role: string) => {
+    const restrictedPaths = ["/Shipments","/getData","/confirmData","/domiciliario","/gestion"];
+    if (role !== "Administrador" && restrictedPaths.includes(path)) {
+      window.location.href = "/TableShipments";
+    }
+  };
+
+  useEffect(() => {
+    // Si la cookie "user" no está presente, eliminar la cookie "dataUser"
+    if (!cookies.user) {
+      removeCookie("dataUser", "");
+      return;
+    }
+
+    const fetchData = async () => {
+      const user = await getUserDataByBase64Id(cookies.user);
+      if (user) {
+        setCookie("dataUser", user);
+        setUserRole(user.rol); // Establecer el rol del usuario
+      } else {
+        removeCookie("dataUser", "");
+      }
+    };
+    fetchData();
+  }, [cookies.user, setCookie, removeCookie]);
+
+  useEffect(() => {
+    if (userRole) {
+      // Verificar permisos basados en el rol actual
+      checkPermissions(pathname, userRole);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname, userRole]);
+
+  // Secciones disponibles solo para "Administrador"
+  const adminSections = [
     {
       section: "Scanear envios",
       icon: (
@@ -108,19 +123,33 @@ const Sidebar = () => {
       ),
       id: "/gestion",
     },
+  ];
+
+  // Secciones disponibles para todos los roles
+  const generalSections = [
     {
-      section: "Envios",
+      section: "Inicio",
       icon: (
-        <MarkAsUnreadTwoToneIcon
+        <AnalyticsTwoToneIcon
+          id="content icon home"
+          sx={{ fontSize: { sm: "40px" } }}
+          style={{ color: pathname === "/" ? "#0A0F37" : "#fff" }}
+        />
+      ),
+      id: "/",
+    },
+    {
+      section: "Registro de Envios",
+      icon: (
+        <AssignmentTwoToneIcon
           sx={{ fontSize: { sm: "40px" } }}
           style={{
-            color: pathname.startsWith("/Shipments") ? "#0A0F37" : "#fff",
+            color: pathname.startsWith("/TableShipments") ? "#0A0F37" : "#fff",
           }}
         />
       ),
-      id: "/Shipments",
+      id: "/TableShipments",
     },
-
     {
       section: "Generar Reporte",
       icon: (
@@ -134,6 +163,11 @@ const Sidebar = () => {
       id: "/GenerateReport",
     },
   ];
+
+  const sections =
+    userRole === "Administrador"
+      ? [...generalSections, ...adminSections]
+      : generalSections;
 
   return (
     <>

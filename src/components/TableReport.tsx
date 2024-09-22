@@ -42,7 +42,7 @@ const TableReport = ({ data }: { [x: string]: any }) => {
     if (!input) return;
 
     // Aumentar el tamaño de la fuente del contenido antes de capturar
-    input.style.fontSize = "22px"; // Aumentar el tamaño de la fuente a 16px o el valor que prefieras
+    input.style.fontSize = "22px";
 
     const canvas = await html2canvas(input, {
       scale: 2, // Aumentar la escala para mejorar la calidad y tamaño del texto en el PDF
