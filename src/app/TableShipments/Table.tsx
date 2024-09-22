@@ -233,15 +233,18 @@ export default function BasicTable({ tableData }: { tableData: any }) {
                   <DeleteIcon sx={{ color: "red" }} />
                 </IconButton>
               </TableCell>
-              {[
-                "guide",
-                "addressee",
-                "deliverTo",
-                "box",
-                "packageNumber",
-                "shippingCost",
-                "status",
-              ].map((field) => (
+              {(matches
+                ? ["guide", "addressee"]
+                : [
+                    "guide",
+                    "addressee",
+                    "deliverTo",
+                    "box",
+                    "packageNumber",
+                    "shippingCost",
+                    "status",
+                  ]
+              ).map((field) => (
                 <TableCell key={field}>
                   <InputBase
                     key={field}
@@ -264,10 +267,16 @@ export default function BasicTable({ tableData }: { tableData: any }) {
               ))}
             </TableRow>
             <TableRow>
-              <StyledTableCell align="center"></StyledTableCell>
+              <StyledTableCell
+                style={{
+                  width: matches ? "23px" : "auto",
+                }}
+                align="center"
+              ></StyledTableCell>
               <StyledTableCell
                 style={{
                   fontSize: matches ? "12px" : "14px",
+                  width: matches ? "33px" : "auto",
                 }}
                 align="center"
               >
@@ -276,6 +285,7 @@ export default function BasicTable({ tableData }: { tableData: any }) {
               <StyledTableCell
                 style={{
                   fontSize: matches ? "12px" : "14px",
+                  width: matches ? "33px" : "auto",
                 }}
                 align="center"
               >
@@ -284,6 +294,7 @@ export default function BasicTable({ tableData }: { tableData: any }) {
               <StyledTableCell
                 style={{
                   fontSize: matches ? "12px" : "14px",
+                  display: !matches ? "auto" : "none",
                 }}
                 align="center"
               >
@@ -292,6 +303,7 @@ export default function BasicTable({ tableData }: { tableData: any }) {
               <StyledTableCell
                 style={{
                   fontSize: matches ? "12px" : "14px",
+                  display: !matches ? "auto" : "none",
                 }}
                 align="center"
               >
@@ -300,6 +312,7 @@ export default function BasicTable({ tableData }: { tableData: any }) {
               <StyledTableCell
                 style={{
                   fontSize: matches ? "12px" : "14px",
+                  display: !matches ? "auto" : "none",
                 }}
                 align="center"
               >
@@ -308,6 +321,7 @@ export default function BasicTable({ tableData }: { tableData: any }) {
               <StyledTableCell
                 style={{
                   fontSize: matches ? "12px" : "14px",
+                  display: !matches ? "auto" : "none",
                 }}
                 align="center"
               >
@@ -316,6 +330,7 @@ export default function BasicTable({ tableData }: { tableData: any }) {
               <StyledTableCell
                 style={{
                   fontSize: matches ? "12px" : "14px",
+                  display: !matches ? "auto" : "none",
                 }}
                 align="center"
               >
@@ -324,6 +339,7 @@ export default function BasicTable({ tableData }: { tableData: any }) {
               <StyledTableCell
                 style={{
                   fontSize: matches ? "12px" : "14px",
+                  display: !matches ? "auto" : "none",
                 }}
                 align="center"
               >
@@ -332,6 +348,7 @@ export default function BasicTable({ tableData }: { tableData: any }) {
               <StyledTableCell
                 style={{
                   fontSize: matches ? "12px" : "14px",
+                  width: matches ? "33px" : "auto",
                 }}
                 align="center"
               >
@@ -361,7 +378,6 @@ export default function BasicTable({ tableData }: { tableData: any }) {
                             <LocalPhoneIcon />
                           </IconButton>
                           <Link
-                          
                             href={`https://wa.me/${
                               row?.destinatario?.celular ?? "null"
                             }/?text=${encodeURIComponent(
@@ -392,19 +408,24 @@ export default function BasicTable({ tableData }: { tableData: any }) {
                   <></>
                 </StyledTableCell>
                 <StyledTableCell
-                  style={{ fontSize: matches ? "10px" : "14px" }}
+                  style={{ fontSize: matches ? "14px" : "14px" }}
                   align="center"
                 >
                   {row.guide}
                 </StyledTableCell>
                 <StyledTableCell
-                  style={{ fontSize: matches ? "10px" : "14px" }}
+                  style={{
+                    fontSize: matches ? "14px" : "14px",
+                  }}
                   align="center"
                 >
                   {row.addressee}
                 </StyledTableCell>
                 <StyledTableCell
-                  style={{ fontSize: matches ? "10px" : "14px" }}
+                  style={{
+                    fontSize: matches ? "10px" : "14px",
+                    display: !matches ? "auto" : "none",
+                  }}
                   align="center"
                 >
                   <Chip
@@ -431,25 +452,37 @@ export default function BasicTable({ tableData }: { tableData: any }) {
                   />
                 </StyledTableCell>
                 <StyledTableCell
-                  style={{ fontSize: matches ? "10px" : "14px" }}
+                  style={{
+                    fontSize: matches ? "10px" : "14px",
+                    display: !matches ? "auto" : "none",
+                  }}
                   align="center"
                 >
                   {row.box}
                 </StyledTableCell>
                 <StyledTableCell
-                  style={{ fontSize: matches ? "10px" : "14px" }}
+                  style={{
+                    fontSize: matches ? "10px" : "14px",
+                    display: !matches ? "auto" : "none",
+                  }}
                   align="center"
                 >
                   {row.packageNumber}
                 </StyledTableCell>
                 <StyledTableCell
-                  style={{ fontSize: matches ? "10px" : "14px" }}
+                  style={{
+                    fontSize: matches ? "10px" : "14px",
+                    display: !matches ? "auto" : "none",
+                  }}
                   align="center"
                 >
                   {row.shippingCost}
                 </StyledTableCell>
                 <StyledTableCell
-                  style={{ fontSize: matches ? "10px" : "14px" }}
+                  style={{
+                    fontSize: matches ? "10px" : "14px",
+                    display: !matches ? "auto" : "none",
+                  }}
                   align="center"
                 >
                   <Chip
@@ -463,7 +496,12 @@ export default function BasicTable({ tableData }: { tableData: any }) {
                     }}
                   />
                 </StyledTableCell>
-                <StyledTableCell align="center">
+                <StyledTableCell
+                  style={{
+                    display: !matches ? "auto" : "none",
+                  }}
+                  align="center"
+                >
                   {formatDate(row.intakeDate)}
                 </StyledTableCell>
                 <StyledTableCell align="center">

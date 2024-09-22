@@ -68,9 +68,11 @@ interface DeliveryModalProps {
 
 const DeliveryModal: React.FC<DeliveryModalProps> = ({ data }) => {
   const [open, setOpen] = useState(false);
+
   useEffect(() => {
-    getAndSaveEnvios()
-  }, [])
+    getAndSaveEnvios();
+  }, []);
+
   return (
     <>
       <Button onClick={() => setOpen(true)}>
@@ -106,46 +108,44 @@ const DeliveryModal: React.FC<DeliveryModalProps> = ({ data }) => {
                 borderRadius: "21px",
               }}
             >
-              <Grid
-                item
-                xs={12}
-                style={{ padding: 0 }}
-                id="grid1"
-                sx={{ margin: "0", padding: "0" }}
-              >
-                <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+              {/* Cabecera del envío con el logo */}
+              <Grid item xs={12} sx={{ margin: 0, padding: 0 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    flexDirection: { xs: "column", sm: "row" },
+                  }}
+                >
                   <Box
                     component="img"
                     src="/logoInter.png"
                     alt="logoInter.png"
-                    height="70px"
+                    height={{ xs: "50px", sm: "70px" }}
+                    display={{ xs: "none", sm: "auto" }} // Ajusta el tamaño del logo en pantallas pequeñas
                   />
 
-                  <Box>
+                  <Box
+                    mt={{ xs: 2, sm: 0 }}
+                    sx={{ display: { xs: "none", sm: "auto" } }}
+                  >
                     <Box
                       display="flex"
                       justifyContent="space-between"
                       alignItems="center"
-                      marginTop={2}
                     >
-                      <Typography
-                        sx={{
-                          fontWeight: 800,
-                        }}
-                        variant="body2"
-                      >
+                      <Typography sx={{ fontWeight: 800 }} variant="body2">
                         FECHA Y HORA DE ADMISION:
                       </Typography>
                       <Typography variant="body2">
                         {data?.fecha_de_admision ?? ""}
                       </Typography>
                     </Box>
-                    <Box>
+                    <Box mt={1}>
                       <Box
                         display="flex"
                         justifyContent="space-between"
                         alignItems="center"
-                        mt={1}
                       >
                         <Typography sx={{ fontWeight: 800 }} variant="body2">
                           TIEMPO ESTIMADO DE ENTREGA:
@@ -202,7 +202,9 @@ const DeliveryModal: React.FC<DeliveryModalProps> = ({ data }) => {
                   </Box>
                 </Box>
               </Grid>
-              <Grid style={{ paddingLeft: "0" }} item xs={6}>
+
+              {/* Información del destinatario y remitente */}
+              <Grid item xs={12} sm={6} style={{ paddingLeft: "0" }}>
                 <Typography
                   variant="body2"
                   bgcolor="#0A0F37"
@@ -229,7 +231,12 @@ const DeliveryModal: React.FC<DeliveryModalProps> = ({ data }) => {
                   {data?.destinatario?.numero_identificacion ?? ""}
                 </Typography>
               </Grid>
-              <Grid item xs={6}>
+              <Grid
+                item
+                xs={12}
+                sm={6}
+                sx={{ display: { xs: "none", sm: "auto" } }}
+              >
                 <Typography
                   variant="body2"
                   bgcolor="#0A0F37"
@@ -254,43 +261,50 @@ const DeliveryModal: React.FC<DeliveryModalProps> = ({ data }) => {
                 <Typography variant="body2">
                   identificacion: {data?.remitente?.numero_identificacion ?? ""}
                 </Typography>
-                <Typography variant="body2">
-                  {data?.remitente?.direccion ?? ""}
-                </Typography>
               </Grid>
+
               <Divider
                 sx={{ background: "#000", width: "100%", marginY: "10px" }}
               />
+
+              {/* Información del paquete y seguimiento */}
               <Box
                 sx={{
                   display: "flex",
                   justifyContent: "space-around",
+                  flexDirection: { xs: "column", sm: "row" },
                   alignItems: "center",
                 }}
               >
-                <Box sx={{ display: "flex", width: "60%" }}>
+                <Box
+                  sx={{
+                    width: { xs: "100%", sm: "60%" },
+                    flexDirection: { xs: "column", sm: "row" },
+                    display: { xs: "none", sm: "flex" },
+                  }}
+                >
                   <Typography
                     align="center"
                     sx={{
-                      alignContent: "center",
                       fontFamily: "Nunito",
-                      fontSize: "20px",
+                      fontSize: { xs: "16px", sm: "20px" },
                       fontWeight: 800,
-                      lineHeight: "34.1px",
                       textAlign: "center",
                     }}
                     variant="body2"
                   >
                     NUMERO DE GUIA PARA SEGUIMIENTO:
                   </Typography>
-                  <Box alignItems="center">
+                  <Box
+                    alignItems="center"
+                    sx={{ marginTop: { xs: "10px", sm: "0" } }}
+                  >
                     <Box component="img" src="/barcode.png" alt="Barcode" />
                     <Typography
                       sx={{
                         fontFamily: "Nunito",
-                        fontSize: "20px",
+                        fontSize: { xs: "16px", sm: "20px" },
                         fontWeight: 800,
-                        lineHeight: "38.19px",
                         textAlign: "center",
                       }}
                       variant="body2"
@@ -300,8 +314,13 @@ const DeliveryModal: React.FC<DeliveryModalProps> = ({ data }) => {
                     </Typography>
                   </Box>
                 </Box>
-                {/*  */}
-                <Box sx={{ width: "30%" }}>
+
+                <Box
+                  sx={{
+                    width: { xs: "100%", sm: "30%" },
+                    marginTop: { xs: "20px", sm: "0" },
+                  }}
+                >
                   <Box
                     display="flex"
                     justifyContent="space-between"
@@ -312,9 +331,8 @@ const DeliveryModal: React.FC<DeliveryModalProps> = ({ data }) => {
                         <Typography
                           sx={{
                             fontFamily: "Nunito",
-                            fontSize: "20px",
+                            fontSize: { xs: "16px", sm: "20px" },
                             fontWeight: 800,
-                            lineHeight: "34.1px",
                             textAlign: "center",
                           }}
                           variant="body2"
@@ -330,9 +348,8 @@ const DeliveryModal: React.FC<DeliveryModalProps> = ({ data }) => {
                         sx={{
                           background: "#1C0057",
                           fontFamily: "Nunito",
-                          fontSize: "20px",
+                          fontSize: { xs: "16px", sm: "20px" },
                           fontWeight: 800,
-                          lineHeight: "34.1px",
                           textAlign: "center",
                           borderRadius: "19px",
                           color: "#fff",
@@ -346,9 +363,8 @@ const DeliveryModal: React.FC<DeliveryModalProps> = ({ data }) => {
                         <Typography
                           sx={{
                             fontFamily: "Nunito",
-                            fontSize: "20px",
+                            fontSize: { xs: "16px", sm: "20px" },
                             fontWeight: 800,
-                            lineHeight: "34.1px",
                             textAlign: "center",
                           }}
                           variant="body2"
@@ -364,9 +380,8 @@ const DeliveryModal: React.FC<DeliveryModalProps> = ({ data }) => {
                         sx={{
                           background: "#1C0057",
                           fontFamily: "Nunito",
-                          fontSize: "20px",
+                          fontSize: { xs: "16px", sm: "20px" },
                           fontWeight: 800,
-                          lineHeight: "34.1px",
                           textAlign: "center",
                           borderRadius: "19px",
                           color: "#fff",
@@ -386,11 +401,9 @@ const DeliveryModal: React.FC<DeliveryModalProps> = ({ data }) => {
                       sx={{
                         width: "100%",
                         background: "#003A02",
-                        colo: "#fff",
                         fontFamily: "Nunito",
-                        fontSize: "25px",
+                        fontSize: { xs: "16px", sm: "25px" },
                         fontWeight: 800,
-                        lineHeight: "34.1px",
                         textAlign: "center",
                         color: "#FFF",
                         borderRadius: "19px",
@@ -405,24 +418,27 @@ const DeliveryModal: React.FC<DeliveryModalProps> = ({ data }) => {
                   </Box>
                 </Box>
               </Box>
+
               <Divider
                 sx={{ background: "#000", width: "100%", marginTop: "10px" }}
               />
+
               <Box
                 sx={{
                   display: "flex",
                   justifyContent: "space-evenly",
+                  flexDirection: { xs: "column", sm: "row" },
                   marginY: "10px",
                 }}
               >
                 <Typography
                   sx={{
                     fontFamily: "Nunito",
-                    fontSize: "25px",
+                    fontSize: { xs: "16px", sm: "25px" },
                     fontWeight: 800,
-                    lineHeight: "34.1px",
                     textAlign: "center",
-                    width: "45%",
+                    width: { xs: "100%", sm: "45%" },
+                    marginBottom: { xs: "10px", sm: "0" },
                   }}
                 >
                   Valor a cobrar destinatario al momento de entregar
@@ -430,9 +446,8 @@ const DeliveryModal: React.FC<DeliveryModalProps> = ({ data }) => {
                 <Typography
                   sx={{
                     fontFamily: "Nunito",
-                    fontSize: "40px",
+                    fontSize: { xs: "30px", sm: "40px" },
                     fontWeight: 800,
-                    lineHeight: "65.47px",
                     textAlign: "center",
                   }}
                   variant="h6"
