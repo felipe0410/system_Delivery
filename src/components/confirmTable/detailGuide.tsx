@@ -122,12 +122,12 @@ const DeliveryModal: React.FC<DeliveryModalProps> = ({ data }) => {
                     src="/logoInter.png"
                     alt="logoInter.png"
                     height={{ xs: "50px", sm: "70px" }}
-                    display={{ xs: "none", sm: "auto" }} // Ajusta el tamaño del logo en pantallas pequeñas
+                    display={{ xs: "none", sm: "block" }} // Ajusta el tamaño del logo en pantallas pequeñas
                   />
 
                   <Box
                     mt={{ xs: 2, sm: 0 }}
-                    sx={{ display: { xs: "none", sm: "auto" } }}
+                    sx={{ display: { xs: "block", sm: "block" } }}
                   >
                     <Box
                       display="flex"
