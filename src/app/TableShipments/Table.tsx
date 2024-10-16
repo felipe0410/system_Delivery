@@ -379,7 +379,11 @@ export default function BasicTable({ tableData }: { tableData: any }) {
                           </IconButton>
                           <Link
                             href={`https://wa.me/${
-                              row?.destinatario?.celular ?? "null"
+                              row?.destinatario?.celular
+                                ? row.destinatario.celular.startsWith("+57")
+                                  ? row.destinatario.celular
+                                  : `+57${row.destinatario.celular}`
+                                : "null"
                             }/?text=${encodeURIComponent(
                               `_*INTERRAPIDISIMO AQUITANIA*_ le informa que su pedido ha llegado\n\n` +
                                 `• *Destinatario*: ${row.addressee}\n` +
