@@ -61,6 +61,8 @@ const Page = () => {
   const [allData, setAllData] = useState<GuideData[]>([]);
   console.log("allData;;;>", allData);
   const [searchTerm, setSearchTerm] = useState("");
+  console.log(searchTerm);
+
   const [guidiesDetails, setGuidiesDetails] = useState([]);
   const [load, setLoad] = useState(false);
   const [timer, setTimer] = useState(180);
@@ -166,7 +168,7 @@ const Page = () => {
 
     try {
       const response = await axios.post(
-        "https://ba78-2803-1a00-153d-c030-bd14-2e7a-720c-d96e.ngrok-free.app/consult",
+        "https://3560-138-0-116-56.ngrok-free.app/consult",
         {
           guias: guidesArray,
           password,
