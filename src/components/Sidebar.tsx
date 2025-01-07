@@ -29,6 +29,7 @@ import ReceiptLongTwoToneIcon from "@mui/icons-material/ReceiptLongTwoTone";
 import AssignmentTwoToneIcon from "@mui/icons-material/AssignmentTwoTone";
 import DeliveryDiningTwoToneIcon from "@mui/icons-material/DeliveryDiningTwoTone";
 import AppRegistrationRoundedIcon from "@mui/icons-material/AppRegistrationRounded";
+import MarkunreadMailboxIcon from '@mui/icons-material/MarkunreadMailbox';
 
 const Sidebar = () => {
   const [open, setOpen] = useState(false);
@@ -122,6 +123,18 @@ const Sidebar = () => {
         />
       ),
       id: "/gestion",
+    },
+    {
+      section: "Agregar manual",
+      icon: (
+        <MarkunreadMailboxIcon
+          sx={{ fontSize: { sm: "40px" } }}
+          style={{
+            color: pathname.startsWith("/Shipments") ? "#0A0F37" : "#fff",
+          }}
+        />
+      ),
+      id: "/Shipments",
     },
   ];
 

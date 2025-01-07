@@ -59,7 +59,6 @@ const Page = () => {
   const [packageNumber, setPackageNumber] = useState(0);
   const [box, setBox] = useState("0");
   const [allData, setAllData] = useState<GuideData[]>([]);
-  console.log("allData;;;>", allData);
   const [searchTerm, setSearchTerm] = useState("");
   console.log(searchTerm);
 
@@ -190,7 +189,6 @@ const Page = () => {
         );
 
         if (originalData) {
-          console.log("entro aqui");
           return {
             ...shipment,
             valor:
@@ -236,6 +234,7 @@ const Page = () => {
       }
       setGuidiesDetails(response.data);
       enqueueSnackbar("Datos cargados correctamente.", { variant: "success" });
+      localStorage.removeItem("allData");
     } catch (error) {
       console.error("Error al cargar los datos:", error);
       enqueueSnackbar("Error al cargar los datos.", { variant: "error" });
@@ -318,6 +317,18 @@ const Page = () => {
     allDataFunction();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    const cachedData = localStorage.getItem("allData");
+    if (cachedData) {
+      setAllData(JSON.parse(cachedData));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (allData.length > 0)
+      localStorage.setItem("allData", JSON.stringify(allData));
+  }, [allData]);
 
   return (
     <Box
