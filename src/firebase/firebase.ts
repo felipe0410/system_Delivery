@@ -246,6 +246,37 @@ export const updatedShipments = async (uid: any, updatedData: any) => {
   }
 };
 
+export const getShipmentsByDateRange = async (
+  startDate: string,
+  endDate: string
+) => {
+  try {
+    const startTimestamp = new Date(`${startDate}T00:00:00Z`).getTime();
+    const endTimestamp = new Date(`${endDate}T23:59:59Z`).getTime();
+
+    console.log(`Consultando entre: ${startTimestamp} y ${endTimestamp}`);
+
+    const shipmentsRef = collection(db, "envios");
+    const q = query(
+      shipmentsRef,
+      where("fecha_de_admision_timestamp", ">=", startTimestamp),
+      where("fecha_de_admision_timestamp", "<=", endTimestamp)
+    );
+
+    const querySnapshot = await getDocs(q);
+
+    const shipments: any[] = [];
+    querySnapshot.forEach((doc) => {
+      shipments.push({ id: doc.id, ...doc.data() });
+    });
+
+    console.log("Envíos encontrados:", shipments);
+    return shipments;
+  } catch (error) {
+    console.error("Error al obtener envíos por rango de fechas: ", error);
+    return [];
+  }
+};
 export const getShipmentData = async (uid: any) => {
   try {
     const userCollectionRef = collection(db, "envios");

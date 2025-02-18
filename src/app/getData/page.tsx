@@ -39,6 +39,7 @@ import InventoryIcon from "@mui/icons-material/Inventory";
 import NumbersIcon from "@mui/icons-material/Numbers";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import Shipments from "../Shipments/page";
+import { serverTimestamp } from "firebase/firestore";
 
 interface GuideData {
   guide: string;
@@ -167,7 +168,7 @@ const Page = () => {
 
     try {
       const response = await axios.post(
-        "https://b541-191-156-236-40.ngrok-free.app/consult",
+        "https://3abc-2803-1a00-153d-c030-4f20-a5d8-eff6-b7ea.ngrok-free.app/consult",
         {
           guias: guidesArray,
           password,
@@ -200,6 +201,9 @@ const Page = () => {
             status: domiciliary ? "mensajero" : "oficina",
             revision: originalData.revision,
             pago: originalData.pago,
+            fecha_de_admision_timestamp: serverTimestamp(),
+            fecha_de_admision_timestamp_local: Date.now(),
+
           };
         }
 
