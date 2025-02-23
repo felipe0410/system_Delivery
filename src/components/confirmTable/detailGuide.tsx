@@ -69,9 +69,9 @@ interface DeliveryModalProps {
 const DeliveryModal: React.FC<DeliveryModalProps> = ({ data }) => {
   const [open, setOpen] = useState(false);
 
-  useEffect(() => {
-    getAndSaveEnvios();
-  }, []);
+  // useEffect(() => {
+  //   getAndSaveEnvios();
+  // }, []);
 
   return (
     <>

@@ -452,9 +452,7 @@ export const addPackageNumberToEnvios = async (uid: string) => {
 
 export const saveEnvios = async (updatedEnvios: any) => {
   try {
-    console.log("updatedEnvios::::>", updatedEnvios);
     const uniqueEnvios = Array.from(new Set(updatedEnvios));
-    console.log("uniqueEnvios::::>", uniqueEnvios);
     const docRef = doc(db, "consecutivo", "consecutivos");
 
     await setDoc(docRef, { envios: uniqueEnvios }, { merge: true });

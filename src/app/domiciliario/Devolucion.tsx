@@ -33,7 +33,7 @@ export default function DevolucionModal({
   const processData = () => {
     const totalPackages = data.reduce(
       (acc: any, item: { pago: string; valor: any }) => {
-        const pagoNormalized = item.pago.replace(/\s+/g, "").toLowerCase();
+        const pagoNormalized = item?.pago?.replace(/\s+/g, "").toLowerCase();
         if (pagoNormalized === "alcobro") {
           return acc + item.valor;
         }

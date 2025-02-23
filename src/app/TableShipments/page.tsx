@@ -70,68 +70,50 @@ const tablesData: {
     estado: "entregado",
   },
 ];
+const LazyBasicTable = React.lazy(() => import("./Table"));
 
 export default function BasicTabs() {
   const [value, setValue] = React.useState(0);
+  const [fullData, setFullData] = React.useState<any[]>([]);
   const [tableData, setTableData] = React.useState<{ [x: string]: any }[]>([]);
   const theme = useTheme();
   const SmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const memoizedTablesData = React.useMemo(() => {
     return tablesData;
   }, []);
-
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
 
   React.useEffect(() => {
-    const getFirebaseTable = async () => {
-      try {
-        const tableRef = collection(db, "envios");
-
-        if (value === 1) {
-          // Pestaña "Todos los envíos" - Traer todos los envíos sin filtrar
-          onSnapshot(tableRef, (snapshot) => {
-            const allData = snapshot.docs.map((doc) => ({
-              ...doc.data(),
-            }));
-            setTableData(allData);
-          });
-        } else if (value === 0) {
-          // Pestaña "Existentes" - Filtrar por status, mensajero, y oficina
-          const statusQuery = query(
-            tableRef,
-            or(
-              where("status", "==", "mensajero"),
-              where("status", "==", "oficina")
-            )
-          );
-
-          onSnapshot(statusQuery, (snapshot) => {
-            const filteredData = snapshot.docs.map((doc) => ({
-              ...doc.data(),
-            }));
-            setTableData(filteredData);
-          });
-        } else {
-          // Otras pestañas - Filtrar según el estado
-          const status = memoizedTablesData[value].estado;
-          const statusQuery = query(tableRef, where("status", "==", status));
-
-          onSnapshot(statusQuery, (snapshot) => {
-            const filteredData = snapshot.docs.map((doc) => ({
-              ...doc.data(),
-            }));
-            setTableData(filteredData);
-          });
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
+    console.log("entro aqui");
+    const tableRef = collection(db, "envios");
+    const unsubscribe = onSnapshot(tableRef, (snapshot) => {
+      const allData = snapshot.docs.map((doc) => ({ ...doc.data() }));
+      setFullData(allData);
+    });
+    return () => {
+      unsubscribe();
     };
+  }, []);
 
-    getFirebaseTable();
-  }, [value, memoizedTablesData]);
+  React.useEffect(() => {
+    if (memoizedTablesData[value].estado === "todos") {
+      // Pestaña "Todos los envíos": no se filtra
+      setTableData(fullData);
+    } else if (memoizedTablesData[value].estado === "existentes") {
+      // Pestaña "Existentes": filtrar por status "mensajero" o "oficina"
+      const filtered = fullData.filter(
+        (item) => item.status === "mensajero" || item.status === "oficina"
+      );
+      setTableData(filtered);
+    } else {
+      // Para las otras pestañas: filtrar por el estado correspondiente
+      const status = memoizedTablesData[value].estado;
+      const filtered = fullData.filter((item) => item.status === status);
+      setTableData(filtered);
+    }
+  }, [value, fullData, memoizedTablesData]);
 
   return (
     <Box sx={{ padding: "5%" }}>
@@ -142,13 +124,8 @@ export default function BasicTabs() {
               value={value}
               onChange={handleChange}
               aria-label="basic tabs example"
-               variant={SmallScreen ? "scrollable" : "standard"}
-               scrollButtons={SmallScreen ? "auto" : false} 
-              // sx={{
-              //   ".MuiTabs-flexContainer": {
-              //     justifyContent: SmallScreen ? "start" : "center",
-              //   },
-              // }}
+              variant={SmallScreen ? "scrollable" : "standard"}
+              scrollButtons={SmallScreen ? "auto" : false}
             >
               {tablesData.map((table: any, index: number) => (
                 <Tab
@@ -181,7 +158,7 @@ export default function BasicTabs() {
               >
                 {table.title}
               </Typography>
-              <BasicTable tableData={tableData} />
+              <LazyBasicTable tableData={tableData} />
             </CustomTabPanel>
           ))}
         </Box>

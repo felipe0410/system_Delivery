@@ -27,6 +27,7 @@ import QrCode2Icon from "@mui/icons-material/QrCode2";
 import axios from "axios";
 import {
   addPackageNumberToEnvios,
+  getAndSaveEnvios,
   getEnvios,
   getShipmentData,
   saveEnvios,
@@ -61,8 +62,6 @@ const Page = () => {
   const [box, setBox] = useState("0");
   const [allData, setAllData] = useState<GuideData[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  console.log(searchTerm);
-
   const [guidiesDetails, setGuidiesDetails] = useState([]);
   const [load, setLoad] = useState(false);
   const [timer, setTimer] = useState(180);
@@ -118,7 +117,6 @@ const Page = () => {
 
   const allDataFunction = async () => {
     const getArrayEnvios = await getEnvios();
-    console.log("paso de nuevo");
     const arrayEnvios = (getArrayEnvios ?? [0])
       .map(Number)
       .filter(Number.isFinite);
@@ -203,7 +201,6 @@ const Page = () => {
             pago: originalData.pago,
             fecha_de_admision_timestamp: serverTimestamp(),
             fecha_de_admision_timestamp_local: Date.now(),
-
           };
         }
 
@@ -333,6 +330,10 @@ const Page = () => {
     if (allData.length > 0)
       localStorage.setItem("allData", JSON.stringify(allData));
   }, [allData]);
+
+  useEffect(() => {
+    getAndSaveEnvios();
+  }, []);
 
   return (
     <Box
