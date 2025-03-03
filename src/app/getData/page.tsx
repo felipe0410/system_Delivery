@@ -64,7 +64,7 @@ const Page = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [guidiesDetails, setGuidiesDetails] = useState([]);
   const [load, setLoad] = useState(false);
-  const [timer, setTimer] = useState(360);
+  const [timer, setTimer] = useState(180);
   const [shipmentsSave, setShipmentsSave] = useState(0);
   const [showPassword, setShowPassword] = React.useState(false);
   const inputRef = useRef<HTMLInputElement>(null); // Referencia para el InputBase
@@ -166,7 +166,7 @@ const Page = () => {
 
     try {
       const response = await axios.post(
-        "https://dpj2b4sp-8080.use2.devtunnels.ms/consult",
+        "https://5ec0-138-0-116-56.ngrok-free.app/consult",
         {
           guias: guidesArray,
           password,
