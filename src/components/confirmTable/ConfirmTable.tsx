@@ -211,7 +211,6 @@ const ConfirmTable = ({ data }: { [x: string]: any }) => {
                                   ...selectedRows,
                                   box: e.target.value,
                                 });
-                                console.log(e.target.value);
                               }}
                             />
                           }

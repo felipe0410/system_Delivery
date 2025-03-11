@@ -16,7 +16,6 @@ const CreateNote = () => {
   useEffect(() => {
     // const valueCookie = cookies.user;
     // const decodedUid = atob(valueCookie);
-    // console.log(decodedUid)
     setOpenZero(false);
     setOpenPrompt(false);
     setOpenStudio(false);

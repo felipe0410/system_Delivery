@@ -225,7 +225,6 @@ const Page = () => {
               }
         );
         if (result) {
-          console.log(`Datos guardados para el envío con UID: ${uid}`);
           setShipmentsSave((prevCount) => prevCount + 1);
         } else {
           console.error(
@@ -263,10 +262,6 @@ const Page = () => {
       if (inputRef.current) {
         inputRef.current.focus(); // Mueve el cursor al input
       }
-      console.log("Paquete agregado:", newGuideData);
-    } else {
-      // Mostrar algún mensaje o alerta si la guía está vacía
-      console.log("La guía no puede estar vacía");
     }
   };
 

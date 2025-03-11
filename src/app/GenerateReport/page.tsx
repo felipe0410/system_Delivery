@@ -6,6 +6,8 @@ import Image from "next/image";
 import imgBack from "/public/images/af4e63708de6ec3a46f9cfb41f4c5075.png";
 import {
   getAllShipmentsData,
+  getFilteredShipmentsData,
+  getFilteredShipmentsDataTimestap,
   getShipmentsByDateRange,
 } from "@/firebase/firebase";
 import { SnackbarProvider, enqueueSnackbar } from "notistack";
@@ -14,37 +16,12 @@ import TextField from "@mui/material/TextField";
 import DocumentScannerOutlinedIcon from "@mui/icons-material/DocumentScannerOutlined";
 import TableReport from "@/components/TableReport";
 import GuidesGroup from "./modal_guias";
-import ReactCalendar from "./ReactCalendar";
 import Calendar from "./modal_calendario";
 
 const Page = () => {
   const [searchTerm, setSearchTerm] = useState<any>();
-  const [selectedDate, setSelectedDate] = useState<any>();
-  console.log("searchTerm:::>", searchTerm);
-  console.log("selectedDate:::>", selectedDate);
   const [firebaseData, setFirebaseData] = useState<{ [x: string]: any }[]>([]);
   const [tagsValue, setTagsValue] = useState<{ [x: string]: any }[]>([]);
-  const [data, setData] = useState<any>();
-  console.log("data:::>", data);
-  const fetchShipmentsByDateRange = async () => {
-    if (selectedDate?.length === 2) {
-      const [startDate, endDate] = selectedDate;
-  
-      try {
-        const shipments = await getShipmentsByDateRange(startDate, endDate);
-  
-        setData(shipments);
-      } catch (error) {
-        console.error("Error al traer las guías por rango de fechas:", error);
-      }
-    }
-  };
-  
-  useEffect(() => {
-    if (selectedDate && selectedDate.length === 2) {
-      fetchShipmentsByDateRange();
-    }
-  }, [selectedDate]);
 
   useEffect(() => {
     const getFirebaseData = async () => {
@@ -114,10 +91,7 @@ const Page = () => {
           </Box>
 
           <Box mt={2}>
-            <Calendar
-              selectedDate={setSelectedDate}
-              searchTerm={setSearchTerm}
-            />
+            <Calendar />
             <GuidesGroup
               firebaseData={firebaseData}
               setTagsValue={setTagsValue}

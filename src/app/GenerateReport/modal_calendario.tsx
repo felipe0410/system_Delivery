@@ -1,37 +1,168 @@
 import * as React from "react";
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
-import Modal from "@mui/material/Modal";
-import { TextField } from "@mui/material";
-import { useState } from "react";
-import { SnackbarProvider, enqueueSnackbar } from "notistack";
+import { useEffect, useState, useRef } from "react";
+import JsBarcode from "jsbarcode";
+import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
+import {
+  Box,
+  Button,
+  Modal,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Typography,
+  styled,
+  tableCellClasses,
+  ToggleButton,
+  ToggleButtonGroup,
+  Chip,
+  TextField,
+} from "@mui/material";
+import { SnackbarProvider } from "notistack";
 import CancelIcon from "@mui/icons-material/Cancel";
 import ReactCalendar from "./ReactCalendar";
+import { getFilteredShipmentsDataTimestap } from "@/firebase/firebase";
 
 const style = {
-  position: "absolute" as "absolute",
+  position: "absolute",
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: 400,
+  width: "80%",
+  maxWidth: "900px",
   bgcolor: "background.paper",
   border: "2px solid #000",
   boxShadow: 24,
   p: 4,
+  height: "90%",
+  overflowY: "auto",
+  borderRadius: "10px",
 };
 
-export default function Calendar({
-  searchTerm,
-  selectedDate,
-}: {
-  searchTerm: any;
-  selectedDate: any;
-}) {
-  const [open, setOpen] = React.useState(false);
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+  [`&.${tableCellClasses.head}`]: {
+    backgroundColor: theme.palette.common.black,
+    color: theme.palette.common.white,
+  },
+  [`&.${tableCellClasses.body}`]: {
+    fontSize: 14,
+  },
+}));
+
+const StyledTableRow = styled(TableRow)(({ theme }) => ({
+  "&:nth-of-type(odd)": {
+    backgroundColor: theme.palette.action.hover,
+  },
+  "&:last-child td, &:last-child th": {
+    border: 0,
+  },
+}));
+
+export default function Calendar() {
+  const [selectedDate, setSelectedDate] = useState<any>();
+  const [open, setOpen] = useState(false);
+  const [data, setData] = useState<any[]>([]);
+  const [filterStatus, setFilterStatus] = useState<
+    "oficina" | "mensajero" | "entregado" | "devolucion" | "todos"
+  >("todos");
+  const printRef = useRef<HTMLDivElement>(null);
+
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
+  const fetchShipmentsByDateRange = async () => {
+    if (selectedDate?.length === 2) {
+      try {
+        const shipments = await getFilteredShipmentsDataTimestap(selectedDate);
+        setData(shipments || []);
+      } catch (error) {
+        console.error("Error al traer las guías por rango de fechas:", error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (selectedDate && selectedDate.length === 2) {
+      fetchShipmentsByDateRange();
+    }
+  }, [selectedDate]);
+
+  // Filtrar datos según el estado seleccionado
+  const filteredData =
+    filterStatus === "todos"
+      ? data
+      : data.filter((shipment) => shipment.status === filterStatus);
+
+  // Generar código de barras
+  useEffect(() => {
+    filteredData.forEach((shipment) => {
+      if (shipment.uid) {
+        JsBarcode(`#barcode-${shipment.uid}`, shipment.uid, {
+          format: "CODE128",
+          width: 1.5,
+          height: 20,
+          displayValue: false,
+        });
+      }
+    });
+  }, [filteredData]);
+
+  // Función para obtener color del Chip según el estado
+  const getChipColor = (status: string) => {
+    switch (status) {
+      case "mensajero":
+        return "primary"; // Azul
+      case "devolucion":
+        return "warning"; // Naranja
+      case "entregado":
+        return "success"; // Verde
+      case "oficina":
+        return "secondary"; // Amarillo
+      default:
+        return "default";
+    }
+  };
+
+  // Función para imprimir la tabla completa
+  const handlePrint = () => {
+    if (printRef.current) {
+      const printWindow = window.open("", "_blank");
+      if (printWindow) {
+        printWindow.document.write(`
+          <html>
+            <head>
+              <title>Imprimir Tabla</title>
+              <style>
+                body { font-family: Arial, sans-serif; padding: 20px; }
+                table { width: 100%; border-collapse: collapse; }
+                th, td { border: 1px solid black; padding: 8px; text-align: center; }
+              </style>
+            </head>
+            <body>
+              ${printRef.current.innerHTML}
+            </body>
+          </html>
+        `);
+        printWindow.document.close();
+        printWindow.print();
+      }
+    }
+  };
+
+  // Función para generar PDF de la tabla completa
+  const handleGeneratePDF = async () => {
+    if (printRef.current) {
+      const canvas = await html2canvas(printRef.current, { scale: 2 });
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      pdf.addImage(imgData, "PNG", 10, 10, 190, 0);
+      pdf.save("envios.pdf");
+    }
+  };
 
   return (
     <div>
@@ -47,26 +178,110 @@ export default function Calendar({
       >
         Fecha
       </Button>
-      <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-      >
+      <Modal open={open} onClose={handleClose}>
         <Box sx={style}>
-          <Box
-            sx={{ width: "100%", display: "flex", justifyContent: "flex-end" }}
-          >
+          <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+            <Button variant="contained" color="success" onClick={handlePrint}>
+              Imprimir
+            </Button>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={handleGeneratePDF}
+            >
+              Generar PDF
+            </Button>
             <Button variant="text" onClick={handleClose}>
               <CancelIcon sx={{ color: "#000" }} />
             </Button>
           </Box>
-          <Box>
+
+          {/* Input para seleccionar fechas */}
+          <Box sx={{ mb: 2 }}>
             <ReactCalendar
-              setSearchTerm={searchTerm}
-              handleClose={handleClose}
+              setSearchTerm={setSelectedDate}
               setSelectedDate={selectedDate}
             />
+          </Box>
+
+          {/* Botones para filtrar por status */}
+          <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
+            <ToggleButtonGroup
+              value={filterStatus}
+              exclusive
+              onChange={(_, newStatus) =>
+                newStatus && setFilterStatus(newStatus)
+              }
+            >
+              <ToggleButton value="todos">Todos</ToggleButton>
+              <ToggleButton value="oficina">Oficina</ToggleButton>
+              <ToggleButton value="mensajero">Mensajero</ToggleButton>
+              <ToggleButton value="entregado">Entregado</ToggleButton>
+              <ToggleButton value="devolucion">Devolución</ToggleButton>
+            </ToggleButtonGroup>
+          </Box>
+
+          {/* Tabla de envíos */}
+          <Box ref={printRef}>
+            <TableContainer component={Paper}>
+              <Table stickyHeader size="small">
+                <TableHead>
+                  <TableRow>
+                    <StyledTableCell align="center">
+                      <b>Guía</b>
+                    </StyledTableCell>
+                    <StyledTableCell align="center">
+                      <b>Código de Barras</b>
+                    </StyledTableCell>
+                    <StyledTableCell align="center">
+                      <b>Reclamar en</b>
+                    </StyledTableCell>
+                    <StyledTableCell align="center">
+                      <b>Nombre Destinatario</b>
+                    </StyledTableCell>
+                    <StyledTableCell align="center">
+                      <b>Celular</b>
+                    </StyledTableCell>
+                    <StyledTableCell align="center">
+                      <b>Valor</b>
+                    </StyledTableCell>
+                    <StyledTableCell align="center">
+                      <b>Status</b>
+                    </StyledTableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {filteredData.map((shipment) => (
+                    <StyledTableRow key={shipment.uid}>
+                      <StyledTableCell align="center">
+                        {shipment.uid}
+                      </StyledTableCell>
+                      <StyledTableCell align="center">
+                        <svg id={`barcode-${shipment.uid}`} />
+                      </StyledTableCell>
+                      <StyledTableCell align="center">
+                        {shipment.deliverTo}
+                      </StyledTableCell>
+                      <StyledTableCell align="center">
+                        {shipment.destinatario?.nombre || "N/A"}
+                      </StyledTableCell>
+                      <StyledTableCell align="center">
+                        {shipment.destinatario?.celular || "N/A"}
+                      </StyledTableCell>
+                      <StyledTableCell align="center">
+                        {shipment.valor || "0"}
+                      </StyledTableCell>
+                      <StyledTableCell align="center">
+                        <Chip
+                          label={shipment.status}
+                          color={getChipColor(shipment.status)}
+                        />
+                      </StyledTableCell>
+                    </StyledTableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
           </Box>
         </Box>
       </Modal>

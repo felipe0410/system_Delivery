@@ -1,4 +1,4 @@
-import { Button, Typography } from "@mui/material";
+import { TextField, Popover, Box, Button, Typography } from "@mui/material";
 import * as React from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
@@ -6,105 +6,102 @@ import "./CalendarCustom.css";
 
 export default function ReactCalendar({
   setSearchTerm,
-  handleClose,
   setSelectedDate,
 }: {
   setSearchTerm: any;
-  handleClose: any;
   setSelectedDate: any;
 }) {
   const [dateTabs, setDateTabs] = React.useState<any>(null);
-  const [selectedDates, setSelectedDates] = React.useState<any>(null);
-  const [buttonOn, setButtonOn] = React.useState<boolean>(false);
+  const [selectedDates, setSelectedDates] = React.useState<string[] | null>(
+    null
+  );
+  const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
 
-  const handleOk = () => {
-    setSelectedDates(formatearFechas(dateTabs));
-    setButtonOn(true);
+  const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
   };
 
-  const handleAcceptDate = () => {
-    console.log("selectedDates:::>", selectedDates);
-    if (selectedDates) {
-      setSearchTerm(selectedDates);
-      setSelectedDate(selectedDates);
-      handleClose();
-      setButtonOn(false);
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleOk = () => {
+    if (dateTabs && dateTabs.length === 2) {
+      const formattedDates = formatearFechas(dateTabs);
+      setSelectedDates(formattedDates);
     }
   };
 
-  function formatearFechas(dates: any) {
-    return dates?.map((date: any) => {
+  const handleAcceptDate = () => {
+    if (selectedDates) {
+      setSearchTerm(selectedDates);
+    }
+  };
+
+  function formatearFechas(dates: any): string[] {
+    if (!dates || dates.length !== 2) return [];
+    return dates.map((date: any) => {
       const fecha = new Date(date);
       const year = fecha.getFullYear();
       const month = String(fecha.getMonth() + 1).padStart(2, "0");
       const day = String(fecha.getDate()).padStart(2, "0");
-
       return `${year}-${month}-${day}`;
     });
   }
 
   return (
     <div>
-      <Calendar
-        onChange={setDateTabs}
-        value={dateTabs}
-        maxDate={new Date()}
-        selectRange={true}
+      {/* Input para mostrar el rango de fechas seleccionado */}
+      <TextField
+        label="Seleccionar rango de fechas"
+        value={selectedDates || ""}
+        onClick={handleOpen}
+        fullWidth
+        sx={{ cursor: "pointer", marginBottom: 2 }}
+        InputProps={{ readOnly: true }}
       />
-      {buttonOn ? (
-        <Button
-          onClick={handleAcceptDate}
-          sx={{
-            marginTop: "10px",
-            width: "8.75rem",
-            height: "1.5625rem",
-            borderRadius: "0.625rem",
-            background: "#69eae2ab",
-            boxShadow:
-              "0px 4px 4px 0px rgba(0, 0, 0, 0.25), 0px 4px 4px 0px rgba(0, 0, 0, 0.25)",
-            "&:hover": { backgroundColor: "#69EAE2" },
-          }}
-        >
-          <Typography
-            sx={{
-              color: "#1F1D2B",
-              textAlign: "center",
-              fontFamily: "Nunito",
-              fontSize: "0.875rem",
-              fontWeight: 800,
-            }}
-          >
-            CONFIRMAR
-          </Typography>
-        </Button>
-      ) : (
-        <Button
-          disabled={dateTabs === null}
-          onClick={handleOk}
-          sx={{
-            marginTop: "10px",
-            width: "8.75rem",
-            height: "1.5625rem",
-            borderRadius: "0.625rem",
-            background: dateTabs === null ? "gray" : "#69EAE2",
-            boxShadow:
-              "0px 4px 4px 0px rgba(0, 0, 0, 0.25), 0px 4px 4px 0px rgba(0, 0, 0, 0.25)",
-            "&:hover": { backgroundColor: "#69EAE2" },
-          }}
-        >
-          <Typography
-            sx={{
-              color: "#1F1D2B",
-              textAlign: "center",
-              fontFamily: "Nunito",
-              fontSize: "0.875rem",
-              fontWeight: 800,
-            }}
-          >
-            ACEPTAR
-          </Typography>
-        </Button>
-      )}
+
+      {/* Popover para mostrar el calendario al hacer clic en el input */}
+      <Popover
+        open={Boolean(anchorEl)}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+      >
+        <Box sx={{ p: 2 }}>
+          <Calendar
+            onChange={setDateTabs}
+            value={dateTabs}
+            maxDate={new Date()}
+            selectRange={true}
+          />
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+            <Button
+              onClick={handleOk}
+              sx={{
+                background: "#69EAE2",
+                color: "#1F1D2B",
+                fontWeight: 800,
+                mx: 1,
+              }}
+            >
+              ACEPTAR
+            </Button>
+            <Button
+              onClick={handleAcceptDate}
+              disabled={!selectedDates}
+              sx={{
+                background: selectedDates ? "#69EAE2" : "gray",
+                color: "#1F1D2B",
+                fontWeight: 800,
+                mx: 1,
+              }}
+            >
+              CONFIRMAR
+            </Button>
+          </Box>
+        </Box>
+      </Popover>
     </div>
   );
 }

@@ -86,7 +86,6 @@ export default function BasicTabs() {
   };
 
   React.useEffect(() => {
-    console.log("entro aqui");
     const tableRef = collection(db, "envios");
     const unsubscribe = onSnapshot(tableRef, (snapshot) => {
       const allData = snapshot.docs.map((doc) => ({ ...doc.data() }));

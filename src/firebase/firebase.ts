@@ -58,7 +58,6 @@ export const getUserDataByBase64Id = async (base64Id: string) => {
     if (userDoc.exists()) {
       // Retornar los datos del usuario si el documento existe
       const userData = userDoc.data();
-      console.log(userData);
       return userData;
     } else {
       console.log("No se encontró el documento del usuario");
@@ -519,6 +518,44 @@ export const getFilteredShipmentsData = async () => {
     });
 
     console.log(shipmentsData); // Opcional: para depuración
+    return shipmentsData;
+  } catch (error) {
+    console.error("Error al obtener los envíos filtrados: ", error);
+    return null;
+  }
+};
+
+export const getFilteredShipmentsDataTimestap = async (dateRange: string[]) => {
+  try {
+    if (dateRange.length !== 2) {
+      throw new Error(
+        "El rango de fechas debe contener exactamente dos fechas."
+      );
+    }
+
+    // Convertir fechas a timestamps
+    const startTimestamp = new Date(dateRange[0] + "T00:00:00-05:00").getTime();
+    const endTimestamp = new Date(dateRange[1] + "T23:59:59-05:00").getTime();
+    console.log(startTimestamp);
+    console.log(endTimestamp);
+    // Referencia a la colección
+    const shipmentsCollectionRef = collection(db, "envios");
+
+    // Crear la consulta con filtros de status y timestamp en el rango de fechas
+    const filteredQuery = query(
+      shipmentsCollectionRef,
+      where("timestamp", ">=", startTimestamp),
+      where("timestamp", "<=", endTimestamp)
+    );
+
+    // Ejecutar la consulta
+    const querySnapshot = await getDocs(filteredQuery);
+    const shipmentsData: any = [];
+
+    querySnapshot.forEach((doc) => {
+      shipmentsData.push({ id: doc.id, ...doc.data() });
+    });
+
     return shipmentsData;
   } catch (error) {
     console.error("Error al obtener los envíos filtrados: ", error);

@@ -36,8 +36,7 @@ const Sidebar = () => {
   };
 
   const result = processData();
-  console.log(result?.totalBase === "$ 50.000");
-  console.log(result?.totalBase);
+
   const createOnClickHandler = async () => {
     try {
       await sidebarCollection(getCurrentDateTime(), {
