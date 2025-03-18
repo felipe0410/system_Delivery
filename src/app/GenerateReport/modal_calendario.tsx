@@ -14,18 +14,22 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Typography,
   styled,
   tableCellClasses,
   ToggleButton,
   ToggleButtonGroup,
   Chip,
   TextField,
+  IconButton,
+  Link,
 } from "@mui/material";
 import { SnackbarProvider } from "notistack";
 import CancelIcon from "@mui/icons-material/Cancel";
 import ReactCalendar from "./ReactCalendar";
 import { getFilteredShipmentsDataTimestap } from "@/firebase/firebase";
+import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
+import WhatsAppIcon from "@mui/icons-material/WhatsApp";
+
 
 const style = {
   position: "absolute",
@@ -49,7 +53,7 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     color: theme.palette.common.white,
   },
   [`&.${tableCellClasses.body}`]: {
-    fontSize: 14,
+    fontSize: 12,
   },
 }));
 
@@ -65,6 +69,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 export default function Calendar() {
   const [selectedDate, setSelectedDate] = useState<any>();
   const [open, setOpen] = useState(false);
+  const barcodeRef = useRef(null);
   const [data, setData] = useState<any[]>([]);
   const [filterStatus, setFilterStatus] = useState<
     "oficina" | "mensajero" | "entregado" | "devolucion" | "todos"
@@ -89,6 +94,7 @@ export default function Calendar() {
     if (selectedDate && selectedDate.length === 2) {
       fetchShipmentsByDateRange();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDate]);
 
   // Filtrar datos según el estado seleccionado
@@ -99,16 +105,18 @@ export default function Calendar() {
 
   // Generar código de barras
   useEffect(() => {
-    filteredData.forEach((shipment) => {
-      if (shipment.uid) {
-        JsBarcode(`#barcode-${shipment.uid}`, shipment.uid, {
-          format: "CODE128",
-          width: 1.5,
-          height: 20,
-          displayValue: false,
-        });
-      }
-    });
+    if (barcodeRef.current && filteredData) {
+      filteredData.forEach((shipment) => {
+        if (shipment.uid) {
+          JsBarcode(`#barcode-${shipment.uid}`, shipment.uid, {
+            format: "CODE128",
+            width: 1.2,
+            height: 30,
+            displayValue: false,
+          });
+        }
+      });
+    }
   }, [filteredData]);
 
   // Función para obtener color del Chip según el estado
@@ -162,6 +170,11 @@ export default function Calendar() {
       pdf.addImage(imgData, "PNG", 10, 10, 190, 0);
       pdf.save("envios.pdf");
     }
+  };
+
+  const handleCopyToClipboard = (message: string) => {
+    navigator.clipboard.writeText(message)
+      .catch((err) => console.error("Error al copiar el mensaje: ", err));
   };
 
   return (
@@ -255,8 +268,45 @@ export default function Calendar() {
                     <StyledTableRow key={shipment.uid}>
                       <StyledTableCell align="center">
                         {shipment.uid}
+                        <IconButton color="primary" aria-label="Llamar">
+                          <LocalPhoneIcon />
+                        </IconButton>
+                        <Link
+                          href={`https://wa.me/${
+                            shipment?.destinatario?.celular
+                              ? shipment.destinatario.celular.startsWith("+57")
+                                ? shipment.destinatario.celular
+                                : `+57${shipment.destinatario.celular}`
+                              : "null"
+                          }/?text=${encodeURIComponent(
+                            `_*INTERRAPIDISIMO AQUITANIA*_ le informa que su pedido ha llegado\n\n` +
+                              `• *Destinatario*: ${shipment.addressee}\n` +
+                              `• *Valor*: $${shipment?.shippingCost ?? 0}\n` +
+                              `Al momento de reclamar indique que su paquete es:\n` +
+                              `• *Número de paquete*: ${shipment.packageNumber}\n` +
+                              `• *Caja*: ${shipment.box}\n` +
+                              `puede reclamar su paquete en : *PAPELERIA DONDE NAZLY*, por su seguridad recuerde que es el unico punto fisico para reclamar correspondencia de *INTERRAPIDISIMO* \n`
+                          )}`}
+                          target="_blank"
+                        >
+                          <IconButton
+                            color="success"
+                            aria-label="Enviar mensaje por WhatsApp"
+                            onClick={()=>{handleCopyToClipboard((
+                              `_*INTERRAPIDISIMO AQUITANIA*_ le informa que su pedido ha llegado\n\n` +
+                                `• *Destinatario*: ${shipment.addressee}\n` +
+                                `• *Valor*: $${shipment?.shippingCost ?? 0}\n` +
+                                `Al momento de reclamar indique que su paquete es:\n` +
+                                `• *Número de paquete*: ${shipment.packageNumber}\n` +
+                                `• *Caja*: ${shipment.box}\n` +
+                                `puede reclamar su paquete en : *PAPELERIA DONDE NAZLY*, por su seguridad recuerde que es el unico punto fisico para reclamar correspondencia de *INTERRAPIDISIMO* \n`
+                            ))}}
+                          >
+                            <WhatsAppIcon />
+                          </IconButton>
+                        </Link>
                       </StyledTableCell>
-                      <StyledTableCell align="center">
+                      <StyledTableCell ref={barcodeRef} align="center">
                         <svg id={`barcode-${shipment.uid}`} />
                       </StyledTableCell>
                       <StyledTableCell align="center">
