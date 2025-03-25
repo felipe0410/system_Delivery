@@ -4,13 +4,8 @@ import { Box, Paper, Typography, Button } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import imgBack from "/public/images/af4e63708de6ec3a46f9cfb41f4c5075.png";
-import {
-  getAllShipmentsData,
-  getFilteredShipmentsData,
-  getFilteredShipmentsDataTimestap,
-  getShipmentsByDateRange,
-} from "@/firebase/firebase";
-import { SnackbarProvider, enqueueSnackbar } from "notistack";
+import { getAllShipmentsData } from "@/firebase/firebase";
+import { SnackbarProvider } from "notistack";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import DocumentScannerOutlinedIcon from "@mui/icons-material/DocumentScannerOutlined";
