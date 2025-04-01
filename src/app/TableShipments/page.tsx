@@ -88,26 +88,39 @@ export default function BasicTabs() {
   const estado = tablesData[value].estado;
 
   React.useEffect(() => {
+    const estado = tablesData[value].estado;
     const tableRef = collection(db, "envios");
     let q;
-
+    const last45Days = Date.now() - 45 * 24 * 60 * 60 * 1000;
+  
     if (estado === "todos") {
       q = query(tableRef);
     } else if (estado === "existentes") {
-      // Firestore no soporta `or`, así que deberías usar `in`:
-      q = query(tableRef, where("status", "in", ["mensajero", "oficina"]));
+      console.log("Consultando EXISTENTES");
+      q = query(
+        tableRef,
+        where("status", "in", ["mensajero", "oficina"]),
+        where("fecha_de_admision_timestamp_local", ">=", last45Days)
+      );
+    } else if (estado === "mensajero" || estado === "oficina") {
+      q = query(
+        tableRef,
+        where("status", "==", estado),
+        where("fecha_de_admision_timestamp_local", ">=", last45Days)
+      );
     } else {
       q = query(tableRef, where("status", "==", estado));
     }
-
+  
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const docs = snapshot.docs.map((doc) => ({ ...doc.data() }));
+      const docs = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      console.log("Docs recibidos:", docs);
       setTableData(docs);
     });
-
+  
     return () => unsubscribe();
-  }, [estado]);
-
+  }, [value]);
+  
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
