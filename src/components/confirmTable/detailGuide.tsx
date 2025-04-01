@@ -235,7 +235,7 @@ const DeliveryModal: React.FC<DeliveryModalProps> = ({ data }) => {
                 item
                 xs={12}
                 sm={6}
-                sx={{ display: { xs: "none", sm: "auto" } }}
+                sx={{ display: { xs: "none", sm: "block" } }}
               >
                 <Typography
                   variant="body2"

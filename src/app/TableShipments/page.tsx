@@ -81,20 +81,36 @@ export default function BasicTabs() {
   const memoizedTablesData = React.useMemo(() => {
     return tablesData;
   }, []);
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue);
-  };
+  // const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+  //   setValue(newValue);
+  // };
+
+  const estado = tablesData[value].estado;
 
   React.useEffect(() => {
     const tableRef = collection(db, "envios");
-    const unsubscribe = onSnapshot(tableRef, (snapshot) => {
-      const allData = snapshot.docs.map((doc) => ({ ...doc.data() }));
-      setFullData(allData);
+    let q;
+
+    if (estado === "todos") {
+      q = query(tableRef);
+    } else if (estado === "existentes") {
+      // Firestore no soporta `or`, así que deberías usar `in`:
+      q = query(tableRef, where("status", "in", ["mensajero", "oficina"]));
+    } else {
+      q = query(tableRef, where("status", "==", estado));
+    }
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const docs = snapshot.docs.map((doc) => ({ ...doc.data() }));
+      setTableData(docs);
     });
-    return () => {
-      unsubscribe();
-    };
-  }, []);
+
+    return () => unsubscribe();
+  }, [estado]);
+
+  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+    setValue(newValue);
+  };
 
   React.useEffect(() => {
     if (memoizedTablesData[value].estado === "todos") {
