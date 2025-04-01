@@ -96,7 +96,6 @@ export default function BasicTabs() {
     if (estado === "todos") {
       q = query(tableRef);
     } else if (estado === "existentes") {
-      console.log("Consultando EXISTENTES");
       q = query(
         tableRef,
         where("status", "in", ["mensajero", "oficina"]),
@@ -114,7 +113,6 @@ export default function BasicTabs() {
   
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const docs = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      console.log("Docs recibidos:", docs);
       setTableData(docs);
     });
   
