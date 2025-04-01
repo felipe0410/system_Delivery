@@ -159,8 +159,8 @@ export default function BasicTabs() {
                   label={table.title}
                   {...a11yProps(index)}
                   sx={{
-                    fontSize: { xs: "12px", sm: "14px", md: "16px" }, // Ajuste del tamaño de texto
-                    minWidth: { xs: "80px", sm: "100px" }, // Ancho mínimo para que se vean bien los tabs en pantallas pequeñas
+                    fontSize: { xs: "12px", sm: "14px", md: "16px" }, 
+                    minWidth: { xs: "80px", sm: "100px" },
                   }}
                 />
               ))}
