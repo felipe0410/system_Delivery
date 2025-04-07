@@ -135,13 +135,14 @@ export default function Calendar() {
     return (
       ` _*INTERRAPIDISIMO AQUITANIA*_ le informa que su paquete ha llegado\n\n` +
       `• *Destinatario*: ${shipment.addressee}\n` +
-      `• *Valor*: $${shipment?.shippingCost ?? 0}\n\n` +
+      `Al momento de reclamar indique:\n` +
+      `• #️⃣ *PAQUETE NUMERO*: ${shipment.packageNumber}\n` +
+      `• 📦 *CAJA*: ${shipment.box}\n\n` +
+      `• *VALOR*: $${shipment?.shippingCost ?? 0}\n\n` +
       `🕜 *Horario de atención:*\n` +
-      `Lunes a Viernes de *9:00 am a 1:00 pm* y de *3:00 pm a 8:00 pm*\n\n` +
-      `Al momento de reclamar indique que su paquete es:\n` +
-      `#️⃣ *Número de paquete*: ${shipment.packageNumber}\n` +
-      `📦 *Caja*: ${shipment.box}\n\n` +
-      `Puede reclamar su paquete en: *PAPELERÍA DONDE NAZLY*.\n` +
+      `Lunes a Viernes de *9:00 am a 12:30 pm* y de *3:00 pm a 7:00 pm*\n\n` +
+      `Sabados de *4:00 pm a 07:00 pm* \n\n` +
+      `Puede reclamar su paquete en: *PAPELERÍA DONDE NAZLY*. CRA 7 Nª 7-08 \n` +
       `Por su seguridad, recuerde que es el único punto físico para reclamar correspondencia de *INTERRAPIDISIMO*.`
     );
   };
