@@ -133,16 +133,16 @@ export default function Calendar() {
     }
 
     return (
-      `_*INTERRAPIDÍSIMO AQUITANIA*_ le informa que su paquete ha llegado.\n\n` +
-      `📌 *Destinatario:* ${shipment.addressee}\n` +
-      `📦 *Paquete Nº:* ${shipment.packageNumber}\n` +
+      `_*INTERRAPIDÍSIMO AQUITANIA*_ le informa que su paquete ha llegado al momento de reclamar su paquete por favor indique el numero de paquete y la caja que se adjunta acontinuacion.\n\n` +
       `🗃️ *Caja:* ${shipment.box}\n` +
+      `📦 *Paquete Nº:* ${shipment.packageNumber}\n` +
       `💰 *Valor a pagar:* $${shipment?.shippingCost ?? 0}\n\n` +
+      `📌 *Destinatario:* ${shipment.addressee}\n` +
       `🕒 *Horario de atención:*\n` +
       `Lunes a Viernes: *9:00 am a 12:30 pm* y *3:00 pm a 7:00 pm*\n` +
       `Sábados: *4:00 pm a 7:00 pm*\n\n` +
       `📍 Reclame su paquete en: *PAPELERÍA DONDE NAZLY* — CRA 7 Nº 7-08\n\n` +
-      `⚠️ Por su seguridad, este es el *único punto autorizado* para entregar correspondencia de *INTERRAPIDÍSIMO*.`
+      `⚠️ Por su seguridad, este es el *único punto autorizado* para entregar correspondencia de *INTERRAPIDÍSIMO* ademas recuerde que cuenta con 10 dias para reclamar su paquete`
     );    
   };
 
