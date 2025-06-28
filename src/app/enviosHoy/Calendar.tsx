@@ -133,7 +133,7 @@ export default function Calendar() {
     }
 
     return (
-      `_*INTERRAPIDÍSIMO AQUITANIA*_ le informa que su paquete ha llegado al momento de reclamar su paquete por favor indique el numero de paquete y la caja que se adjunta acontinuacion.\n\n` +
+      `_*INTERRAPIDÍSIMO AQUITANIA*_ le informa que su paquete ha llegado al momento de reclamar su paquete por favor indique:\n\n` +
       `🗃️ *Caja:* ${shipment.box}\n` +
       `📦 *Paquete Nº:* ${shipment.packageNumber}\n` +
       `💰 *Valor a pagar:* $${shipment?.shippingCost ?? 0}\n\n` +
