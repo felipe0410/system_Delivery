@@ -166,7 +166,7 @@ const Page = () => {
 
     try {
       const response = await axios.post(
-        "https://dcfc-2803-1a00-153d-c030-4b8e-da67-cd76-60a5.ngrok-free.app/consult",
+        "https://0360-2803-1a00-153d-c030-7956-869b-9f5f-a6d4.ngrok-free.app/consult",
         {
           guias: guidesArray,
           password,
@@ -213,16 +213,16 @@ const Page = () => {
           uid,
           domiciliary
             ? {
-                ...updatedShipment,
-                status: "mensajero",
-                box: "0",
-                packageNumber: "0",
-                courierAttempt1: Date.now(),
-              }
+              ...updatedShipment,
+              status: "mensajero",
+              box: "0",
+              packageNumber: "0",
+              courierAttempt1: Date.now(),
+            }
             : {
-                ...updatedShipment,
-                status: "oficina",
-              }
+              ...updatedShipment,
+              status: "oficina",
+            }
         );
         if (result) {
           setShipmentsSave((prevCount) => prevCount + 1);
