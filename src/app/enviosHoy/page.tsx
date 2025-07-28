@@ -8,20 +8,6 @@ import { SnackbarProvider } from "notistack";
 import Calendar from "./Calendar";
 
 const Page = () => {
-  const [searchTerm, setSearchTerm] = useState<any>();
-  const [firebaseData, setFirebaseData] = useState<{ [x: string]: any }[]>([]);
-
-  useEffect(() => {
-    const getFirebaseData = async () => {
-      try {
-        const dataRef = await getAllShipmentsData();
-        setFirebaseData(dataRef);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-    getFirebaseData();
-  }, []);
 
   return (
     <Box

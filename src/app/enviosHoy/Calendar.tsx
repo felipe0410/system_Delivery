@@ -21,6 +21,7 @@ import {
 import { SnackbarProvider } from "notistack";
 import { getFilteredShipmentsDataTimestap } from "@/firebase/firebase";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
+import { useCookies } from "react-cookie";
 
 const containerStyle = {
   width: {
@@ -67,9 +68,11 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 
 export default function Calendar() {
+  const [cookies, setCookie] = useCookies(["shipmentsCachedAt"]);
   const [selectedDate, setSelectedDate] = useState<any>();
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [sentMessages, setSentMessages] = useState<string[]>([]);
   const [filterStatus, setFilterStatus] = useState<
     "oficina" | "mensajero" | "entregado" | "devolucion" | "todos"
   >("oficina");
@@ -86,10 +89,27 @@ export default function Calendar() {
   useEffect(() => {
     const fetchData = async () => {
       if (selectedDate?.length === 2) {
+        setLoading(true);
         try {
-          setLoading(true);
-          const shipments = await getFilteredShipmentsDataTimestap(selectedDate);
-          setData(shipments || []);
+          const cacheKey = `shipments-${selectedDate[0]}-${selectedDate[1]}`;
+          const cacheData = localStorage.getItem(cacheKey);
+          const cacheTimestamp = cookies.shipmentsCachedAt;
+          const now = new Date();
+          const isCacheValid =
+            cacheData &&
+            cacheTimestamp &&
+            now.getTime() - new Date(cacheTimestamp).getTime() < 60 * 60 * 1000; // 1 hora en milisegundos
+          if (isCacheValid) {
+            setData(JSON.parse(cacheData));
+          } else {
+            const shipments = await getFilteredShipmentsDataTimestap(selectedDate);
+            setData(shipments || []);
+            localStorage.setItem(cacheKey, JSON.stringify(shipments || []));
+            setCookie("shipmentsCachedAt", now.toISOString(), {
+              path: "/",
+              maxAge: 3600, // 1 hora
+            });
+          }
         } catch (error) {
           console.error("Error al traer las guías:", error);
         } finally {
@@ -97,8 +117,38 @@ export default function Calendar() {
         }
       }
     };
+
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDate]);
+
+  useEffect(() => {
+    const storedUIDs = localStorage.getItem("sentWhatsAppUIDs");
+    const storedDate = localStorage.getItem("sentWhatsAppUIDsDate");
+
+    const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+
+    if (storedUIDs && storedDate === today) {
+      setSentMessages(JSON.parse(storedUIDs));
+    } else {
+      // Nueva fecha → limpiar lista antigua
+      localStorage.setItem("sentWhatsAppUIDsDate", today);
+      localStorage.setItem("sentWhatsAppUIDs", JSON.stringify([]));
+      setSentMessages([]);
+    }
+  }, []);
+
+
+  const markAsSent = (uid: string) => {
+    console.log('entro aqui')
+    const updated: string[] = Array.from(new Set([...sentMessages, uid]));
+    setSentMessages(updated);
+    localStorage.setItem("sentWhatsAppUIDs", JSON.stringify(updated));
+
+    const today = new Date().toISOString().split("T")[0];
+    localStorage.setItem("sentWhatsAppUIDsDate", today);
+  };
+
 
   const filteredData = filterStatus === "todos"
     ? data
@@ -143,7 +193,7 @@ export default function Calendar() {
       `Sábados: *4:00 pm a 7:00 pm*\n\n` +
       `📍 Reclame su paquete en: *PAPELERÍA DONDE NAZLY* — CRA 7 Nº 7-08\n\n` +
       `⚠️ Por su seguridad, este es el *único punto autorizado* para entregar correspondencia de *INTERRAPIDÍSIMO* ademas recuerde que cuenta con 10 dias para reclamar su paquete`
-    );    
+    );
   };
 
   return (
@@ -193,8 +243,16 @@ export default function Calendar() {
                 {filteredData.map((shipment) => {
                   const msg = generateMessage(shipment);
                   const phone = shipment?.destinatario?.celular;
-                  const fullPhone = phone?.startsWith("+57") ? phone : `+57${phone}`;
+                  //const fullPhone = phone?.startsWith("+57") ? phone : `+57${phone}`;
+                  //const waLink = `https://wa.me/${fullPhone}/?text=${encodeURIComponent(msg)}`;
+
+                  const rawPhone = shipment.editedPhone ?? phone;
+                  const sanitizedPhone = rawPhone?.replace(/\D/g, "") ?? "";
+                  const fullPhone = sanitizedPhone.startsWith("57")
+                    ? `+${sanitizedPhone}`
+                    : `+57${sanitizedPhone}`;
                   const waLink = `https://wa.me/${fullPhone}/?text=${encodeURIComponent(msg)}`;
+
 
                   const noContestoMsg =
                     `*NO CONTESTÓ*\n\n` +
@@ -206,7 +264,14 @@ export default function Calendar() {
                     `Caja: ${shipment.box}`;
 
                   return (
-                    <StyledTableRow key={shipment.uid}>
+                    <StyledTableRow
+                      style={{
+                        backgroundColor: sentMessages.includes(shipment.uid)
+                          ? "rgba(7, 255, 19, 0.86)" // verde claro
+                          : undefined,
+                      }}
+                      key={shipment.uid}
+                    >
                       <StyledTableCell align="center">
                         {shipment.uid}
 
@@ -215,7 +280,7 @@ export default function Calendar() {
                           <IconButton
                             color="success"
                             aria-label="Enviar por WhatsApp al destinatario"
-                            onClick={() => handleCopy(msg)}
+                            onClick={() => { handleCopy(msg), markAsSent(shipment.uid); }}
                           >
                             <WhatsAppIcon />
                           </IconButton>
@@ -240,8 +305,27 @@ export default function Calendar() {
                         {shipment.destinatario?.nombre || "N/A"}
                       </StyledTableCell>
                       <StyledTableCell align="center">
-                        {phone || "N/A"}
+                        <input
+                          type="text"
+                          value={shipment.editedPhone ?? phone ?? ""}
+                          onChange={(e) => {
+                            const newPhone = e.target.value;
+                            setData((prevData) =>
+                              prevData.map((s) =>
+                                s.uid === shipment.uid ? { ...s, editedPhone: newPhone } : s
+                              )
+                            );
+                          }}
+                          style={{
+                            width: "100px",
+                            fontSize: "12px",
+                            textAlign: "center",
+                            border: "1px solid #ccc",
+                            borderRadius: "4px",
+                          }}
+                        />
                       </StyledTableCell>
+
                       <StyledTableCell align="center">
                         {shipment.valor || "0"}
                       </StyledTableCell>
