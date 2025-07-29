@@ -30,7 +30,9 @@ import {
   getAndSaveEnvios,
   getEnvios,
   getShipmentData,
+  getTempByDateAndType,
   saveEnvios,
+  saveTempByDateAndType,
   shipments,
 } from "@/firebase/firebase";
 import { VisibilityOff, Visibility } from "@mui/icons-material";
@@ -42,7 +44,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import Shipments from "../Shipments/page";
 import { serverTimestamp } from "firebase/firestore";
 
-interface GuideData {
+export interface GuideData {
   guide: string;
   valor: number;
   packageNumber: number;
@@ -74,6 +76,7 @@ const Page = () => {
   const [arrayUniqueValue, setArrayUniqueValue] = useState<any>([]);
   const [num, setNumm] = useState(0);
   const [valorFormateado, setValorFormateado] = useState<string>(""); // Valor con formato ($121.200)
+
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
@@ -166,7 +169,7 @@ const Page = () => {
 
     try {
       const response = await axios.post(
-        "https://01f2dac0bec2.ngrok-free.app/consult",
+        "http://0.0.0.0:8080/consult",
         {
           guias: guidesArray,
           password,
@@ -236,12 +239,44 @@ const Page = () => {
       enqueueSnackbar("Datos cargados correctamente.", { variant: "success" });
       localStorage.removeItem("allData");
     } catch (error) {
-      console.error("Error al cargar los datos:", error);
+      console.error("❌ Error al cargar los datos:", error);
       enqueueSnackbar("Error al cargar los datos.", { variant: "error" });
+      // Si el error es general, guarda todos los datos en temporal
+      await saveTempByDateAndType(allData, domiciliary ? "domiciliario" : "oficina");
+      setAllData([])
+      enqueueSnackbar("Los paquetes se guardaron en modo temporal.", { variant: "info" });
     } finally {
       setLoad(false); // Asegurarse de que el estado de carga se desactive
     }
   };
+
+  const handleLoadTempFromFirestore = async (tipo: "domiciliario" | "oficina") => {
+    const paquetes = await getTempByDateAndType(tipo);
+    if (paquetes.length === 0) {
+      enqueueSnackbar(`No se encontraron paquetes en Firebase para '${tipo}'`, {
+        variant: "info",
+      });
+      return;
+    }
+
+    setAllData((prev) => {
+      const guiasExistentes = new Set(prev.map((p) => p.guide));
+      const nuevosPaquetes = paquetes.filter((p) => !guiasExistentes.has(p.guide));
+
+      if (nuevosPaquetes.length > 0) {
+        enqueueSnackbar(`Recuperados ${nuevosPaquetes.length} paquetes nuevos de '${tipo}'`, {
+          variant: "success",
+        });
+      } else {
+        enqueueSnackbar(`Todos los paquetes de '${tipo}' ya estaban cargados`, {
+          variant: "warning",
+        });
+      }
+
+      return [...prev, ...nuevosPaquetes];
+    });
+  };
+
 
   const handleAddPackage = () => {
     if (inputValue.trim()) {
@@ -431,7 +466,7 @@ const Page = () => {
                   lineHeight: "normal",
                 }}
               >
-                A cotinucacion se consultara los datos de las guias sumistradas
+                A continuacion se consultara los datos de las guias sumistradas
                 la duracion es de aproximadamente 5 min.
               </Typography>
             </Box>
@@ -656,7 +691,7 @@ const Page = () => {
               {"OFICINA"}
             </Button>
             <Button
-              onClick={() => fetchGuideDetails(true)}
+              onClick={() => { fetchGuideDetails(true) }}
               disabled={!(allData.length > 0) || load}
               sx={{
                 filter: allData.length > 0 ? "auto" : "grayscale(1)",
@@ -681,6 +716,40 @@ const Page = () => {
             >
               {"DOMICILIARIO"}
             </Button>
+            <Button
+              onClick={() => handleLoadTempFromFirestore("oficina")}
+              sx={{
+                background: "#FFA726",
+                color: "#fff",
+                margin: "0 auto",
+                marginBottom: "10px",
+                borderRadius: "15px",
+                fontFamily: "Nunito",
+                fontSize: "18px",
+                padding: "8px 16px",
+                "&:hover": { backgroundColor: "#FB8C00" },
+              }}
+            >
+              Recuperar envíos OFICINA
+            </Button>
+
+            <Button
+              onClick={() => handleLoadTempFromFirestore("domiciliario")}
+              sx={{
+                background: "#EF5350",
+                color: "#fff",
+                margin: "0 auto",
+                marginBottom: "20px",
+                borderRadius: "15px",
+                fontFamily: "Nunito",
+                fontSize: "18px",
+                padding: "8px 16px",
+                "&:hover": { backgroundColor: "#E53935" },
+              }}
+            >
+              Recuperar envíos DOMICILIARIO
+            </Button>
+
           </Box>
         </Paper>
       ) : (

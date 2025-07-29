@@ -1,3 +1,4 @@
+import { GuideData } from "@/app/getData/page";
 import { FirebaseApp, initializeApp } from "firebase/app";
 import {
   getAuth,
@@ -78,6 +79,57 @@ const getCurrentDateTime = () => {
   const hours = String(now.getHours()).padStart(2, "0");
   const minutes = String(now.getMinutes()).padStart(2, "0");
   return `${year}-${month}-${day} ${hours}:${minutes}`;
+};
+
+export const getTempByDateAndType = async (
+  tipo: "domiciliario" | "oficina"
+): Promise<GuideData[]> => {
+  try {
+    const today = new Date().toISOString().split("T")[0];
+    const paquetesRef = collection(db, "guardado_rapido", today, tipo);
+    const snapshot = await getDocs(paquetesRef);
+
+    const data: GuideData[] = [];
+    snapshot.forEach((docSnap) => {
+      data.push(docSnap.data() as GuideData);
+    });
+
+    console.log(`📦 Recuperados ${data.length} paquetes de '${tipo}' para ${today}`);
+    return data;
+  } catch (error) {
+    console.error("❌ Error al recuperar los paquetes:", error);
+    return [];
+  }
+};
+
+
+export const saveTempByDateAndType = async (
+  paquetes: GuideData[],
+  tipo: "domiciliario" | "oficina"
+) => {
+  try {
+    const today = new Date().toISOString().split("T")[0]; // e.g. "2025-07-29"
+    const basePath = collection(db, "guardado_rapido");
+
+    for (const paquete of paquetes) {
+      const tipoRef = doc(
+        basePath,
+        today,
+        tipo,
+        paquete.guide // La guía será el ID del documento
+      );
+      await setDoc(tipoRef, {
+        ...paquete,
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    console.log(`✅ Paquetes guardados para '${tipo}' en ${today}`);
+    return true;
+  } catch (error) {
+    console.error("❌ Error al guardar los paquetes:", error);
+    return false;
+  }
 };
 
 export const creteUser = async (email: any, password: any) => {
@@ -500,30 +552,6 @@ export const getAndSaveEnvios = async () => {
   }
 };
 
-export const getFilteredShipmentsData = async () => {
-  try {
-    // Crear una consulta que busque envíos con status "entregado" o "oficina"
-    const shipmentsCollectionRef = collection(db, "envios");
-    const filteredQuery = query(
-      shipmentsCollectionRef,
-      where("status", "in", ["mensajero", "oficina"]) // Utiliza "in" para múltiples valores
-    );
-
-    // Ejecutar la consulta
-    const querySnapshot = await getDocs(filteredQuery);
-    const shipmentsData: any = [];
-
-    querySnapshot.forEach((doc) => {
-      shipmentsData.push(doc.data());
-    });
-
-    console.log(shipmentsData); // Opcional: para depuración
-    return shipmentsData;
-  } catch (error) {
-    console.error("Error al obtener los envíos filtrados: ", error);
-    return null;
-  }
-};
 
 export const getFilteredShipmentsDataTimestap = async (dateRange: string[]) => {
   try {
