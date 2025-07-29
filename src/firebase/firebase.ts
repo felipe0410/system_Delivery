@@ -70,6 +70,31 @@ export const getUserDataByBase64Id = async (base64Id: string) => {
   }
 };
 
+export const getFilteredShipmentsData = async () => {
+  try {
+    // Crear una consulta que busque envíos con status "entregado" o "oficina"
+    const shipmentsCollectionRef = collection(db, "envios");
+    const filteredQuery = query(
+      shipmentsCollectionRef,
+      where("status", "in", ["mensajero", "oficina"]) // Utiliza "in" para múltiples valores
+    );
+
+    // Ejecutar la consulta
+    const querySnapshot = await getDocs(filteredQuery);
+    const shipmentsData: any = [];
+
+    querySnapshot.forEach((doc) => {
+      shipmentsData.push(doc.data());
+    });
+
+    console.log(shipmentsData); // Opcional: para depuración
+    return shipmentsData;
+  } catch (error) {
+    console.error("Error al obtener los envíos filtrados: ", error);
+    return null;
+  }
+};
+
 //____________________________________________________________________-
 const getCurrentDateTime = () => {
   const now = new Date();
