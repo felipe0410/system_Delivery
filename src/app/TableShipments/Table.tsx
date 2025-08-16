@@ -26,6 +26,7 @@ import DeliveryDiningIcon from "@mui/icons-material/DeliveryDining";
 import MapsHomeWorkIcon from "@mui/icons-material/MapsHomeWork";
 import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
+import { normalizeStr } from "./cache";
 interface TableItem {
   guide: string;
   addressee: string;
@@ -50,6 +51,19 @@ export default function BasicTable({ tableData }: { tableData: any }) {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [dateRange, setDateRange] = useState<any>(["", ""]);
+  const [showOnlyActual, setShowOnlyActual] = useState(false);
+
+  // qué consideras "actual"
+  const isEnvioActual = React.useCallback((row: any) => {
+    return row?.status === "mensajero" || row?.status === "oficina";
+  }, []);
+
+  // contador para el chip
+  const actualCount = React.useMemo(
+    () => (tableData ?? []).filter(isEnvioActual).length,
+    [tableData, isEnvioActual]
+  );
+
   const themee = useTheme();
   const matches = useMediaQuery(themee.breakpoints.down("sm"));
 
@@ -73,9 +87,9 @@ export default function BasicTable({ tableData }: { tableData: any }) {
       return Object.keys(filters).every((key) =>
         item[key]
           ? item[key]
-              .toString()
-              .toLowerCase()
-              .includes(filters[key].toLowerCase())
+            .toString()
+            .toLowerCase()
+            .includes(filters[key].toLowerCase())
           : true
       );
     });
@@ -83,13 +97,12 @@ export default function BasicTable({ tableData }: { tableData: any }) {
     setPage(0);
   }, [filters, tableData, dateRange]);
 
-  const handleFilterChange =
-    (field: string) => (event: { target: { value: any } }) => {
-      setFilters((prevFilters) => ({
-        ...prevFilters,
-        [field]: event.target.value,
-      }));
-    };
+  const handleFilterChange = (field: string) => (event: { target: { value: any } }) => {
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [field]: event.target.value,
+    }));
+  };
 
   const resetFilters = () => {
     setFilters({
@@ -195,6 +208,60 @@ export default function BasicTable({ tableData }: { tableData: any }) {
     return date.toLocaleString("es-ES", options);
   };
 
+
+  // 2) normalizamos dataset una sola vez
+  const normalizedData = React.useMemo(() => {
+    return (tableData ?? []).map((row: any) => ({
+      ...row,
+      _norm: {
+        guide: normalizeStr(row.guide),
+        addressee: normalizeStr(row.addressee),
+        deliverTo: normalizeStr(row.deliverTo),
+        box: normalizeStr(row.box),
+        packageNumber: normalizeStr(row.packageNumber),
+        shippingCost: normalizeStr(row.shippingCost),
+        status: normalizeStr(row.status),
+      }
+    }));
+  }, [tableData]);
+
+
+  // 3) normalizamos filtros
+  const normFilters = React.useMemo(() => ({
+    guide: normalizeStr(filters.guide),
+    addressee: normalizeStr(filters.addressee),
+    deliverTo: normalizeStr(filters.deliverTo),
+    box: normalizeStr(filters.box),
+    packageNumber: normalizeStr(filters.packageNumber),
+    shippingCost: normalizeStr(filters.shippingCost),
+    status: normalizeStr((filters as any).status),
+  }), [filters]);
+
+  // 4) filtrado usando valores normalizados
+  useEffect(() => {
+    const filtered = normalizedData.filter((item: any) => {
+      // rango de fechas
+      const [startDate, endDate] = dateRange || [];
+      if (startDate || endDate) {
+        const itemDate = new Date(item.intakeDate);
+        if (startDate && itemDate < startDate) return false;
+        if (endDate && itemDate > endDate) return false;
+      }
+      // texto diacrítico-insensible
+      for (const key of Object.keys(normFilters) as (keyof typeof normFilters)[]) {
+        const q = normFilters[key];
+        if (!q) continue;
+        const hay = item._norm?.[key] ?? "";
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+
+    setFilteredData(filtered);
+    setPage(0);
+  }, [normalizedData, normFilters, dateRange]);
+
+
   return (
     <Box>
       <Box
@@ -208,6 +275,13 @@ export default function BasicTable({ tableData }: { tableData: any }) {
           onChange={setDateRange}
           value={dateRange}
           format="y-MM-dd"
+        />
+        <Chip
+          label={`Actuales (${actualCount})`}
+          variant={showOnlyActual ? "filled" : "outlined"}
+          color={showOnlyActual ? "primary" : "default"}
+          onClick={() => setShowOnlyActual((v) => !v)}
+          sx={{ fontWeight: 700 }}
         />
       </Box>
       <TableContainer
@@ -235,14 +309,14 @@ export default function BasicTable({ tableData }: { tableData: any }) {
               {(matches
                 ? ["guide", "addressee"]
                 : [
-                    "guide",
-                    "addressee",
-                    "deliverTo",
-                    "box",
-                    "packageNumber",
-                    "shippingCost",
-                    "status",
-                  ]
+                  "guide",
+                  "addressee",
+                  "deliverTo",
+                  "box",
+                  "packageNumber",
+                  "shippingCost",
+                  "status",
+                ]
               ).map((field) => (
                 <TableCell key={field}>
                   <InputBase
@@ -377,21 +451,20 @@ export default function BasicTable({ tableData }: { tableData: any }) {
                             <LocalPhoneIcon />
                           </IconButton>
                           <Link
-                            href={`https://wa.me/${
-                              row?.destinatario?.celular
-                                ? row.destinatario.celular.startsWith("+57")
-                                  ? row.destinatario.celular
-                                  : `+57${row.destinatario.celular}`
-                                : "null"
-                            }/?text=${encodeURIComponent(
-                              `_*INTERRAPIDISIMO AQUITANIA*_ le informa que su pedido ha llegado\n\n` +
+                            href={`https://wa.me/${row?.destinatario?.celular
+                              ? row.destinatario.celular.startsWith("+57")
+                                ? row.destinatario.celular
+                                : `+57${row.destinatario.celular}`
+                              : "null"
+                              }/?text=${encodeURIComponent(
+                                `_*INTERRAPIDISIMO AQUITANIA*_ le informa que su pedido ha llegado\n\n` +
                                 `• *Destinatario*: ${row.addressee}\n` +
                                 `• *Valor*: $${row?.shippingCost ?? 0}\n` +
                                 `Al momento de reclamar indique que su paquete es:\n` +
                                 `• *Número de paquete*: ${row.packageNumber}\n` +
                                 `• *Caja*: ${row.box}\n` +
                                 `puede reclamar su paquete en : *PAPELERIA DONDE NAZLY*, por su seguridad recuerde que es el unico punto fisico para reclamar correspondencia de *INTERRAPIDISIMO* \n`
-                            )}`}
+                              )}`}
                             target="_blank"
                           >
                             <IconButton

@@ -177,10 +177,10 @@ const Sidebar = () => {
     },
   ];
 
-  const sections =
-    userRole === "Administrador"
-      ? [...generalSections, ...adminSections]
-      : generalSections;
+  const sections = [...generalSections, ...adminSections]
+    //userRole === "Administrador"
+    //  ? [...generalSections, ...adminSections]
+    //  : generalSections;
 
   return (
     <>
