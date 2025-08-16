@@ -27,6 +27,7 @@ import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
 import DeliveryModal from "@/components/confirmTable/detailGuide";
 import DevolucionModal from "./Devolucion";
 import EntregarModal from "./Entregar";
+import PaidIcon from "@mui/icons-material/Paid";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -47,6 +48,10 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
+const formatCOP = (n: any) =>
+  new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 })
+    .format(Number(n || 0));
+
 export default function TableDomi() {
   const [firebaseData, setFirebaseData] = useState<any[]>([]);
   const [selectedRows, setSelectedRows] = useState<any[]>([]);
@@ -65,8 +70,48 @@ export default function TableDomi() {
     handleSelectionChange(updatedSelectedRows);
   };
 
+  const showShipmentToast = (row: any) => {
+    enqueueSnackbar(
+      <Box sx={{ p: 1 }}>
+        <Typography sx={{ fontSize: '30px' }}>Destinatario: {row?.addressee ?? "—"}</Typography>
+        <Chip
+          icon={<PaidIcon sx={{ color: "inherit" }} />}  // <-- opcional, puedes quitarlo
+          label={`Valor del envío: ${(row?.shippingCost)}`}
+          sx={{
+            bgcolor: "#000",
+            color: "#fff",
+            borderRadius: "9999px",
+            fontWeight: 800,
+            height: "auto",                     // permite crecer con el texto
+            "& .MuiChip-label": {
+              px: 2.5,                          // padding horizontal
+              py: 1.25,                         // padding vertical
+              fontSize: { xs: 18, sm: 22, md: 30 }, // tamaño similar a 30px en desktop
+              lineHeight: 1.2,
+              whiteSpace: "normal",             // por si necesita dos líneas
+              textAlign: "center",
+            },
+          }}
+        />
+      </Box>,
+      {
+        variant: "info",
+        autoHideDuration: 3500, // <<< 5 segundos
+        preventDuplicate: true,
+        anchorOrigin: {
+          vertical: "top",
+          horizontal: "center",
+        },
+      },
+    );
+  };
+
   const handleAutocompleteChange = (event: any, newValue: any[]) => {
+    const added = newValue.find(
+      (nv) => !selectedRows.some((sr) => sr.uid === nv.uid)
+    );
     handleSelectionChange(newValue);
+    if (added) showShipmentToast(added);
   };
 
   const handleKeyPress = (event: any) => {
@@ -78,10 +123,12 @@ export default function TableDomi() {
         if (!selectedRows.some((row) => row.uid === matchingItem.uid)) {
           handleSelectionChange([...selectedRows, matchingItem]);
         }
+        showShipmentToast(matchingItem);
         setInputValue("");
       }
     }
   };
+
 
   useEffect(() => {
     const status = "mensajero";
@@ -93,193 +140,198 @@ export default function TableDomi() {
   }, [firebaseData]);
 
   return (
-    <Box sx={{ height: "100%" }}>
-      <Box sx={{ display: "flex", justifyContent: "right" }}>
-        <Typography
-          sx={{
-            fontFamily: "Nunito",
-            fontSize: "30px",
-            fontWeight: 800,
-            lineHeight: "46.38px",
-            textAlign: "center",
-            marginRight: "10px",
-          }}
+    <SnackbarProvider
+      maxSnack={3}
+      anchorOrigin={{ vertical: "top", horizontal: "center" }}
+    >
+      <Box sx={{ height: "100%" }}>
+        <Box sx={{ display: "flex", justifyContent: "right" }}>
+          <Typography
+            sx={{
+              fontFamily: "Nunito",
+              fontSize: "30px",
+              fontWeight: 800,
+              lineHeight: "46.38px",
+              textAlign: "center",
+              marginRight: "10px",
+            }}
+          >
+            Total paquetes
+          </Typography>
+          <Box
+            sx={{
+              borderRadius: "35px",
+              opacity: "0px",
+              background: "#11192F",
+              padding: "12px",
+              color: "#fff",
+              width: "70px",
+              textAlignLast: "center",
+            }}
+          >
+            {firebaseData.length}
+          </Box>
+        </Box>
+        <Box sx={{ textAlign: "-webkit-center" }}>
+          <Box>
+            <Typography
+              sx={{
+                color: "#0A0F37",
+                textAlign: "center",
+                fontFamily: "Nunito",
+                fontSize: { xs: "1.5rem", sm: "2.0rem" },
+                fontStyle: "normal",
+                fontWeight: 900,
+                lineHeight: "normal",
+              }}
+            >
+              RESUMEN DOMICILIARIO
+            </Typography>
+          </Box>
+          <Box mt={1} width={"39.5625rem"}>
+            <Typography
+              sx={{
+                color: "#000",
+                textAlign: "center",
+                fontFamily: "Nunito",
+                fontSize: "1.25rem",
+                fontStyle: "normal",
+                fontWeight: 600,
+                lineHeight: "normal",
+              }}
+            >
+              Paquetes asignados al domiciliario
+            </Typography>
+          </Box>
+        </Box>
+
+        <TableContainer
+          id="container"
+          sx={{ height: "900px", overflowY: "scroll", maxHeight: "450px" }}
+          component={Paper}
         >
-          Total paquetes
-        </Typography>
+          <SnackbarProvider />
+          <Table sx={{ minWidth: 700 }} aria-label="customized table">
+            <TableHead>
+              <TableRow>
+                <StyledTableCell></StyledTableCell>
+                <StyledTableCell># Guía </StyledTableCell>
+                <StyledTableCell align="left">Nombre</StyledTableCell>
+                <StyledTableCell align="center">Recibido</StyledTableCell>
+                <StyledTableCell align="center">Pago</StyledTableCell>
+                <StyledTableCell align="center">Valor</StyledTableCell>
+                <StyledTableCell align="center">Celular</StyledTableCell>
+                <StyledTableCell align="center">Acciones</StyledTableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {firebaseData?.map((row, i) => {
+                const dateTimeString = row.intakeDate;
+                const dateAndTime = dateTimeString
+                  .substring(0, 19)
+                  .replace("T", " ");
+
+                return (
+                  <StyledTableRow key={row.uid}>
+                    <StyledTableCell>
+                      <Checkbox
+                        checked={selectedRows.some(
+                          (selectedRow) => selectedRow.uid === row.uid
+                        )}
+                        onChange={() => handleCheckboxChange(row)}
+                      />
+                    </StyledTableCell>
+                    <StyledTableCell component="th" scope="row">
+                      {row.uid}
+                    </StyledTableCell>
+                    <StyledTableCell component="th" scope="row">
+                      {row.addressee}
+                    </StyledTableCell>
+                    <StyledTableCell align="center">
+                      {dateAndTime}
+                    </StyledTableCell>
+                    <StyledTableCell align="right">
+                      <Chip
+                        sx={{
+                          display: "flex",
+                          m: 1,
+                          borderRadius: "3rem",
+                          background:
+                            row.pago === "Crédito"
+                              ? "#150E63"
+                              : row.pago === "Contado"
+                                ? "#545B58"
+                                : "#106D14",
+                          color: "#fff",
+                        }}
+                        variant="outlined"
+                        label={row?.pago ?? "no definido"}
+                      />
+                    </StyledTableCell>
+                    <StyledTableCell align="right">
+                      {row.shippingCost}
+                    </StyledTableCell>
+                    <StyledTableCell align="right">
+                      {row?.destinatario?.celular ?? ""}
+                    </StyledTableCell>
+                    <StyledTableCell align="right">
+                      <DeliveryModal data={row} />
+                    </StyledTableCell>
+                  </StyledTableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </TableContainer>
         <Box
           sx={{
-            borderRadius: "35px",
-            opacity: "0px",
-            background: "#11192F",
-            padding: "12px",
-            color: "#fff",
-            width: "70px",
-            textAlignLast: "center",
+            marginTop: "2rem",
+            textAlign: "center",
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-evenly",
           }}
         >
-          {firebaseData.length}
-        </Box>
-      </Box>
-      <Box sx={{ textAlign: "-webkit-center" }}>
-        <Box>
-          <Typography
-            sx={{
-              color: "#0A0F37",
-              textAlign: "center",
-              fontFamily: "Nunito",
-              fontSize: { xs: "1.5rem", sm: "2.0rem" },
-              fontStyle: "normal",
-              fontWeight: 900,
-              lineHeight: "normal",
+          <Autocomplete
+            multiple
+            id="tags-outlined"
+            options={firebaseData}
+            getOptionLabel={(option) => option?.uid}
+            value={selectedRows}
+            onKeyPress={handleKeyPress}
+            onChange={handleAutocompleteChange}
+            onInputChange={(event, newInputValue) => {
+              setInputValue(newInputValue);
             }}
-          >
-            RESUMEN DOMICILIARIO
-          </Typography>
+            filterSelectedOptions
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                placeholder="Guias"
+                sx={{
+                  backgroundColor: "white",
+                  borderRadius: "0.28rem",
+                  border: "0",
+                }}
+              />
+            )}
+            popupIcon={<QrCodeScannerIcon fontSize="inherit" />}
+            sx={{ width: "60%", marginTop: "1rem" }}
+          />
         </Box>
-        <Box mt={1} width={"39.5625rem"}>
-          <Typography
-            sx={{
-              color: "#000",
-              textAlign: "center",
-              fontFamily: "Nunito",
-              fontSize: "1.25rem",
-              fontStyle: "normal",
-              fontWeight: 600,
-              lineHeight: "normal",
-            }}
-          >
-            Paquetes asignados al domiciliario
-          </Typography>
-        </Box>
-      </Box>
-
-      <TableContainer
-        id="container"
-        sx={{ height: "900px", overflowY: "scroll", maxHeight: "450px" }}
-        component={Paper}
-      >
-        <SnackbarProvider />
-        <Table sx={{ minWidth: 700 }} aria-label="customized table">
-          <TableHead>
-            <TableRow>
-              <StyledTableCell></StyledTableCell>
-              <StyledTableCell># Guía </StyledTableCell>
-              <StyledTableCell align="left">Nombre</StyledTableCell>
-              <StyledTableCell align="center">Recibido</StyledTableCell>
-              <StyledTableCell align="center">Pago</StyledTableCell>
-              <StyledTableCell align="center">Valor</StyledTableCell>
-              <StyledTableCell align="center">Celular</StyledTableCell>
-              <StyledTableCell align="center">Acciones</StyledTableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {firebaseData?.map((row, i) => {
-              const dateTimeString = row.intakeDate;
-              const dateAndTime = dateTimeString
-                .substring(0, 19)
-                .replace("T", " ");
-
-              return (
-                <StyledTableRow key={row.uid}>
-                  <StyledTableCell>
-                    <Checkbox
-                      checked={selectedRows.some(
-                        (selectedRow) => selectedRow.uid === row.uid
-                      )}
-                      onChange={() => handleCheckboxChange(row)}
-                    />
-                  </StyledTableCell>
-                  <StyledTableCell component="th" scope="row">
-                    {row.uid}
-                  </StyledTableCell>
-                  <StyledTableCell component="th" scope="row">
-                    {row.addressee}
-                  </StyledTableCell>
-                  <StyledTableCell align="center">
-                    {dateAndTime}
-                  </StyledTableCell>
-                  <StyledTableCell align="right">
-                    <Chip
-                      sx={{
-                        display: "flex",
-                        m: 1,
-                        borderRadius: "3rem",
-                        background:
-                          row.pago === "Crédito"
-                            ? "#150E63"
-                            : row.pago === "Contado"
-                            ? "#545B58"
-                            : "#106D14",
-                        color: "#fff",
-                      }}
-                      variant="outlined"
-                      label={row?.pago ?? "no definido"}
-                    />
-                  </StyledTableCell>
-                  <StyledTableCell align="right">
-                    {row.shippingCost}
-                  </StyledTableCell>
-                  <StyledTableCell align="right">
-                    {row?.destinatario?.celular ?? ""}
-                  </StyledTableCell>
-                  <StyledTableCell align="right">
-                    <DeliveryModal data={row} />
-                  </StyledTableCell>
-                </StyledTableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <Box
-        sx={{
-          marginTop: "2rem",
-          textAlign: "center",
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "space-evenly",
-        }}
-      >
-        <Autocomplete
-          multiple
-          id="tags-outlined"
-          options={firebaseData}
-          getOptionLabel={(option) => option?.uid}
-          value={selectedRows}
-          onKeyPress={handleKeyPress}
-          onChange={handleAutocompleteChange}
-          onInputChange={(event, newInputValue) => {
-            setInputValue(newInputValue);
+        <Box
+          sx={{
+            marginTop: "2rem",
+            textAlign: "center",
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-evenly",
           }}
-          filterSelectedOptions
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              placeholder="Guias"
-              sx={{
-                backgroundColor: "white",
-                borderRadius: "0.28rem",
-                border: "0",
-              }}
-            />
-          )}
-          popupIcon={<QrCodeScannerIcon fontSize="inherit" />}
-          sx={{ width: "60%", marginTop: "1rem" }}
-        />
+        >
+          <DevolucionModal base={50000} data={selectedRows} />
+          <EntregarModal base={50000} data={selectedRows} />
+        </Box>
       </Box>
-      <Box
-        sx={{
-          marginTop: "2rem",
-          textAlign: "center",
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "space-evenly",
-        }}
-      >
-        <DevolucionModal base={50000} data={selectedRows} />
-        <EntregarModal base={50000} data={selectedRows} />
-      </Box>
-    </Box>
+    </SnackbarProvider>
   );
 }
