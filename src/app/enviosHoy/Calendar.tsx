@@ -192,7 +192,7 @@ export default function Calendar() {
       `Lunes a Viernes: *9:00 am a 12:30 pm* y *3:00 pm a 7:00 pm*\n` +
       `Sábados: *4:00 pm a 7:00 pm*\n\n` +
       `📍 Reclame su paquete en: *PAPELERÍA DONDE NAZLY* — CRA 7 Nº 7-08\n\n` +
-      `⚠️ Por su seguridad, este es el *único punto autorizado* para entregar correspondencia de *INTERRAPIDÍSIMO* ademas recuerde que cuenta con 10 dias para reclamar su paquete`
+      `⚠️ Por su seguridad, este es el *único punto autorizado* para entregar correspondencia de *INTERRAPIDÍSIMO* ademas recuerde que cuenta con 4 dias habiles para reclamar su paquete`
     );
   };
 
