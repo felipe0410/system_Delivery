@@ -41,6 +41,7 @@ import { NumericFormat } from "react-number-format";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import NumbersIcon from "@mui/icons-material/Numbers";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import DeleteIcon from "@mui/icons-material/Delete";
 import Shipments from "../Shipments/page";
 import { serverTimestamp } from "firebase/firestore";
 
@@ -629,7 +630,32 @@ const Page = () => {
             </Box>
           </Box>
           <Divider sx={{ marginY: "10px" }} />
-          <Box id="container-inputs">
+          <Box 
+            id="container-inputs"
+            sx={{
+              maxHeight: "200px",
+              overflowY: "auto",
+              overflowX: "hidden",
+              padding: "10px",
+              border: "1px solid #e0e0e0",
+              borderRadius: "10px",
+              backgroundColor: "rgba(255, 255, 255, 0.1)",
+              "&::-webkit-scrollbar": {
+                width: "8px",
+              },
+              "&::-webkit-scrollbar-track": {
+                backgroundColor: "rgba(0, 0, 0, 0.1)",
+                borderRadius: "10px",
+              },
+              "&::-webkit-scrollbar-thumb": {
+                backgroundColor: "#5C68D4",
+                borderRadius: "10px",
+                "&:hover": {
+                  backgroundColor: "#4A56C2",
+                },
+              },
+            }}
+          >
             {allData.map((data, index) => (
               <>
                 <Chip
@@ -720,34 +746,81 @@ const Page = () => {
               onClick={() => handleLoadTempFromFirestore("oficina")}
               sx={{
                 background: "#FFA726",
+                boxShadow: "0px 4px 4px 0px #00000040",
                 color: "#fff",
                 margin: "0 auto",
-                marginBottom: "10px",
+                marginY: "10px",
                 borderRadius: "15px",
                 fontFamily: "Nunito",
-                fontSize: "18px",
-                padding: "8px 16px",
-                "&:hover": { backgroundColor: "#FB8C00" },
+                fontSize: "22px",
+                fontWeight: 600,
+                lineHeight: "27.28px",
+                textAlign: "center",
+                padding: "12px 20px",
+                "&:hover": { backgroundColor: "#FB8C00", opacity: "80%" },
               }}
+              startIcon={<HomeWorkIcon sx={{ fontSize: "25px" }} />}
             >
-              Recuperar envíos OFICINA
+              RECUPERAR ENVÍOS OFICINA
             </Button>
 
             <Button
               onClick={() => handleLoadTempFromFirestore("domiciliario")}
               sx={{
                 background: "#EF5350",
+                boxShadow: "0px 4px 4px 0px #00000040",
                 color: "#fff",
                 margin: "0 auto",
-                marginBottom: "20px",
+                marginY: "10px",
                 borderRadius: "15px",
                 fontFamily: "Nunito",
-                fontSize: "18px",
-                padding: "8px 16px",
-                "&:hover": { backgroundColor: "#E53935" },
+                fontSize: "22px",
+                fontWeight: 600,
+                lineHeight: "27.28px",
+                textAlign: "center",
+                padding: "12px 20px",
+                "&:hover": { backgroundColor: "#E53935", opacity: "80%" },
               }}
+              startIcon={<DirectionsRunIcon sx={{ fontSize: "25px" }} />}
             >
-              Recuperar envíos DOMICILIARIO
+              RECUPERAR ENVÍOS DOMICILIARIO
+            </Button>
+
+            <Button
+              onClick={() => {
+                setAllData([]);
+                localStorage.removeItem("allData");
+                enqueueSnackbar("Todas las guías han sido borradas", {
+                  variant: "success",
+                  anchorOrigin: {
+                    vertical: "top",
+                    horizontal: "right",
+                  },
+                });
+              }}
+              disabled={allData.length === 0}
+              sx={{
+                filter: allData.length > 0 ? "auto" : "grayscale(1)",
+                background: allData.length > 0 ? "#F44336" : "#BDBDBD",
+                boxShadow: "0px 4px 4px 0px #00000040",
+                color: "#fff",
+                margin: "0 auto",
+                marginY: "20px",
+                borderRadius: "15px",
+                fontFamily: "Nunito",
+                fontSize: "22px",
+                fontWeight: 600,
+                lineHeight: "27.28px",
+                textAlign: "center",
+                padding: "12px 20px",
+                "&:hover": { 
+                  backgroundColor: allData.length > 0 ? "#D32F2F" : "#BDBDBD",
+                  opacity: allData.length > 0 ? "80%" : "100%"
+                },
+              }}
+              startIcon={<DeleteIcon sx={{ fontSize: "25px" }} />}
+            >
+              BORRAR TODAS LAS GUÍAS
             </Button>
 
           </Box>

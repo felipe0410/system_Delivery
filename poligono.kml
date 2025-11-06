@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Polígono</name>
+    <Placemark>
+      <name>Área</name>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>
+              -72.8838167448687,5.5179302439727
+              -72.8839150194272,5.51776306080742
+              -72.8839436888595,5.5177858954483
+              -72.8839663235444,5.51780392352885
+              -72.8838683700821,5.51795995522005
+              -72.88385601546,5.51795284481426
+              -72.8838167448687,5.5179302439727
+            </coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+  </Document>
+</kml>

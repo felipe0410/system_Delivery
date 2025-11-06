@@ -106,11 +106,19 @@ const getCurrentDateTime = () => {
   return `${year}-${month}-${day} ${hours}:${minutes}`;
 };
 
+// Función para obtener la fecha actual en Colombia (UTC-5)
+const getColombiaDate = (): string => {
+  const now = new Date();
+  // Ajustar a la zona horaria de Colombia (UTC-5)
+  const colombiaTime = new Date(now.getTime() - (5 * 60 * 60 * 1000));
+  return colombiaTime.toISOString().split("T")[0];
+};
+
 export const getTempByDateAndType = async (
   tipo: "domiciliario" | "oficina"
 ): Promise<GuideData[]> => {
   try {
-    const today = new Date().toISOString().split("T")[0];
+    const today = getColombiaDate();
     const paquetesRef = collection(db, "guardado_rapido", today, tipo);
     const snapshot = await getDocs(paquetesRef);
 
@@ -133,7 +141,7 @@ export const saveTempByDateAndType = async (
   tipo: "domiciliario" | "oficina"
 ) => {
   try {
-    const today = new Date().toISOString().split("T")[0]; // e.g. "2025-07-29"
+    const today = getColombiaDate(); // Usar la fecha de Colombia
     const basePath = collection(db, "guardado_rapido");
 
     for (const paquete of paquetes) {
