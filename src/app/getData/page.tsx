@@ -141,7 +141,7 @@ const Page = () => {
   };
 
   // Función para usar una clave frecuente
-  const useFrequentPassword = (passwordToUse: string) => {
+  const selectFrequentPassword = (passwordToUse: string) => {
     setPassword(passwordToUse);
     updatePasswordUsage(passwordToUse);
     loadFrequentPasswords(); // Recargar para actualizar el orden
@@ -1023,7 +1023,7 @@ const Page = () => {
                           </Box>
                         )}
                         <Button
-                          onClick={() => useFrequentPassword(freq.password)}
+                          onClick={() => selectFrequentPassword(freq.password)}
                           sx={{
                             background: isLastUsed ? "#E8F5E8" : "#E3F2FD",
                             color: isLastUsed ? "#2E7D32" : "#1976D2",

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { GoogleMap, useLoadScript, Marker, InfoWindow } from "@react-google-maps/api";
 import { Box, Typography, Chip, IconButton, Alert, TextField, Button } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
@@ -195,7 +195,7 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
   };
 
   // Función para geocodificar una dirección usando Google Geocoding API
-  const geocodeAddress = async (fullAddress: string): Promise<{ lat: number; lng: number } | null> => {
+  const geocodeAddress = useCallback(async (fullAddress: string): Promise<{ lat: number; lng: number } | null> => {
     try {
       const response = await fetch(
         `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(fullAddress)}&key=${apiKey}`
@@ -214,7 +214,7 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
       console.error(`❌ Error geocodificando: ${fullAddress}`, error);
       return null;
     }
-  };
+  }, [apiKey]);
 
   // Geocodificar direcciones con Google Geocoding API
   useEffect(() => {
@@ -306,6 +306,7 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
     if (apiKey && packages.length > 0 && !isProcessing) {
       geocodePackages();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [packages.length, apiKey]); // Solo depender de la cantidad de paquetes, no del objeto completo
 
   const handleMarkerClick = (marker: any) => {
@@ -365,16 +366,16 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
             </Typography>
             <ol>
               <li>Ve a: <a href="https://console.cloud.google.com/google/maps-apis" target="_blank" rel="noopener noreferrer">Google Cloud Console</a></li>
-              <li>Crea un proyecto y habilita "Maps JavaScript API"</li>
-              <li>Crea una API Key en "Credenciales"</li>
-              <li><strong>IMPORTANTE:</strong> En restricciones, selecciona "Ninguna" temporalmente</li>
+              <li>Crea un proyecto y habilita &quot;Maps JavaScript API&quot;</li>
+              <li>Crea una API Key en &quot;Credenciales&quot;</li>
+              <li><strong>IMPORTANTE:</strong> En restricciones, selecciona &quot;Ninguna&quot; temporalmente</li>
               <li>Copia el archivo <code>.env.local.example</code> a <code>.env.local</code></li>
               <li>Agrega tu API Key en el archivo <code>.env.local</code></li>
               <li>Reinicia el servidor: <code>npm run dev</code></li>
             </ol>
             <Typography variant="body2" sx={{ mt: 2, color: "error.main" }}>
-              <strong>Error común:</strong> Si ves "ApiTargetBlockedMapError", ve a Google Cloud Console y 
-              en tu API Key, cambia las restricciones a "Ninguna" temporalmente.
+              <strong>Error común:</strong> Si ves &quot;ApiTargetBlockedMapError&quot;, ve a Google Cloud Console y 
+              en tu API Key, cambia las restricciones a &quot;Ninguna&quot; temporalmente.
             </Typography>
           </Alert>
         </Box>
@@ -810,7 +811,7 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
           
           {filteredMarkers.length === 0 && searchQuery && (
             <Alert severity="info" sx={{ mb: 2, fontSize: { xs: "11px", md: "12px" } }}>
-              No se encontraron resultados para "{searchQuery}"
+              No se encontraron resultados para &quot;{searchQuery}&quot;
             </Alert>
           )}
           
