@@ -729,3 +729,32 @@
 [debug] [2026-02-09T22:49:13.147Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/systemdelivery-e610d/services/firebaseapphosting.googleapis.com [omitted]
 [debug] [2026-02-09T22:49:13.585Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/systemdelivery-e610d/services/firebasedataconnect.googleapis.com 200
 [debug] [2026-02-09T22:49:13.586Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/systemdelivery-e610d/services/firebasedataconnect.googleapis.com [omitted]
+[debug] [2026-02-09T23:42:14.495Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-02-09T23:42:14.495Z] > authorizing via signed-in user (andres.montana.r4@gmail.com)
+[debug] [2026-02-09T23:42:14.497Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-02-09T23:42:14.497Z] > authorizing via signed-in user (andres.montana.r4@gmail.com)
+[debug] [2026-02-09T23:42:14.498Z] Checked if tokens are valid: false, expires at: 1770680951579
+[debug] [2026-02-09T23:42:14.498Z] Checked if tokens are valid: false, expires at: 1770680951579
+[debug] [2026-02-09T23:42:14.498Z] > refreshing access token with scopes: []
+[debug] [2026-02-09T23:42:14.498Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-02-09T23:42:14.498Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-02-09T23:42:14.686Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2026-02-09T23:42:14.686Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-02-09T23:42:14.695Z] >>> [apiv2][query] POST https://logging.googleapis.com/v2/entries:list [none]
+[debug] [2026-02-09T23:42:14.695Z] >>> [apiv2][body] POST https://logging.googleapis.com/v2/entries:list {"resourceNames":["projects/systemdelivery-e610d"],"filter":"resource.type=\"cloud_function\" OR (resource.type=\"cloud_run_revision\" AND labels.\"goog-managed-by\"=\"cloudfunctions\")\nseverity>=\"WARNING\"","orderBy":"timestamp desc","pageSize":50}
+[debug] [2026-02-09T23:42:20.025Z] <<< [apiv2][status] POST https://logging.googleapis.com/v2/entries:list 200
+[debug] [2026-02-09T23:42:20.025Z] <<< [apiv2][body] POST https://logging.googleapis.com/v2/entries:list {"nextPageToken":"epABCosBATFVRqOPRUt0DhUu4EILEuaie9iFI06E5GNRqIrEm8akkAW2p9mNksNTbzX03BhYgpceoNCmuuudyOmH8DkKGUix_MqdTWeE6bLVJZTzOjy7pZqIGeuCUlJzlHgFb0NeTiZdQq28GupfeiGJdcPVmIJGXYtbjUN3LeWwIdgpsMIbE0cDaJSoNxxplRAA","firstProgressLatency":"0.117465238s"}
+[debug] [2026-02-09T23:43:19.884Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-02-09T23:43:19.885Z] > authorizing via signed-in user (andres.montana.r4@gmail.com)
+[debug] [2026-02-09T23:43:19.886Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-02-09T23:43:19.886Z] > authorizing via signed-in user (andres.montana.r4@gmail.com)
+[debug] [2026-02-09T23:43:19.886Z] Checked if tokens are valid: true, expires at: 1770684133686
+[debug] [2026-02-09T23:43:19.886Z] Checked if tokens are valid: true, expires at: 1770684133686
+[debug] [2026-02-09T23:43:19.886Z] >>> [apiv2][query] POST https://logging.googleapis.com/v2/entries:list [none]
+[debug] [2026-02-09T23:43:19.886Z] >>> [apiv2][body] POST https://logging.googleapis.com/v2/entries:list {"resourceNames":["projects/systemdelivery-e610d"],"filter":"resource.type=\"cloud_function\" OR (resource.type=\"cloud_run_revision\" AND labels.\"goog-managed-by\"=\"cloudfunctions\")","orderBy":"timestamp desc","pageSize":100}
+[debug] [2026-02-09T23:43:25.352Z] <<< [apiv2][status] POST https://logging.googleapis.com/v2/entries:list 200
+[debug] [2026-02-09T23:43:25.352Z] <<< [apiv2][body] POST https://logging.googleapis.com/v2/entries:list {"nextPageToken":"eo8BCooBATFVRqNfFpeXqW5Th9w1PKRoOwoXbhr4gt_Wi0HNw36kSxkFQoUDy56KmtLQWd88k2FUd_9UGklEv38AzqapEx2UdKvYL5KbEuIhyocUH8ni63z8-EKdJKSiwPy_j-BSxwVRSGTWLhjOCPym6zvESv--qDxqPU-Xjor7qVJDE2arR8wt-Ni_1DoVEAA","firstProgressLatency":"0.076431334s"}
+[debug] [2026-02-09T23:44:30.455Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-02-09T23:44:30.455Z] > authorizing via signed-in user (andres.montana.r4@gmail.com)
+[debug] [2026-02-09T23:44:30.459Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-02-09T23:44:30.460Z] > authorizing via signed-in user (andres.montana.r4@gmail.com)

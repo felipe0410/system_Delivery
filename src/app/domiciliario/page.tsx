@@ -27,24 +27,29 @@ const Page = () => {
       <Box
         sx={{
           display: "flex",
-          height: "100%",
-          alignItems: "center",
+          flexDirection: { xs: "column", md: "row" },
+          height: { xs: "auto", md: "100%" },
+          minHeight: { xs: "100vh", md: "auto" },
+          alignItems: { xs: "stretch", md: "center" },
           justifyContent: "center",
-          marginLeft: "60px",
-          paddingRight: "40px",
+          marginLeft: { xs: "0", sm: "60px" },
+          paddingRight: { xs: "0", sm: "40px" },
+          padding: { xs: "10px", sm: "0" },
+          gap: { xs: "10px", md: "10px" },
         }}
       >
         <Paper
           sx={{
-            borderRadius: "2.5rem",
+            borderRadius: { xs: "1rem", sm: "2.5rem" },
             background: "rgba(92, 104, 212, 0.33)",
             boxShadow:
               "0px 4px 4px 0px rgba(0, 0, 0, 0.25), 0px 4px 4px 0px rgba(0, 0, 0, 0.25)",
-            padding: "2%",
-            marginTop: "3rem",
-            minWidth: "80%",
-            minHeight: "17.8125rem",
-            height: "95%",
+            padding: { xs: "8px", sm: "2%" },
+            marginTop: { xs: "0.5rem", sm: "3rem" },
+            width: { xs: "100%", md: "80%" },
+            minHeight: { xs: "60vh", sm: "17.8125rem" },
+            height: { xs: "auto", md: "95%" },
+            flex: { xs: "1", md: "0 0 auto" },
           }}
         >
           <Box sx={{ height: "100%" }} id="container-table">
@@ -53,16 +58,16 @@ const Page = () => {
         </Paper>
         <Paper
           sx={{
-            borderRadius: "2.5rem",
+            borderRadius: { xs: "1rem", sm: "2.5rem" },
             background: "rgba(92, 104, 212, 0.33)",
             boxShadow:
               "0px 4px 4px 0px rgba(0, 0, 0, 0.25), 0px 4px 4px 0px rgba(0, 0, 0, 0.25)",
-            padding: "2%",
-            marginTop: "3rem",
-            minWidth: "15%",
-            minHeight: "17.8125rem",
-            height: "95%",
-            marginLeft: "10px",
+            padding: { xs: "8px", sm: "2%" },
+            marginTop: { xs: "0", sm: "3rem" },
+            width: { xs: "100%", md: "15%" },
+            minHeight: { xs: "auto", sm: "17.8125rem" },
+            height: { xs: "auto", md: "95%" },
+            marginLeft: { xs: "0", md: "10px" },
           }}
         >
           <Box sx={{ textAlign: "-webkit-center" }}>
@@ -72,7 +77,7 @@ const Page = () => {
                   color: "#0A0F37",
                   textAlign: "center",
                   fontFamily: "Nunito",
-                  fontSize: { xs: "1.5rem", sm: "2.0rem" },
+                  fontSize: { xs: "1.2rem", sm: "2.0rem" },
                   fontStyle: "normal",
                   fontWeight: 900,
                   lineHeight: "normal",
@@ -82,7 +87,7 @@ const Page = () => {
               </Typography>
             </Box>
           </Box>
-          <Box id="container-adicional" sx={{ height: "90%" }} mt={4}>
+          <Box id="container-adicional" sx={{ height: { xs: "auto", md: "90%" } }} mt={{ xs: 2, md: 4 }}>
             <Sidebar />
           </Box>
         </Paper>

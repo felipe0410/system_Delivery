@@ -69,26 +69,28 @@ const Sidebar = () => {
   return (
     <Box
       sx={{
-        height: "90%",
+        height: { xs: "auto", md: "90%" },
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        justifyContent: "space-around",
+        justifyContent: { xs: "flex-start", md: "space-around" },
+        gap: { xs: "1rem", md: "0" },
       }}
     >
       <Box
         sx={{
           backgroundColor: "#FFF",
-          borderRadius: "2rem",
-          padding: "1rem",
-          marginBottom: "2rem",
-          width: "230px",
+          borderRadius: { xs: "1rem", sm: "2rem" },
+          padding: { xs: "0.75rem", sm: "1rem" },
+          marginBottom: { xs: "1rem", md: "2rem" },
+          width: { xs: "100%", sm: "230px" },
+          maxWidth: "230px",
         }}
       >
         <Typography
           sx={{
             fontFamily: "Nunito",
-            fontSize: { xs: "10px", sm: "20px" },
+            fontSize: { xs: "14px", sm: "20px" },
             fontStyle: "normal",
             fontWeight: 800,
             lineHeight: "normal",
@@ -97,7 +99,7 @@ const Sidebar = () => {
           Resumen
         </Typography>
         <Box sx={{ display: "flex", flexDirection: "row" }}>
-          <Typography sx={{ textAlign: "center", alignContent: "center" }}>
+          <Typography sx={{ textAlign: "center", alignContent: "center", fontSize: { xs: "12px", sm: "14px" } }}>
             Base:{" "}
           </Typography>
           <Chip
@@ -162,16 +164,17 @@ const Sidebar = () => {
       <Box
         sx={{
           backgroundColor: "#FFF",
-          borderRadius: "2rem",
-          padding: "1rem",
-          marginBottom: "2rem",
-          width: "230px",
+          borderRadius: { xs: "1rem", sm: "2rem" },
+          padding: { xs: "0.75rem", sm: "1rem" },
+          marginBottom: { xs: "1rem", md: "2rem" },
+          width: { xs: "100%", sm: "230px" },
+          maxWidth: "230px",
         }}
       >
         <Typography
           sx={{
             fontFamily: "Nunito",
-            fontSize: { xs: "10px", sm: "20px" },
+            fontSize: { xs: "14px", sm: "20px" },
             fontStyle: "normal",
             fontWeight: 800,
             lineHeight: "normal",
@@ -187,7 +190,7 @@ const Sidebar = () => {
             background: "#73d5a0",
             color: "#006400",
             fontWeight: 500,
-            fontSize: "18px",
+            fontSize: { xs: "14px", sm: "18px" },
           }}
           variant="outlined"
           label={formattedTotal ?? ""}
@@ -196,6 +199,7 @@ const Sidebar = () => {
           <Typography
             sx={{
               fontWeight: 800,
+              fontSize: { xs: "12px", sm: "14px" },
             }}
           >
             TOTAL

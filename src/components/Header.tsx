@@ -50,8 +50,7 @@ function Header() {
                 position: "absolute",
                 right: "0px",
               }}
-              alt='Cindy Baker'
-              src='/2.jpg'
+              alt='User Avatar'
             />
           </Paper>
 

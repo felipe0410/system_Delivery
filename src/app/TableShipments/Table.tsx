@@ -440,17 +440,19 @@ export default function BasicTable({ tableData }: { tableData: any }) {
                 >
                   <>
                     {row?.destinatario?.celular ? (
-                      <Link
-                        href={`tel:${row.destinatario.celular}`}
-                        color="inherit"
-                        underline="none"
-                      >
-                        {row.destinatario.celular}
-                        <Box sx={{ display: "flex" }}>
-                          <IconButton color="primary" aria-label="Llamar">
+                      <Box>
+                        <Link
+                          href={`tel:${row.destinatario.celular}`}
+                          color="inherit"
+                          underline="none"
+                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        >
+                          {row.destinatario.celular}
+                          <IconButton color="primary" aria-label="Llamar" size="small">
                             <LocalPhoneIcon />
                           </IconButton>
-                          <Link
+                        </Link>
+                        <Link
                             href={`https://wa.me/${row?.destinatario?.celular
                               ? row.destinatario.celular.startsWith("+57")
                                 ? row.destinatario.celular
@@ -470,12 +472,12 @@ export default function BasicTable({ tableData }: { tableData: any }) {
                             <IconButton
                               color="success"
                               aria-label="Enviar mensaje por WhatsApp"
+                              size="small"
                             >
                               <WhatsAppIcon />
                             </IconButton>
                           </Link>
-                        </Box>
-                      </Link>
+                      </Box>
                     ) : (
                       "No tiene"
                     )}

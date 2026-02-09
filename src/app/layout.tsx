@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
+import ErrorDisplay from "@/components/ErrorDisplay";
 import { Box } from "@mui/material";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
@@ -35,6 +36,29 @@ export default function RootLayout({
 
   return (
     <html lang="en" style={{ height: "100%" }}>
+      <head>
+        {/* Eruda - Inspector de consola para móviles (solo en desarrollo) */}
+        {process.env.NODE_ENV === 'development' && (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                (function () {
+                  if (typeof window !== 'undefined') {
+                    window.addEventListener('DOMContentLoaded', function() {
+                      var script = document.createElement('script');
+                      script.src = "https://cdn.jsdelivr.net/npm/eruda";
+                      document.body.appendChild(script);
+                      script.onload = function () {
+                        eruda.init();
+                      }
+                    });
+                  }
+                })();
+              `,
+            }}
+          />
+        )}
+      </head>
       <body
         style={{
           height: "100%",
@@ -94,6 +118,8 @@ export default function RootLayout({
             )
           </>
         )}
+        {/* Mostrar errores en pantalla (solo desarrollo) */}
+        {process.env.NODE_ENV === 'development' && <ErrorDisplay />}
       </body>
     </html>
   );

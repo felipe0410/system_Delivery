@@ -71,20 +71,28 @@ const ContainerChildren = ({
             alignItems: "center",
           }}
         >
-          <Typography
-            align="center"
+          <Box
             sx={{
-              color: "#FFF",
-              textShadow: "0px 0px 20px #69EAE2",
-              fontFamily: "Nunito",
-              fontSize: { xs: "8rem", sm: "12.75rem" },
-              fontStyle: "normal",
-              fontWeight: 800,
-              lineHeight: "normal",
-              animation: `${myAnim} 2s ease 0s 1 normal forwards`,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
             }}
           >
-            Interrapisino
+            <Typography
+              align="center"
+              sx={{
+                color: "#FFF",
+                textShadow: "0px 0px 20px #69EAE2",
+                fontFamily: "Nunito",
+                fontSize: { xs: "8rem", sm: "12.75rem" },
+                fontStyle: "normal",
+                fontWeight: 800,
+                lineHeight: "normal",
+                animation: `${myAnim} 2s ease 0s 1 normal forwards`,
+              }}
+            >
+              Interrapisino
+            </Typography>
             <Typography
               align="center"
               sx={{
@@ -99,7 +107,7 @@ const ContainerChildren = ({
             >
               Bienvenido
             </Typography>
-          </Typography>
+          </Box>
         </Box>
       )}
     </>
