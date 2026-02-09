@@ -44,6 +44,14 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Shipments from "../Shipments/page";
 import { serverTimestamp } from "firebase/firestore";
+import { 
+  validatePassword as validatePasswordUtil,
+  getFrequentPasswords,
+  saveFrequentPassword as saveFrequentPasswordUtil,
+  removeFrequentPassword as removeFrequentPasswordUtil,
+  updatePasswordUsage,
+  FrequentPassword
+} from "@/utils/passwordUtils";
 
 export interface GuideData {
   guide: string;
@@ -58,6 +66,9 @@ export interface GuideData {
 const Page = () => {
   const [password, setPassword] = useState("");
   const [step, setStep] = useState(0);
+  const [frequentPasswords, setFrequentPasswords] = useState<FrequentPassword[]>([]);
+  const [showFrequentPasswords, setShowFrequentPasswords] = useState(false);
+  const [showFrequentPasswordsText, setShowFrequentPasswordsText] = useState(true); // Por defecto mostrar contraseñas
   const [guide, setGuide] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [valor, setValor] = useState(0);
@@ -78,6 +89,85 @@ const Page = () => {
   const [num, setNumm] = useState(0);
   const [valorFormateado, setValorFormateado] = useState<string>(""); // Valor con formato ($121.200)
 
+
+  // Función para cargar claves frecuentes desde localStorage
+  const loadFrequentPasswords = () => {
+    const saved = getFrequentPasswords();
+    setFrequentPasswords(saved);
+  };
+
+  // Función para guardar una nueva clave frecuente
+  const saveFrequentPassword = (newPassword: string) => {
+    const success = saveFrequentPasswordUtil(newPassword);
+    
+    if (success) {
+      loadFrequentPasswords(); // Recargar la lista
+      const wasExisting = frequentPasswords.some(p => p.password === newPassword);
+      
+      if (!wasExisting) {
+        enqueueSnackbar("✅ Contraseña guardada como frecuente", {
+          variant: "success",
+          anchorOrigin: {
+            vertical: "top",
+            horizontal: "right",
+          },
+        });
+      }
+    } else {
+      enqueueSnackbar("❌ Error al guardar la contraseña", {
+        variant: "error",
+        anchorOrigin: {
+          vertical: "top",
+          horizontal: "right",
+        },
+      });
+    }
+  };
+
+  // Función para eliminar una clave frecuente
+  const removeFrequentPassword = (passwordToRemove: string) => {
+    const success = removeFrequentPasswordUtil(passwordToRemove);
+    
+    if (success) {
+      loadFrequentPasswords(); // Recargar la lista
+      enqueueSnackbar("🗑️ Contraseña eliminada", {
+        variant: "info",
+        anchorOrigin: {
+          vertical: "top",
+          horizontal: "right",
+        },
+      });
+    }
+  };
+
+  // Función para usar una clave frecuente
+  const useFrequentPassword = (passwordToUse: string) => {
+    setPassword(passwordToUse);
+    updatePasswordUsage(passwordToUse);
+    loadFrequentPasswords(); // Recargar para actualizar el orden
+    
+    enqueueSnackbar("🔑 Contraseña seleccionada", {
+      variant: "success",
+      anchorOrigin: {
+        vertical: "top",
+        horizontal: "right",
+      },
+    });
+    
+    // Auto-continuar después de seleccionar contraseña frecuente
+    setTimeout(async () => {
+      const isValid = await validatePassword(passwordToUse);
+      if (isValid) {
+        localStorage.setItem("password", passwordToUse);
+        setStep(1);
+      }
+    }, 500);
+  };
+
+  // Función para validar contraseña
+  const validatePassword = async (inputPassword: string): Promise<boolean> => {
+    return await validatePasswordUtil(inputPassword);
+  };
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
@@ -346,6 +436,7 @@ const Page = () => {
   }, [load, timer]);
 
   useEffect(() => {
+    loadFrequentPasswords();
     allDataFunction();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -847,20 +938,153 @@ const Page = () => {
               fontWeight: 700,
             }}
           >
-            INGRESA LA CONTRASEÑA
+            SELECCIONA O INGRESA CONTRASEÑA
           </Typography>
 
           <Typography
             sx={{
               textAlign: "center",
-              fontSize: "20px",
+              fontSize: "18px",
               fontFamily: "Nunito",
-              marginY: "10px",
+              marginY: "15px",
+              color: "#555",
             }}
           >
-            Asegurate que la contraseña debe ser la misma que se utiliza para
-            ingresara controller y a la pagina de consulta de interrapidisimo
+            Debe ser la misma contraseña del controller e interrapidisimo
           </Typography>
+
+          {/* Mostrar claves frecuentes directamente si existen */}
+          {frequentPasswords.length > 0 && (
+            <Box sx={{ marginY: "20px", textAlign: "center" }}>
+              <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "15px", marginBottom: "15px" }}>
+                <Typography
+                  sx={{
+                    fontSize: "18px",
+                    fontFamily: "Nunito",
+                    fontWeight: 600,
+                    color: "#333",
+                  }}
+                >
+                  Contraseñas Frecuentes:
+                </Typography>
+                <IconButton
+                  onClick={() => setShowFrequentPasswordsText(!showFrequentPasswordsText)}
+                  sx={{
+                    background: showFrequentPasswordsText ? "#4CAF50" : "#FFA726",
+                    color: "#fff",
+                    width: "35px",
+                    height: "35px",
+                    "&:hover": { 
+                      background: showFrequentPasswordsText ? "#45A049" : "#FB8C00",
+                      transform: "scale(1.1)"
+                    },
+                  }}
+                  title={showFrequentPasswordsText ? "Ocultar contraseñas" : "Mostrar contraseñas"}
+                >
+                  {showFrequentPasswordsText ? <Visibility sx={{ fontSize: "20px" }} /> : <VisibilityOff sx={{ fontSize: "20px" }} />}
+                </IconButton>
+              </Box>
+              
+              <Box sx={{ 
+                display: "flex", 
+                flexWrap: "wrap", 
+                gap: "12px", 
+                justifyContent: "center",
+                marginBottom: "20px"
+              }}>
+                {frequentPasswords
+                  .sort((a, b) => b.lastUsed - a.lastUsed) // Ordenar por último uso
+                  .map((freq, index) => {
+                    const isLastUsed = index === 0; // La primera es la última usada
+                    const displayPassword = showFrequentPasswordsText ? freq.password : "••••••••";
+                    
+                    return (
+                      <Box key={index} sx={{ position: "relative" }}>
+                        {isLastUsed && (
+                          <Box
+                            sx={{
+                              position: "absolute",
+                              top: "-8px",
+                              left: "-8px",
+                              background: "#4CAF50",
+                              color: "#fff",
+                              borderRadius: "50%",
+                              width: "24px",
+                              height: "24px",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              fontSize: "12px",
+                              fontWeight: "bold",
+                              zIndex: 2,
+                            }}
+                          >
+                            ★
+                          </Box>
+                        )}
+                        <Button
+                          onClick={() => useFrequentPassword(freq.password)}
+                          sx={{
+                            background: isLastUsed ? "#E8F5E8" : "#E3F2FD",
+                            color: isLastUsed ? "#2E7D32" : "#1976D2",
+                            borderRadius: "25px",
+                            padding: "12px 20px",
+                            fontSize: "14px",
+                            fontWeight: 600,
+                            minWidth: "140px",
+                            maxWidth: "200px",
+                            border: `2px solid ${isLastUsed ? "#4CAF50" : "#1976D2"}`,
+                            textTransform: "none",
+                            "&:hover": { 
+                              background: isLastUsed ? "#C8E6C9" : "#BBDEFB",
+                              transform: "scale(1.05)"
+                            },
+                          }}
+                        >
+                          <Box sx={{ textAlign: "center", width: "100%" }}>
+                            <Box sx={{ 
+                              fontFamily: "monospace", 
+                              fontSize: "16px",
+                              fontWeight: "bold",
+                              marginBottom: "4px",
+                              wordBreak: "break-all"
+                            }}>
+                              {displayPassword}
+                            </Box>
+                            <Box sx={{ fontSize: "11px", opacity: 0.8 }}>
+                              {isLastUsed && "🌟 Última usada • "}
+                              Usado {freq.usageCount} veces
+                            </Box>
+                          </Box>
+                        </Button>
+                        <IconButton
+                          onClick={() => removeFrequentPassword(freq.password)}
+                          sx={{
+                            position: "absolute",
+                            top: "-8px",
+                            right: "-8px",
+                            background: "#F44336",
+                            color: "#fff",
+                            width: "24px",
+                            height: "24px",
+                            "&:hover": { background: "#D32F2F", transform: "scale(1.1)" },
+                          }}
+                        >
+                          <DeleteIcon sx={{ fontSize: "16px" }} />
+                        </IconButton>
+                      </Box>
+                    );
+                  })}
+              </Box>
+              
+              <Divider sx={{ marginY: "15px" }}>
+                <Typography sx={{ color: "#666", fontSize: "14px" }}>
+                  O ingresa una nueva
+                </Typography>
+              </Divider>
+            </Box>
+          )}
+
           <Box sx={{ width: "100%", textAlignLast: "center" }}>
             <FormControl
               id="form-control"
@@ -868,12 +1092,13 @@ const Page = () => {
               variant="outlined"
             >
               <InputLabel htmlFor="outlined-adornment-password">
-                Password
+                Nueva Contraseña
               </InputLabel>
               <OutlinedInput
                 sx={{ background: "#ffffff" }}
                 id="outlined-adornment-password"
                 type={showPassword ? "text" : "password"}
+                value={password}
                 endAdornment={
                   <InputAdornment position="end">
                     <IconButton
@@ -887,15 +1112,38 @@ const Page = () => {
                   </InputAdornment>
                 }
                 onChange={(e) => setPassword(e.target.value)}
-                label="Password"
+                label="Nueva Contraseña"
               />
             </FormControl>
           </Box>
-          <Box sx={{ textAlignLast: "center" }}>
+
+          <Box sx={{ textAlignLast: "center", display: "flex", flexDirection: "column", gap: "10px" }}>
             <Button
-              onClick={() => {
-                localStorage.setItem("password", password);
-                setStep(1);
+              onClick={async () => {
+                const isValid = await validatePassword(password);
+                if (isValid) {
+                  localStorage.setItem("password", password);
+                  
+                  // Inteligencia: preguntar si guardar como frecuente solo si es nueva
+                  const isExisting = frequentPasswords.some(p => p.password === password);
+                  if (!isExisting && password.length > 0) {
+                    // Auto-guardar como frecuente si no existe
+                    saveFrequentPassword(password);
+                  } else if (isExisting) {
+                    // Solo actualizar uso si ya existe
+                    updatePasswordUsage(password);
+                  }
+                  
+                  setStep(1);
+                } else {
+                  enqueueSnackbar("Contraseña inválida", {
+                    variant: "error",
+                    anchorOrigin: {
+                      vertical: "top",
+                      horizontal: "right",
+                    },
+                  });
+                }
               }}
               disabled={!(password.length > 0)}
               sx={{
@@ -903,18 +1151,21 @@ const Page = () => {
                 boxShadow: "0px 4px 4px 0px #00000040",
                 color: "#fff",
                 margin: "0 auto",
-                marginY: "20px",
+                marginY: "10px",
                 borderRadius: "15px",
                 fontFamily: "Nunito",
                 fontSize: "25px",
                 fontWeight: 600,
                 lineHeight: "27.28px",
                 textAlign: "center",
-                padding: "10px",
-                "&:hover": { backgroundColor: "#5C68D4", opacity: "50%" },
+                padding: "15px 30px",
+                "&:hover": { 
+                  backgroundColor: password.length > 0 ? "#4A56C2" : "#adadb0", 
+                  transform: password.length > 0 ? "scale(1.02)" : "none"
+                },
               }}
             >
-              GUARDAR
+              CONTINUAR
             </Button>
           </Box>
         </Paper>

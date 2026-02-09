@@ -28,6 +28,9 @@ import DeliveryModal from "@/components/confirmTable/detailGuide";
 import DevolucionModal from "./Devolucion";
 import EntregarModal from "./Entregar";
 import PaidIcon from "@mui/icons-material/Paid";
+import MapIcon from "@mui/icons-material/Map";
+import DirectionsIcon from "@mui/icons-material/Directions";
+import MapView from "./MapView";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -56,6 +59,8 @@ export default function TableDomi() {
   const [firebaseData, setFirebaseData] = useState<any[]>([]);
   const [selectedRows, setSelectedRows] = useState<any[]>([]);
   const [inputValue, setInputValue] = useState("");
+  const [showMap, setShowMap] = useState(false);
+  
   const handleSelectionChange = (newSelectedRows: any[]) => {
     setSelectedRows(newSelectedRows);
   };
@@ -129,6 +134,106 @@ export default function TableDomi() {
     }
   };
 
+  const cleanAddress = (address: string): string => {
+    // Limpiar caracteres raros y formatear dirección
+    return address
+      .replace(/�/g, '') // Quitar caracteres raros
+      .replace(/\s*,\s*\.\s*,\s*\.\s*/g, '') // Quitar ", ., ."
+      .replace(/\s*,\s*\.\s*/g, '') // Quitar ", ."
+      .replace(/\s+/g, ' ') // Normalizar espacios
+      .trim();
+  };
+
+  const handleOpenMapsRoute = () => {
+    // Usar todos los paquetes del día si no hay selección
+    const packagesToRoute = selectedRows.length > 0 ? selectedRows : firebaseData;
+
+    if (packagesToRoute.length === 0) {
+      enqueueSnackbar("No hay paquetes disponibles para generar la ruta", {
+        variant: "warning",
+        autoHideDuration: 3000,
+      });
+      return;
+    }
+
+    // Filtrar paquetes que tengan dirección válida y limpiarlas
+    const packagesWithAddress = packagesToRoute
+      .filter((pkg) => pkg?.destinatario?.direccion && pkg.destinatario.direccion.trim() !== "")
+      .map((pkg) => ({
+        ...pkg,
+        cleanedAddress: cleanAddress(pkg.destinatario.direccion),
+        fullAddress: `${cleanAddress(pkg.destinatario.direccion)}, ${pkg.destino || 'Aquitania, Boyacá'}`,
+      }));
+
+    if (packagesWithAddress.length === 0) {
+      enqueueSnackbar("Los paquetes no tienen direcciones válidas", {
+        variant: "error",
+        autoHideDuration: 3000,
+      });
+      return;
+    }
+
+    // Google Maps limita a 10 waypoints + origen + destino = 12 puntos máximo
+    const MAX_WAYPOINTS = 9; // Dejamos espacio para origen y destino
+    
+    if (packagesWithAddress.length <= MAX_WAYPOINTS + 2) {
+      // Si caben todos en una ruta
+      const addresses = packagesWithAddress.map(pkg => pkg.fullAddress);
+      const origin = addresses[0];
+      const destination = addresses[addresses.length - 1];
+      const waypoints = addresses.slice(1, -1).join("|");
+
+      let mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&travelmode=driving`;
+      
+      if (waypoints) {
+        mapsUrl += `&waypoints=${encodeURIComponent(waypoints)}`;
+      }
+
+      window.open(mapsUrl, "_blank");
+      enqueueSnackbar(`Ruta generada con ${packagesWithAddress.length} parada(s)`, {
+        variant: "success",
+        autoHideDuration: 2000,
+      });
+    } else {
+      // Dividir en grupos de 10
+      const groups = [];
+      for (let i = 0; i < packagesWithAddress.length; i += 10) {
+        groups.push(packagesWithAddress.slice(i, i + 10));
+      }
+
+      enqueueSnackbar(
+        `Son ${packagesWithAddress.length} paquetes. Se abrirán ${groups.length} rutas de máximo 10 paradas cada una.`,
+        {
+          variant: "info",
+          autoHideDuration: 5000,
+        }
+      );
+
+      // Abrir cada grupo en una pestaña diferente con un pequeño delay
+      groups.forEach((group, index) => {
+        setTimeout(() => {
+          const addresses = group.map(pkg => pkg.fullAddress);
+          const origin = addresses[0];
+          const destination = addresses[addresses.length - 1];
+          const waypoints = addresses.slice(1, -1).join("|");
+
+          let mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&travelmode=driving`;
+          
+          if (waypoints) {
+            mapsUrl += `&waypoints=${encodeURIComponent(waypoints)}`;
+          }
+
+          window.open(mapsUrl, "_blank");
+        }, index * 1000); // 1 segundo de delay entre cada pestaña
+      });
+    }
+  };
+
+  const handleShowAllMarkers = () => {
+    // Abrir vista de mapa interactivo
+    setShowMap(true);
+  };
+
 
   useEffect(() => {
     const status = "mensajero";
@@ -138,6 +243,12 @@ export default function TableDomi() {
   useEffect(() => {
     setSelectedRows([]);
   }, [firebaseData]);
+
+  // Mostrar mapa si está activo
+  if (showMap) {
+    const packagesToShow = selectedRows.length > 0 ? selectedRows : firebaseData;
+    return <MapView packages={packagesToShow} onClose={() => setShowMap(false)} />;
+  }
 
   return (
     <SnackbarProvider
@@ -318,6 +429,62 @@ export default function TableDomi() {
             popupIcon={<QrCodeScannerIcon fontSize="inherit" />}
             sx={{ width: "60%", marginTop: "1rem" }}
           />
+        </Box>
+        <Box
+          sx={{
+            marginTop: "2rem",
+            textAlign: "center",
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-evenly",
+            gap: "1rem",
+          }}
+        >
+          <Button
+            variant="contained"
+            startIcon={<DirectionsIcon />}
+            onClick={handleOpenMapsRoute}
+            sx={{
+              backgroundColor: "#4285F4",
+              color: "#fff",
+              fontWeight: 700,
+              fontSize: "14px",
+              padding: "12px 20px",
+              borderRadius: "8px",
+              textTransform: "none",
+              "&:hover": {
+                backgroundColor: "#357AE8",
+              },
+            }}
+          >
+            {selectedRows.length > 0 
+              ? `Ruta Optimizada (${selectedRows.length})` 
+              : `Ruta del Día (${firebaseData.length})`
+            }
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<MapIcon />}
+            onClick={handleShowAllMarkers}
+            sx={{
+              borderColor: "#34A853",
+              color: "#34A853",
+              fontWeight: 700,
+              fontSize: "14px",
+              padding: "12px 20px",
+              borderRadius: "8px",
+              textTransform: "none",
+              "&:hover": {
+                borderColor: "#2D8E47",
+                backgroundColor: "rgba(52, 168, 83, 0.1)",
+              },
+            }}
+          >
+            {selectedRows.length > 0 
+              ? `Ver Mapa (${selectedRows.length})` 
+              : `Ver Mapa Completo (${firebaseData.length})`
+            }
+          </Button>
         </Box>
         <Box
           sx={{

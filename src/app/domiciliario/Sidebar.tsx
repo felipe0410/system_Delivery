@@ -293,7 +293,7 @@ const Sidebar = () => {
             }}
           />
           <Typography sx={{ textAlign: "center", alignContent: "center" }}>
-            {"Laly Chaparro"}
+            {"Heiber Barinas"}
           </Typography>
         </Box>
       </Box>
