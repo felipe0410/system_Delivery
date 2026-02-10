@@ -74,7 +74,6 @@ export default function RootLayout({
           <>{children}</>
         ) : (
           <>
-            (
             <Box
               id="Container Sidebar"
               sx={{
@@ -115,11 +114,10 @@ export default function RootLayout({
                 </>
               }
             </Box>
-            )
           </>
         )}
-        {/* Mostrar errores en pantalla (solo desarrollo) */}
-        {process.env.NODE_ENV === 'development' && <ErrorDisplay />}
+        {/* Mostrar errores en pantalla (solo desarrollo) - DESHABILITADO TEMPORALMENTE */}
+        {/* {process.env.NODE_ENV === 'development' && <ErrorDisplay />} */}
       </body>
     </html>
   );

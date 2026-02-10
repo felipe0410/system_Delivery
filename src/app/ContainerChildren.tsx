@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { Box, Typography } from "@mui/material";
 import { keyframes } from "@emotion/react";
 import { useCookies } from "react-cookie";
@@ -13,6 +14,8 @@ const ContainerChildren = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [cookies] = useCookies(["user"]);
+  const router = useRouter();
+  const pathname = usePathname();
 
   const [validation, setValidation] = useState(false);
   const validationCookie = cookies?.user?.length > 0;
@@ -20,25 +23,24 @@ const ContainerChildren = ({
   useEffect(() => {
     if (validationCookie) {
       if (validationRoutes) {
-        window.location.href = "/TableShipments";
-        setTimeout(() => {
+        // Solo redirigir si no estamos ya en una ruta válida
+        if (pathname === "/sign_in" || pathname === "/sign_up") {
+          router.push("/TableShipments");
+        } else {
           setValidation(true);
-        }, 2000);
+        }
       } else {
         setValidation(true);
       }
     } else {
       if (!validationRoutes) {
-        window.location.href = "/sign_in";
-        setTimeout(() => {
-          setValidation(true);
-        }, 2000);
+        router.push("/sign_in");
       } else {
         setValidation(true);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [validationCookie, validationRoutes, pathname]);
 
   const myAnim = keyframes`
     0% {
