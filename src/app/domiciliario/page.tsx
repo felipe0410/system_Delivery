@@ -1,6 +1,5 @@
 "use client";
 import ConfirmTable from "@/components/confirmTable/ConfirmTable";
-import { getAllShipmentsData } from "@/firebase/firebase";
 import { Box, Paper, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import TableDomi from "./TableDomi";
@@ -13,10 +12,14 @@ const Page = () => {
   useEffect(() => {
     const getFirebaseData = async () => {
       try {
-        const dataRef = await getAllShipmentsData();
-        setFirebaseData(dataRef);
+        // Usar getFilteredShipmentsData en lugar de getAllShipmentsData
+        // Solo trae envíos con status "mensajero" u "oficina"
+        const { getFilteredShipmentsData } = await import("@/firebase/firebase");
+        const dataRef = await getFilteredShipmentsData();
+        setFirebaseData(dataRef || []);
       } catch (error) {
         console.error("Error fetching data:", error);
+        setFirebaseData([]);
       }
     };
     getFirebaseData();

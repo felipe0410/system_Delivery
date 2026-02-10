@@ -34,6 +34,8 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
   const [center, setCenter] = useState(defaultCenter);
   const [editingPackage, setEditingPackage] = useState<any>(null);
   const [editedAddress, setEditedAddress] = useState("");
+  const [editingPhone, setEditingPhone] = useState<any>(null);
+  const [editedPhone, setEditedPhone] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [showSidebar, setShowSidebar] = useState(true);
@@ -143,6 +145,48 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
     } catch (error) {
       console.error("Error guardando dirección:", error);
       alert("❌ Error al guardar la dirección");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Función para guardar teléfono editado
+  const saveEditedPhone = async () => {
+    if (!editingPhone || !editedPhone.trim()) return;
+    
+    setIsSaving(true);
+    try {
+      const { updatedShipments } = await import("@/firebase/firebase");
+      
+      // Guardar el teléfono editado en Firebase
+      await updatedShipments(editingPhone.id, {
+        "destinatario.celular": editedPhone,
+        editedPhone: editedPhone, // Campo adicional para tracking
+      });
+      
+      // Actualizar marcador en el mapa
+      setMarkers(prev => prev.map(m => 
+        m.id === editingPhone.id 
+          ? { 
+              ...m, 
+              package: {
+                ...m.package,
+                destinatario: {
+                  ...m.package.destinatario,
+                  celular: editedPhone
+                },
+                editedPhone: editedPhone
+              }
+            }
+          : m
+      ));
+      
+      alert("✅ Teléfono actualizado correctamente");
+      setEditingPhone(null);
+      setEditedPhone("");
+    } catch (error) {
+      console.error("Error guardando teléfono:", error);
+      alert("❌ Error al guardar el teléfono");
     } finally {
       setIsSaving(false);
     }
@@ -565,20 +609,55 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
                     </Box>
                     <Box sx={{ mt: 1.5, display: "flex", gap: 1, flexWrap: "wrap" }}>
                       {selectedPackage.package.destinatario?.celular && (
-                        <Chip
-                          label="📞 Llamar"
-                          component="a"
-                          href={`tel:${selectedPackage.package.destinatario.celular}`}
-                          clickable
-                          sx={{
-                            backgroundColor: "#34A853",
-                            color: "#fff",
-                            fontWeight: 700,
-                            "&:hover": {
-                              backgroundColor: "#2D8E47",
-                            },
-                          }}
-                        />
+                        <>
+                          <Chip
+                            label="📞 Llamar"
+                            component="a"
+                            href={`tel:${selectedPackage.package.destinatario.celular}`}
+                            clickable
+                            sx={{
+                              backgroundColor: "#34A853",
+                              color: "#fff",
+                              fontWeight: 700,
+                              "&:hover": {
+                                backgroundColor: "#2D8E47",
+                              },
+                            }}
+                          />
+                          <Chip
+                            label="💬 No Ubicado"
+                            component="a"
+                            href={(() => {
+                              const rawPhone = selectedPackage.package.destinatario.celular;
+                              const sanitizedPhone = rawPhone?.replace(/\D/g, "") ?? "";
+                              const fullPhone = sanitizedPhone.startsWith("57")
+                                ? `+${sanitizedPhone}`
+                                : `+57${sanitizedPhone}`;
+                              const message = 
+                                `Hola, soy el mensajero de *INTERRAPIDISIMO AQUITANIA*.\n\n` +
+                                `Pasé por su domicilio pero no fue posible ubicarlo/a para entregarle su paquete:\n\n` +
+                                `📦 *Guía:* ${selectedPackage.package.uid}\n` +
+                                `👤 *Destinatario:* ${selectedPackage.package.addressee}\n` +
+                                `💰 *Valor:* ${selectedPackage.package.shippingCost || "$ 0"}\n` +
+                                `#️⃣ *Número de paquete:* ${selectedPackage.package.packageNumber || "N/A"}\n` +
+                                `📦 *Caja:* ${selectedPackage.package.box || "N/A"}\n\n` +
+                                `Para reclamar su paquete, por favor diríjase a:\n` +
+                                `📍 *PAPELERIA DONDE NAZLY*\n\n` +
+                                `Es el único punto físico autorizado para reclamar correspondencia de *INTERRAPIDISIMO* en Aquitania.`;
+                              return `https://wa.me/${fullPhone}?text=${encodeURIComponent(message)}`;
+                            })()}
+                            target="_blank"
+                            clickable
+                            sx={{
+                              backgroundColor: "#FF9800",
+                              color: "#fff",
+                              fontWeight: 700,
+                              "&:hover": {
+                                backgroundColor: "#F57C00",
+                              },
+                            }}
+                          />
+                        </>
                       )}
                       <Chip
                         icon={<NavigationIcon />}
@@ -797,6 +876,95 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
               </Box>
             </Box>
           )}
+
+          {/* Modal de edición de teléfono */}
+          {editingPhone && (
+            <Box
+              sx={{
+                position: "sticky",
+                top: 0,
+                zIndex: 10,
+                backgroundColor: "#fff",
+                padding: { xs: "12px", md: "16px" },
+                borderRadius: "8px",
+                border: "2px solid #FF9800",
+                mb: 2,
+                boxShadow: "0 4px 6px rgba(0,0,0,0.1)"
+              }}
+            >
+              <Typography 
+                variant="subtitle2" 
+                sx={{ 
+                  fontWeight: 700, 
+                  mb: 1,
+                  fontSize: { xs: "13px", md: "14px" },
+                }}
+              >
+                Editar Teléfono
+              </Typography>
+              <Typography 
+                variant="caption" 
+                sx={{ 
+                  display: "block", 
+                  mb: 1, 
+                  color: "#666",
+                  fontSize: { xs: "11px", md: "12px" },
+                }}
+              >
+                {editingPhone.package.addressee}
+              </Typography>
+              <TextField
+                fullWidth
+                size="small"
+                value={editedPhone}
+                onChange={(e) => setEditedPhone(e.target.value)}
+                placeholder="Ej: 3105762035"
+                type="tel"
+                sx={{ 
+                  mb: 1,
+                  "& .MuiInputBase-input": {
+                    fontSize: { xs: "12px", md: "14px" },
+                  }
+                }}
+              />
+              <Box sx={{ display: "flex", gap: { xs: 0.5, md: 1 } }}>
+                <Button
+                  size="small"
+                  variant="contained"
+                  onClick={saveEditedPhone}
+                  disabled={isSaving || !editedPhone.trim()}
+                  sx={{ 
+                    flex: 1, 
+                    textTransform: "none",
+                    fontSize: { xs: "11px", md: "13px" },
+                    py: { xs: 0.5, md: 0.75 },
+                    backgroundColor: "#FF9800",
+                    "&:hover": {
+                      backgroundColor: "#F57C00"
+                    }
+                  }}
+                >
+                  {isSaving ? "Guardando..." : "Guardar"}
+                </Button>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={() => {
+                    setEditingPhone(null);
+                    setEditedPhone("");
+                  }}
+                  disabled={isSaving}
+                  sx={{ 
+                    textTransform: "none",
+                    fontSize: { xs: "11px", md: "13px" },
+                    py: { xs: 0.5, md: 0.75 },
+                  }}
+                >
+                  Cancelar
+                </Button>
+              </Box>
+            </Box>
+          )}
           
           <Alert 
             severity="info" 
@@ -894,37 +1062,97 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
                 🏙️ {marker.package.destino || "Aquitania, Boyacá"}
               </Typography>
               
-              {/* Teléfono con botón de llamada */}
+              {/* Teléfono con botones de llamada y WhatsApp */}
               {marker.package.destinatario?.celular && (
-                <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 1 }}>
-                  <Typography 
-                    variant="body2" 
-                    sx={{ 
-                      fontSize: { xs: "10px", md: "11px" }, 
-                      color: "#666",
-                      flex: 1,
-                    }}
-                  >
-                    📱 {marker.package.destinatario.celular}
-                  </Typography>
-                  <Button
-                    size="small"
-                    variant="contained"
-                    href={`tel:${marker.package.destinatario.celular}`}
-                    sx={{
-                      fontSize: { xs: "9px", md: "10px" },
-                      textTransform: "none",
-                      minWidth: "auto",
-                      px: { xs: 1, md: 1.5 },
-                      py: { xs: 0.25, md: 0.5 },
-                      backgroundColor: "#34A853",
-                      "&:hover": {
-                        backgroundColor: "#2D8E47"
-                      }
-                    }}
-                  >
-                    📞 Llamar
-                  </Button>
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5, mb: 1 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                    <Typography 
+                      variant="body2" 
+                      sx={{ 
+                        fontSize: { xs: "10px", md: "11px" }, 
+                        color: "#666",
+                        flex: 1,
+                      }}
+                    >
+                      📱 {marker.package.destinatario.celular}
+                    </Typography>
+                    <Button
+                      size="small"
+                      variant="text"
+                      onClick={() => {
+                        setEditingPhone(marker);
+                        setEditedPhone(marker.package.destinatario.celular);
+                      }}
+                      sx={{
+                        fontSize: { xs: "9px", md: "10px" },
+                        textTransform: "none",
+                        minWidth: "auto",
+                        px: 0.5,
+                        py: 0,
+                        color: "#FF9800",
+                      }}
+                    >
+                      ✏️
+                    </Button>
+                  </Box>
+                  <Box sx={{ display: "flex", gap: 0.5 }}>
+                    <Button
+                      size="small"
+                      variant="contained"
+                      href={`tel:${marker.package.destinatario.celular}`}
+                      sx={{
+                        fontSize: { xs: "9px", md: "10px" },
+                        textTransform: "none",
+                        minWidth: "auto",
+                        px: { xs: 1, md: 1.5 },
+                        py: { xs: 0.25, md: 0.5 },
+                        backgroundColor: "#34A853",
+                        "&:hover": {
+                          backgroundColor: "#2D8E47"
+                        }
+                      }}
+                    >
+                      📞 Llamar
+                    </Button>
+                    <Button
+                      size="small"
+                      variant="contained"
+                      component="a"
+                      href={(() => {
+                        const rawPhone = marker.package.destinatario.celular;
+                        const sanitizedPhone = rawPhone?.replace(/\D/g, "") ?? "";
+                        const fullPhone = sanitizedPhone.startsWith("57")
+                          ? `+${sanitizedPhone}`
+                          : `+57${sanitizedPhone}`;
+                        const message = 
+                          `Hola, soy el mensajero de *INTERRAPIDISIMO AQUITANIA*.\n\n` +
+                          `Pasé por su domicilio pero no fue posible ubicarlo/a para entregarle su paquete:\n\n` +
+                          `📦 *Guía:* ${marker.package.uid}\n` +
+                          `👤 *Destinatario:* ${marker.package.addressee}\n` +
+                          `💰 *Valor:* ${marker.package.shippingCost || "$ 0"}\n` +
+                          `#️⃣ *Número de paquete:* ${marker.package.packageNumber || "N/A"}\n` +
+                          `📦 *Caja:* ${marker.package.box || "N/A"}\n\n` +
+                          `Para reclamar su paquete, por favor diríjase a:\n` +
+                          `📍 *PAPELERIA DONDE NAZLY*\n\n` +
+                          `Es el único punto físico autorizado para reclamar correspondencia de *INTERRAPIDISIMO* en Aquitania.`;
+                        return `https://wa.me/${fullPhone}?text=${encodeURIComponent(message)}`;
+                      })()}
+                      target="_blank"
+                      sx={{
+                        fontSize: { xs: "9px", md: "10px" },
+                        textTransform: "none",
+                        minWidth: "auto",
+                        px: { xs: 1, md: 1.5 },
+                        py: { xs: 0.25, md: 0.5 },
+                        backgroundColor: "#FF9800",
+                        "&:hover": {
+                          backgroundColor: "#F57C00"
+                        }
+                      }}
+                    >
+                      💬 No Ubicado
+                    </Button>
+                  </Box>
                 </Box>
               )}
               
