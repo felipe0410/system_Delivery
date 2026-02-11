@@ -1,10 +1,12 @@
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
 import { GoogleMap, useLoadScript, Marker, InfoWindow } from "@react-google-maps/api";
-import { Box, Typography, Chip, IconButton, Alert, TextField, Button } from "@mui/material";
+import { Box, Typography, Chip, IconButton, Alert, TextField, Button, Tabs, Tab } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import NavigationIcon from "@mui/icons-material/Navigation";
 import { clearAllCache } from "@/utils/cacheUtils";
+
+const DELIVERED_CACHE_KEY = "delivered_packages_today";
 
 const mapContainerStyle = {
   width: "100%",
@@ -32,6 +34,7 @@ interface GeocodedLocation {
 const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
   const [selectedPackage, setSelectedPackage] = useState<any>(null);
   const [markers, setMarkers] = useState<any[]>([]);
+  const [deliveredPackages, setDeliveredPackages] = useState<any[]>([]);
   const [center, setCenter] = useState(defaultCenter);
   const [editingPackage, setEditingPackage] = useState<any>(null);
   const [editedAddress, setEditedAddress] = useState("");
@@ -40,8 +43,41 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
   const [isSaving, setIsSaving] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [showSidebar, setShowSidebar] = useState(true);
-  const [filterStatus, setFilterStatus] = useState<"all" | "pending" | "delivered">("all");
+  const [activeTab, setActiveTab] = useState<"pending" | "delivered">("pending");
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Cargar entregas del día desde localStorage
+  useEffect(() => {
+    try {
+      const today = new Date().toDateString();
+      const cached = localStorage.getItem(DELIVERED_CACHE_KEY);
+      if (cached) {
+        const { date, packages: deliveredPkgs } = JSON.parse(cached);
+        // Si es del mismo día, cargar las entregas
+        if (date === today) {
+          setDeliveredPackages(deliveredPkgs);
+        } else {
+          // Si es de otro día, limpiar
+          localStorage.removeItem(DELIVERED_CACHE_KEY);
+        }
+      }
+    } catch (error) {
+      console.error("Error cargando entregas:", error);
+    }
+  }, []);
+
+  // Guardar entregas en localStorage
+  const saveDeliveredPackages = (packages: any[]) => {
+    try {
+      const today = new Date().toDateString();
+      localStorage.setItem(DELIVERED_CACHE_KEY, JSON.stringify({
+        date: today,
+        packages: packages,
+      }));
+    } catch (error) {
+      console.error("Error guardando entregas:", error);
+    }
+  };
 
   // Cargar Google Maps API
   const { isLoaded, loadError } = useLoadScript({
@@ -50,8 +86,12 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
 
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
 
-  // Filtrar marcadores según búsqueda
+  // Filtrar marcadores según búsqueda y excluir entregados
+  const deliveredIds = new Set(deliveredPackages.map(p => p.id));
   const filteredMarkers = markers.filter((marker) => {
+    // Excluir paquetes ya entregados
+    if (deliveredIds.has(marker.id)) return false;
+    
     const matchesSearch = 
       marker.package.addressee?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       marker.package.uid?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -82,17 +122,29 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
     try {
       const { updatedShipments } = await import("@/firebase/firebase");
       
+      // Encontrar el paquete en los marcadores
+      const deliveredMarker = markers.find(m => m.id === packageId);
+      if (!deliveredMarker) return;
+      
       // Solo marcamos como entregado, NO cambiamos el status
       await updatedShipments(packageId, {
         entregado: true,
         fechaEntrega: new Date().toISOString(),
       });
       
+      // Agregar a la lista de entregados con timestamp
+      const newDelivered = {
+        ...deliveredMarker,
+        deliveredAt: new Date().toISOString(),
+      };
+      const updatedDelivered = [...deliveredPackages, newDelivered];
+      setDeliveredPackages(updatedDelivered);
+      saveDeliveredPackages(updatedDelivered);
+      
       // Limpiar caché para que se actualice en la próxima carga
       clearAllCache();
       
-      // Remover del mapa
-      setMarkers(prev => prev.filter(m => m.id !== packageId));
+      // Remover del mapa (ya no es necesario porque filteredMarkers lo excluye)
       if (selectedPackage?.id === packageId) {
         setSelectedPackage(null);
       }
@@ -295,7 +347,7 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
             package: pkg,
             address: pkg.geocoded.direccionCorregida || pkg.destinatario.direccion,
             fullAddress: `${pkg.geocoded.direccionCorregida || pkg.destinatario.direccion}, Aquitania, Boyacá`,
-            label: `${index + 1}`,
+            label: pkg.packageNumber || `${index + 1}`,
           });
           continue;
         }
@@ -337,7 +389,7 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
           package: pkg,
           address: cleanedAddress,
           fullAddress: fullAddress,
-          label: `${index + 1}`,
+          label: pkg.packageNumber || `${index + 1}`,
         });
         
         // Pequeño delay para no saturar la API
@@ -760,7 +812,7 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
                 color: "#000",
               }}
             >
-              Direcciones
+              Paquetes
             </Typography>
             <IconButton 
               onClick={() => setShowSidebar(false)}
@@ -773,29 +825,58 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
             </IconButton>
           </Box>
 
-          {/* Estadísticas rápidas */}
-          <Box sx={{ display: "flex", gap: 1, mb: 2, flexWrap: "wrap" }}>
-            <Chip 
-              label={`Total: ${markers.length}`}
-              size="small"
-              sx={{ 
-                backgroundColor: "#4285F4", 
-                color: "#fff",
+          {/* Tabs para Pendientes / Entregados */}
+          <Tabs 
+            value={activeTab} 
+            onChange={(e, newValue) => setActiveTab(newValue)}
+            sx={{ 
+              mb: 2,
+              minHeight: "36px",
+              "& .MuiTab-root": {
+                minHeight: "36px",
+                fontSize: { xs: "12px", md: "13px" },
+                textTransform: "none",
                 fontWeight: 600,
-                fontSize: { xs: "10px", md: "11px" },
-              }}
+              }
+            }}
+          >
+            <Tab 
+              label={`Pendientes (${filteredMarkers.length})`} 
+              value="pending"
+              sx={{ color: "#000" }}
             />
-            <Chip 
-              label={`Pendientes: ${markers.length}`}
-              size="small"
-              sx={{ 
-                backgroundColor: "#FF9800", 
-                color: "#fff",
-                fontWeight: 600,
-                fontSize: { xs: "10px", md: "11px" },
-              }}
+            <Tab 
+              label={`Entregados (${deliveredPackages.length})`} 
+              value="delivered"
+              sx={{ color: "#000" }}
             />
-          </Box>
+          </Tabs>
+
+          {/* Estadísticas rápidas - solo en tab pendientes */}
+          {activeTab === "pending" && (
+            <Box sx={{ display: "flex", gap: 1, mb: 2, flexWrap: "wrap" }}>
+              <Chip 
+                label={`Total: ${markers.length}`}
+                size="small"
+                sx={{ 
+                  backgroundColor: "#4285F4", 
+                  color: "#fff",
+                  fontWeight: 600,
+                  fontSize: { xs: "10px", md: "11px" },
+                }}
+              />
+              <Chip 
+                label={`Pendientes: ${filteredMarkers.length}`}
+                size="small"
+                sx={{ 
+                  backgroundColor: "#FF9800", 
+                  color: "#fff",
+                  fontWeight: 600,
+                  fontSize: { xs: "10px", md: "11px" },
+                }}
+              />
+            </Box>
+          )}
 
           {/* Buscador */}
           <TextField
@@ -1003,13 +1084,14 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
             Haz clic en una dirección para ver detalles.
           </Alert>
           
-          {filteredMarkers.length === 0 && searchQuery && (
+          {activeTab === "pending" && filteredMarkers.length === 0 && searchQuery && (
             <Alert severity="info" sx={{ mb: 2, fontSize: { xs: "11px", md: "12px" } }}>
               No se encontraron resultados para &quot;{searchQuery}&quot;
             </Alert>
           )}
           
-          {filteredMarkers.map((marker, index) => (
+          {/* Lista de paquetes pendientes */}
+          {activeTab === "pending" && filteredMarkers.map((marker, index) => (
             <Box
               key={marker.id}
               sx={{
@@ -1230,6 +1312,95 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
                   ✓ Entregado
                 </Button>
               </Box>
+            </Box>
+          ))}
+
+          {/* Lista de paquetes entregados */}
+          {activeTab === "delivered" && deliveredPackages.length === 0 && (
+            <Alert severity="info" sx={{ mb: 2, fontSize: { xs: "11px", md: "12px" } }}>
+              No hay paquetes entregados hoy
+            </Alert>
+          )}
+
+          {activeTab === "delivered" && deliveredPackages.map((delivered, index) => (
+            <Box
+              key={delivered.id}
+              sx={{
+                backgroundColor: "#e8f5e9",
+                padding: { xs: "8px", md: "12px" },
+                marginBottom: { xs: "6px", md: "8px" },
+                borderRadius: "12px",
+                border: "1px solid #4CAF50",
+              }}
+            >
+              <Box sx={{ display: "flex", alignItems: "center", mb: 0.5 }}>
+                <Chip
+                  label={delivered.label}
+                  size="small"
+                  sx={{
+                    backgroundColor: "#4CAF50",
+                    fontSize: { xs: "10px", md: "12px" },
+                    height: { xs: "20px", md: "24px" },
+                    color: "#fff",
+                    fontWeight: 700,
+                    mr: 1,
+                  }}
+                />
+                <Typography 
+                  variant="body2" 
+                  sx={{ 
+                    fontWeight: 700, 
+                    fontSize: { xs: "12px", md: "13px" }, 
+                    flex: 1,
+                    color: "#000",
+                  }}
+                >
+                  {delivered.package.addressee}
+                </Typography>
+                <Chip
+                  label="✓"
+                  size="small"
+                  sx={{
+                    backgroundColor: "#4CAF50",
+                    color: "#fff",
+                    height: { xs: "20px", md: "24px" },
+                    fontSize: { xs: "12px", md: "14px" },
+                  }}
+                />
+              </Box>
+              <Typography 
+                variant="body2" 
+                sx={{ 
+                  fontSize: { xs: "11px", md: "12px" }, 
+                  color: "#666", 
+                  mb: 0.5 
+                }}
+              >
+                📦 {delivered.package.uid}
+              </Typography>
+              <Typography 
+                variant="body2" 
+                sx={{ 
+                  fontSize: { xs: "11px", md: "12px" }, 
+                  mb: 0.5,
+                  color: "#000",
+                }}
+              >
+                📍 {delivered.address}
+              </Typography>
+              <Typography 
+                variant="body2" 
+                sx={{ 
+                  fontSize: { xs: "10px", md: "11px" }, 
+                  color: "#4CAF50",
+                  fontWeight: 600,
+                }}
+              >
+                ✓ Entregado: {new Date(delivered.deliveredAt).toLocaleTimeString('es-CO', { 
+                  hour: '2-digit', 
+                  minute: '2-digit' 
+                })}
+              </Typography>
             </Box>
           ))}
         </Box>

@@ -289,7 +289,8 @@ const Page = () => {
               convertirMonedaANumero(shipment?.shippingCost ?? "0"),
             box: originalData.box ?? shipment.box,
             shippingCost: originalData.shippingCost,
-            packageNumber: originalData.packageNumber ?? shipment.packageNumber,
+            // Usar el packageNumber de originalData, incluso si es 0
+            packageNumber: originalData.packageNumber !== undefined ? originalData.packageNumber : (shipment.packageNumber ?? 0),
             status: domiciliary ? "mensajero" : "oficina",
             revision: originalData.revision,
             pago: originalData.pago,
