@@ -113,6 +113,15 @@ const Sidebar = () => {
       id: "/domiciliario",
     },
     {
+      section: "Mapa",
+      icon: (
+        <span style={{ fontSize: "40px" }}>
+          {pathname.startsWith("/mapa") ? "🗺️" : "🗺️"}
+        </span>
+      ),
+      id: "/mapa",
+    },
+    {
       section: "Entregar",
       icon: (
         <AppShortcutSharpIcon

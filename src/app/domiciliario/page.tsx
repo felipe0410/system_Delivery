@@ -6,17 +6,48 @@ import TableDomi from "./TableDomi";
 import Sidebar from "./Sidebar";
 import { GlobalProvider } from "./context";
 
+const CACHE_KEY = "domiciliario_data_cache";
+const CACHE_DURATION = 8 * 60 * 60 * 1000; // 8 horas en milisegundos
+
 const Page = () => {
   const [firebaseData, setFirebaseData] = useState<{ [x: string]: any }[]>([]);
 
   useEffect(() => {
     const getFirebaseData = async () => {
       try {
-        // Usar getFilteredShipmentsData en lugar de getAllShipmentsData
-        // Solo trae envíos con status "mensajero" u "oficina"
+        // Intentar cargar desde caché
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (cached) {
+          const { data, timestamp } = JSON.parse(cached);
+          const now = Date.now();
+          
+          // Verificar si el caché es válido (menos de 8 horas)
+          if (now - timestamp < CACHE_DURATION) {
+            console.log("✅ Domiciliario: Cargando desde caché (válido por", Math.round((CACHE_DURATION - (now - timestamp)) / 1000 / 60), "minutos más)");
+            setFirebaseData(data);
+            return;
+          } else {
+            console.log("⏰ Domiciliario: Caché expirado, consultando Firebase...");
+          }
+        }
+
+        // Si no hay caché válido, consultar Firebase
         const { getFilteredShipmentsData } = await import("@/firebase/firebase");
         const dataRef = await getFilteredShipmentsData();
-        setFirebaseData(dataRef || []);
+        const data = dataRef || [];
+        setFirebaseData(data);
+        
+        // Guardar en caché
+        try {
+          const cacheData = {
+            data: data,
+            timestamp: Date.now()
+          };
+          localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
+          console.log("💾 Domiciliario: Datos guardados en caché por 8 horas");
+        } catch (error) {
+          console.error("Error al guardar caché:", error);
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
         setFirebaseData([]);

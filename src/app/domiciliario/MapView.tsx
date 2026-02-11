@@ -4,6 +4,7 @@ import { GoogleMap, useLoadScript, Marker, InfoWindow } from "@react-google-maps
 import { Box, Typography, Chip, IconButton, Alert, TextField, Button } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import NavigationIcon from "@mui/icons-material/Navigation";
+import { clearAllCache } from "@/utils/cacheUtils";
 
 const mapContainerStyle = {
   width: "100%",
@@ -87,6 +88,9 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
         fechaEntrega: new Date().toISOString(),
       });
       
+      // Limpiar caché para que se actualice en la próxima carga
+      clearAllCache();
+      
       // Remover del mapa
       setMarkers(prev => prev.filter(m => m.id !== packageId));
       if (selectedPackage?.id === packageId) {
@@ -128,6 +132,9 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
           "destinatario.direccion": editedAddress
         });
         
+        // Limpiar caché para que se actualice en la próxima carga
+        clearAllCache();
+        
         // Actualizar marcador en el mapa
         setMarkers(prev => prev.map(m => 
           m.id === editingPackage.id 
@@ -163,6 +170,9 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
         "destinatario.celular": editedPhone,
         editedPhone: editedPhone, // Campo adicional para tracking
       });
+      
+      // Limpiar caché para que se actualice en la próxima carga
+      clearAllCache();
       
       // Actualizar marcador en el mapa
       setMarkers(prev => prev.map(m => 
@@ -354,6 +364,7 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
   }, [packages.length, apiKey]); // Solo depender de la cantidad de paquetes, no del objeto completo
 
   const handleMarkerClick = (marker: any) => {
+    console.log("🎯 Marker clicked:", marker);
     setSelectedPackage(marker);
   };
 
@@ -558,7 +569,7 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
                     icon={{
                       path: window.google.maps.SymbolPath.CIRCLE,
                       scale: 10,
-                      fillColor: selectedPackage?.id === marker.id ? "#FF5722" : "#4285F4",
+                      fillColor: selectedPackage?.id === marker.id ? "#FF5722" : "#E53935",
                       fillOpacity: 1,
                       strokeColor: "#fff",
                       strokeWeight: 2,
@@ -569,64 +580,71 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
               {selectedPackage && (
                 <InfoWindow
                   position={selectedPackage.position}
-                  onCloseClick={() => setSelectedPackage(null)}
+                  onCloseClick={() => {
+                    console.log("❌ InfoWindow closed");
+                    setSelectedPackage(null);
+                  }}
+                  options={{
+                    pixelOffset: new window.google.maps.Size(0, -10),
+                  }}
                 >
-                  <Box sx={{ padding: "10px", minWidth: "280px" }}>
-                    <Typography variant="h6" sx={{ fontWeight: 700, mb: 1, fontSize: "16px" }}>
+                  <div style={{ padding: "10px", minWidth: "280px", maxWidth: "320px", color: "#000" }}>
+                    <h3 style={{ margin: "0 0 10px 0", fontSize: "16px", fontWeight: 700, color: "#000" }}>
                       {selectedPackage.package.addressee}
-                    </Typography>
-                    <Typography variant="body2" sx={{ mb: 0.5 }}>
+                    </h3>
+                    <p style={{ margin: "5px 0", fontSize: "14px", color: "#000" }}>
                       <strong>Guía:</strong> {selectedPackage.package.uid}
-                    </Typography>
-                    <Typography variant="body2" sx={{ mb: 0.5 }}>
+                    </p>
+                    <p style={{ margin: "5px 0", fontSize: "14px", color: "#000" }}>
                       <strong>Dirección:</strong> {selectedPackage.address}
-                    </Typography>
-                    <Typography variant="body2" sx={{ mb: 0.5 }}>
+                    </p>
+                    <p style={{ margin: "5px 0", fontSize: "14px", color: "#000" }}>
                       <strong>Destino:</strong> {selectedPackage.package.destino}
-                    </Typography>
-                    <Typography variant="body2" sx={{ mb: 0.5 }}>
+                    </p>
+                    <p style={{ margin: "5px 0", fontSize: "14px", color: "#000" }}>
                       <strong>Celular:</strong> {selectedPackage.package.destinatario?.celular || "N/A"}
-                    </Typography>
-                    <Box sx={{ display: "flex", gap: 1, mt: 1.5, alignItems: "center" }}>
-                      <Chip
-                        label={selectedPackage.package.shippingCost || "$ 0"}
-                        size="small"
-                        sx={{
-                          backgroundColor: "#4285F4",
-                          color: "#fff",
-                          fontWeight: 700,
-                        }}
-                      />
-                      <Chip
-                        label={selectedPackage.package.pago || "N/A"}
-                        size="small"
-                        sx={{
-                          backgroundColor: selectedPackage.package.pago === "Al Cobro" ? "#34A853" : "#666",
-                          color: "#fff",
-                          fontWeight: 600,
-                        }}
-                      />
-                    </Box>
-                    <Box sx={{ mt: 1.5, display: "flex", gap: 1, flexWrap: "wrap" }}>
+                    </p>
+                    <div style={{ display: "flex", gap: "8px", marginTop: "12px", flexWrap: "wrap" }}>
+                      <span style={{
+                        backgroundColor: "#4285F4",
+                        color: "#fff",
+                        padding: "4px 12px",
+                        borderRadius: "16px",
+                        fontSize: "12px",
+                        fontWeight: 700,
+                      }}>
+                        {selectedPackage.package.shippingCost || "$ 0"}
+                      </span>
+                      <span style={{
+                        backgroundColor: selectedPackage.package.pago === "Al Cobro" ? "#34A853" : "#666",
+                        color: "#fff",
+                        padding: "4px 12px",
+                        borderRadius: "16px",
+                        fontSize: "12px",
+                        fontWeight: 600,
+                      }}>
+                        {selectedPackage.package.pago || "N/A"}
+                      </span>
+                    </div>
+                    <div style={{ marginTop: "12px", display: "flex", gap: "8px", flexWrap: "wrap" }}>
                       {selectedPackage.package.destinatario?.celular && (
                         <>
-                          <Chip
-                            label="📞 Llamar"
-                            component="a"
+                          <a
                             href={`tel:${selectedPackage.package.destinatario.celular}`}
-                            clickable
-                            sx={{
+                            style={{
                               backgroundColor: "#34A853",
                               color: "#fff",
+                              padding: "6px 12px",
+                              borderRadius: "16px",
+                              fontSize: "12px",
                               fontWeight: 700,
-                              "&:hover": {
-                                backgroundColor: "#2D8E47",
-                              },
+                              textDecoration: "none",
+                              display: "inline-block",
                             }}
-                          />
-                          <Chip
-                            label="💬 No Ubicado"
-                            component="a"
+                          >
+                            📞 Llamar
+                          </a>
+                          <a
                             href={(() => {
                               const rawPhone = selectedPackage.package.destinatario.celular;
                               const sanitizedPhone = rawPhone?.replace(/\D/g, "") ?? "";
@@ -647,34 +665,39 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
                               return `https://wa.me/${fullPhone}?text=${encodeURIComponent(message)}`;
                             })()}
                             target="_blank"
-                            clickable
-                            sx={{
+                            rel="noopener noreferrer"
+                            style={{
                               backgroundColor: "#FF9800",
                               color: "#fff",
+                              padding: "6px 12px",
+                              borderRadius: "16px",
+                              fontSize: "12px",
                               fontWeight: 700,
-                              "&:hover": {
-                                backgroundColor: "#F57C00",
-                              },
+                              textDecoration: "none",
+                              display: "inline-block",
                             }}
-                          />
+                          >
+                            💬 No Ubicado
+                          </a>
                         </>
                       )}
-                      <Chip
-                        icon={<NavigationIcon />}
-                        label="Navegar aquí"
+                      <button
                         onClick={() => handleNavigate(selectedPackage)}
-                        clickable
-                        sx={{
+                        style={{
                           backgroundColor: "#4285F4",
                           color: "#fff",
+                          padding: "6px 12px",
+                          borderRadius: "16px",
+                          fontSize: "12px",
                           fontWeight: 700,
-                          "&:hover": {
-                            backgroundColor: "#3367D6",
-                          },
+                          border: "none",
+                          cursor: "pointer",
                         }}
-                      />
-                    </Box>
-                  </Box>
+                      >
+                        🧭 Navegar
+                      </button>
+                    </div>
+                  </div>
                 </InfoWindow>
               )}
             </GoogleMap>
@@ -734,6 +757,7 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
               sx={{ 
                 fontWeight: 700,
                 fontSize: { xs: "16px", md: "18px" },
+                color: "#000",
               }}
             >
               Direcciones
@@ -789,7 +813,7 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
               }
             }}
             InputProps={{
-              startAdornment: <Typography sx={{ mr: 0.5 }}>🔍</Typography>,
+              startAdornment: <Typography sx={{ mr: 0.5, color: "#666" }}>🔍</Typography>,
             }}
           />
           
@@ -814,6 +838,7 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
                   fontWeight: 700, 
                   mb: 1,
                   fontSize: { xs: "13px", md: "14px" },
+                  color: "#000",
                 }}
               >
                 Editar Dirección
@@ -898,6 +923,7 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
                   fontWeight: 700, 
                   mb: 1,
                   fontSize: { xs: "13px", md: "14px" },
+                  color: "#000",
                 }}
               >
                 Editar Teléfono
@@ -987,18 +1013,18 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
             <Box
               key={marker.id}
               sx={{
-                backgroundColor: selectedPackage?.id === marker.id ? "#e3f2fd" : "#fff",
+                backgroundColor: selectedPackage?.id === marker.id ? "#ffebee" : "#fff",
                 padding: { xs: "8px", md: "12px" },
                 marginBottom: { xs: "6px", md: "8px" },
                 borderRadius: "12px",
                 cursor: "pointer",
-                border: selectedPackage?.id === marker.id ? "2px solid #4285F4" : "1px solid #e0e0e0",
+                border: selectedPackage?.id === marker.id ? "2px solid #E53935" : "1px solid #e0e0e0",
                 boxShadow: selectedPackage?.id === marker.id 
-                  ? "0 4px 12px rgba(66, 133, 244, 0.3)" 
+                  ? "0 4px 12px rgba(229, 57, 53, 0.3)" 
                   : "0 2px 4px rgba(0,0,0,0.05)",
                 transition: "all 0.2s ease",
                 "&:hover": {
-                  backgroundColor: selectedPackage?.id === marker.id ? "#e3f2fd" : "#f8f9fa",
+                  backgroundColor: selectedPackage?.id === marker.id ? "#ffebee" : "#f8f9fa",
                   boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
                   transform: "translateY(-2px)",
                 },
@@ -1009,7 +1035,7 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
                   label={marker.label}
                   size="small"
                   sx={{
-                    backgroundColor: "#4285F4",
+                    backgroundColor: "#E53935",
                     fontSize: { xs: "10px", md: "12px" },
                     height: { xs: "20px", md: "24px" },
                     color: "#fff",
@@ -1022,7 +1048,8 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
                   sx={{ 
                     fontWeight: 700, 
                     fontSize: { xs: "12px", md: "13px" }, 
-                    flex: 1 
+                    flex: 1,
+                    color: "#000",
                   }}
                   onClick={() => handleMarkerClick(marker)}
                 >
@@ -1044,7 +1071,8 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
                 variant="body2" 
                 sx={{ 
                   fontSize: { xs: "11px", md: "12px" }, 
-                  mb: 0.5 
+                  mb: 0.5,
+                  color: "#000",
                 }}
                 onClick={() => handleMarkerClick(marker)}
               >

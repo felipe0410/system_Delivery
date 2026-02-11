@@ -21,6 +21,12 @@ const ContainerChildren = ({
   const validationCookie = cookies?.user?.length > 0;
 
   useEffect(() => {
+    // Permitir acceso público a /mapa
+    if (pathname === "/mapa") {
+      setValidation(true);
+      return;
+    }
+
     if (validationCookie) {
       if (validationRoutes) {
         // Solo redirigir si no estamos ya en una ruta válida

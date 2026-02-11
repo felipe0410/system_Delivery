@@ -310,7 +310,6 @@ const Page = () => {
               ...updatedShipment,
               status: "mensajero",
               box: "0",
-              packageNumber: "0",
               courierAttempt1: Date.now(),
             }
             : {

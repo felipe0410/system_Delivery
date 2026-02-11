@@ -30,7 +30,7 @@ export default function RootLayout({
 }) {
   const route: any =
     (children as React.ReactElement)?.props?.childProp?.segment ?? null;
-  const validationRoutes = ["sign_up", "sign_in", "enviosHoy", "__DEFAULT__"].includes(
+  const validationRoutes = ["sign_up", "sign_in", "enviosHoy", "mapa", "__DEFAULT__"].includes(
     route
   );
 
