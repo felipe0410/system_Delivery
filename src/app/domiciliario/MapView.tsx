@@ -338,6 +338,12 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
         
         if (!pkg?.destinatario?.direccion) continue;
         
+        console.log(`📦 Paquete ${index + 1}:`, {
+          uid: pkg.uid,
+          packageNumber: pkg.packageNumber,
+          tipo: typeof pkg.packageNumber,
+        });
+        
         // Verificar si ya tiene coordenadas guardadas
         if (pkg.geocoded?.lat && pkg.geocoded?.lng) {
           console.log(`✅ Usando coordenadas guardadas para: ${pkg.uid}`);
@@ -347,7 +353,7 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
             package: pkg,
             address: pkg.geocoded.direccionCorregida || pkg.destinatario.direccion,
             fullAddress: `${pkg.geocoded.direccionCorregida || pkg.destinatario.direccion}, Aquitania, Boyacá`,
-            label: pkg.packageNumber || `${index + 1}`,
+            label: pkg.packageNumber !== undefined && pkg.packageNumber !== null ? String(pkg.packageNumber) : `${index + 1}`,
           });
           continue;
         }
@@ -389,7 +395,7 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
           package: pkg,
           address: cleanedAddress,
           fullAddress: fullAddress,
-          label: pkg.packageNumber || `${index + 1}`,
+          label: pkg.packageNumber !== undefined && pkg.packageNumber !== null ? String(pkg.packageNumber) : `${index + 1}`,
         });
         
         // Pequeño delay para no saturar la API
