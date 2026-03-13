@@ -876,3 +876,47 @@
 [debug] [2026-02-12T19:01:52.122Z] > authorizing via signed-in user (andres.montana.r4@gmail.com)
 [debug] [2026-02-12T19:01:52.127Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
 [debug] [2026-02-12T19:01:52.127Z] > authorizing via signed-in user (andres.montana.r4@gmail.com)
+[debug] [2026-03-13T14:47:31.112Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-13T14:47:31.118Z] > authorizing via signed-in user (andres.montana.r4@gmail.com)
+[debug] [2026-03-13T14:47:31.126Z] Checked if tokens are valid: true, expires at: 1773416850119
+[debug] [2026-03-13T14:47:31.126Z] Checked if tokens are valid: true, expires at: 1773416850119
+[debug] [2026-03-13T14:47:31.138Z] Checked if tokens are valid: true, expires at: 1773416850119
+[debug] [2026-03-13T14:47:31.139Z] Checked if tokens are valid: true, expires at: 1773416850119
+[debug] [2026-03-13T14:47:31.139Z] Checked if tokens are valid: true, expires at: 1773416850119
+[debug] [2026-03-13T14:47:31.139Z] Checked if tokens are valid: true, expires at: 1773416850119
+[debug] [2026-03-13T14:47:31.139Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-13T14:47:31.140Z] > authorizing via signed-in user (andres.montana.r4@gmail.com)
+[debug] [2026-03-13T14:47:31.141Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/systemdelivery-e610d/services/firebasedataconnect.googleapis.com [none]
+[debug] [2026-03-13T14:47:31.141Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/systemdelivery-e610d/services/firebasedataconnect.googleapis.com x-goog-quota-user=projects/systemdelivery-e610d
+[debug] [2026-03-13T14:47:31.202Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/systemdelivery-e610d/services/firebaseapphosting.googleapis.com [none]
+[debug] [2026-03-13T14:47:31.202Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/systemdelivery-e610d/services/firebaseapphosting.googleapis.com x-goog-quota-user=projects/systemdelivery-e610d
+[debug] [2026-03-13T14:47:31.204Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/systemdelivery-e610d/services/firebaseio.com [none]
+[debug] [2026-03-13T14:47:31.204Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/systemdelivery-e610d/services/firebaseio.com x-goog-quota-user=projects/systemdelivery-e610d
+[debug] [2026-03-13T14:47:31.209Z] Checked if tokens are valid: true, expires at: 1773416850119
+[debug] [2026-03-13T14:47:31.209Z] Checked if tokens are valid: true, expires at: 1773416850119
+[debug] [2026-03-13T14:47:31.214Z] Checked if tokens are valid: true, expires at: 1773416850119
+[debug] [2026-03-13T14:47:31.215Z] Checked if tokens are valid: true, expires at: 1773416850119
+[debug] [2026-03-13T14:47:31.215Z] Checked if tokens are valid: true, expires at: 1773416850119
+[debug] [2026-03-13T14:47:31.215Z] Checked if tokens are valid: true, expires at: 1773416850119
+[debug] [2026-03-13T14:47:31.215Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/systemdelivery-e610d/services/firebasedataconnect.googleapis.com [none]
+[debug] [2026-03-13T14:47:31.216Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/systemdelivery-e610d/services/firebasedataconnect.googleapis.com x-goog-quota-user=projects/systemdelivery-e610d
+[debug] [2026-03-13T14:47:31.219Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/systemdelivery-e610d/services/firebaseapphosting.googleapis.com [none]
+[debug] [2026-03-13T14:47:31.220Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/systemdelivery-e610d/services/firebaseapphosting.googleapis.com x-goog-quota-user=projects/systemdelivery-e610d
+[debug] [2026-03-13T14:47:31.222Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/systemdelivery-e610d/services/firebaseio.com [none]
+[debug] [2026-03-13T14:47:31.223Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/systemdelivery-e610d/services/firebaseio.com x-goog-quota-user=projects/systemdelivery-e610d
+[debug] [2026-03-13T14:47:31.732Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/systemdelivery-e610d/services/firebaseio.com 403
+[debug] [2026-03-13T14:47:31.732Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/systemdelivery-e610d/services/firebaseio.com [omitted]
+[debug] [2026-03-13T14:47:31.853Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/systemdelivery-e610d/services/firebaseapphosting.googleapis.com 200
+[debug] [2026-03-13T14:47:31.853Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/systemdelivery-e610d/services/firebaseapphosting.googleapis.com [omitted]
+[debug] [2026-03-13T14:47:31.865Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/systemdelivery-e610d/services/firebasedataconnect.googleapis.com 200
+[debug] [2026-03-13T14:47:31.865Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/systemdelivery-e610d/services/firebasedataconnect.googleapis.com [omitted]
+[debug] [2026-03-13T14:47:32.103Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/systemdelivery-e610d/services/firebaseio.com 403
+[debug] [2026-03-13T14:47:32.103Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/systemdelivery-e610d/services/firebaseio.com [omitted]
+[debug] [2026-03-13T14:47:32.459Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/systemdelivery-e610d/services/firebaseapphosting.googleapis.com 200
+[debug] [2026-03-13T14:47:32.459Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/systemdelivery-e610d/services/firebaseapphosting.googleapis.com [omitted]
+[debug] [2026-03-13T14:47:32.466Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-13T14:47:32.467Z] > authorizing via signed-in user (andres.montana.r4@gmail.com)
+[debug] [2026-03-13T14:47:32.468Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-13T14:47:32.468Z] > authorizing via signed-in user (andres.montana.r4@gmail.com)
+[debug] [2026-03-13T14:47:32.470Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/systemdelivery-e610d/services/firebasedataconnect.googleapis.com 200
+[debug] [2026-03-13T14:47:32.470Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/systemdelivery-e610d/services/firebasedataconnect.googleapis.com [omitted]

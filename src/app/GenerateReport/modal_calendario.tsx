@@ -86,6 +86,8 @@ export default function Calendar() {
   // Estado para controlar qué columnas están visibles
   const [visibleColumns, setVisibleColumns] = useState({
     guia: true,
+    numeroPaquete: true,
+    caja: true,
     codigoBarras: true,
     reclamarEn: true,
     nombreDestinatario: true,
@@ -96,7 +98,7 @@ export default function Calendar() {
   });
 
   // Estado para controlar el ordenamiento
-  const [sortByAddress, setSortByAddress] = useState(false);
+  const [sortByAddress, setSortByAddress] = useState(true);
 
   // Función para alternar la visibilidad de una columna
   const toggleColumn = (columnKey: keyof typeof visibleColumns) => {
@@ -358,6 +360,24 @@ export default function Calendar() {
                   <FormControlLabel
                     control={
                       <Checkbox
+                        checked={visibleColumns.numeroPaquete}
+                        onChange={() => toggleColumn('numeroPaquete')}
+                      />
+                    }
+                    label="# Paquete"
+                  />
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={visibleColumns.caja}
+                        onChange={() => toggleColumn('caja')}
+                      />
+                    }
+                    label="Caja"
+                  />
+                  <FormControlLabel
+                    control={
+                      <Checkbox
                         checked={visibleColumns.codigoBarras}
                         onChange={() => toggleColumn('codigoBarras')}
                       />
@@ -486,6 +506,16 @@ export default function Calendar() {
                         <b>Guía</b>
                       </StyledTableCell>
                     )}
+                    {visibleColumns.numeroPaquete && (
+                      <StyledTableCell align="center">
+                        <b># Paquete</b>
+                      </StyledTableCell>
+                    )}
+                    {visibleColumns.caja && (
+                      <StyledTableCell align="center">
+                        <b>Caja</b>
+                      </StyledTableCell>
+                    )}
                     {visibleColumns.codigoBarras && (
                       <StyledTableCell align="center">
                         <b>Código de Barras</b>
@@ -544,8 +574,8 @@ export default function Calendar() {
                                 `• *Destinatario*: ${shipment.addressee}\n` +
                                 `• *Valor*: ${shipment?.shippingCost ?? 0}\n` +
                                 `Al momento de reclamar indique que su paquete es:\n` +
-                                `• *Número de paquete*: ${shipment.packageNumber}\n` +
-                                `• *Caja*: ${shipment.box}\n` +
+                                `• *Número de paquete*: ${shipment.packageNumber ?? 'N/A'}\n` +
+                                `• *Caja*: ${shipment.box ?? 'N/A'}\n` +
                                 `puede reclamar su paquete en : *PAPELERIA DONDE NAZLY*, por su seguridad recuerde que es el unico punto fisico para reclamar correspondencia de *INTERRAPIDISIMO* \n`
                             )}`}
                             target="_blank"
@@ -558,14 +588,40 @@ export default function Calendar() {
                                   `• *Destinatario*: ${shipment.addressee}\n` +
                                   `• *Valor*: ${shipment?.shippingCost ?? 0}\n` +
                                   `Al momento de reclamar indique que su paquete es:\n` +
-                                  `• *Número de paquete*: ${shipment.packageNumber}\n` +
-                                  `• *Caja*: ${shipment.box}\n` +
+                                  `• *Número de paquete*: ${shipment.packageNumber ?? 'N/A'}\n` +
+                                  `• *Caja*: ${shipment.box ?? 'N/A'}\n` +
                                   `puede reclamar su paquete en : *PAPELERIA DONDE NAZLY*, por su seguridad recuerde que es el unico punto fisico para reclamar correspondencia de *INTERRAPIDISIMO* \n`
                               ))}}
                             >
                               <WhatsAppIcon />
                             </IconButton>
                           </Link>
+                        </StyledTableCell>
+                      )}
+                      {visibleColumns.numeroPaquete && (
+                        <StyledTableCell align="center">
+                          <Chip 
+                            label={shipment.packageNumber ?? 'N/A'} 
+                            size="small"
+                            sx={{
+                              backgroundColor: shipment.packageNumber ? '#E53935' : '#BDBDBD',
+                              color: '#fff',
+                              fontWeight: 700,
+                            }}
+                          />
+                        </StyledTableCell>
+                      )}
+                      {visibleColumns.caja && (
+                        <StyledTableCell align="center">
+                          <Chip 
+                            label={shipment.box ?? 'N/A'} 
+                            size="small"
+                            sx={{
+                              backgroundColor: '#4285F4',
+                              color: '#fff',
+                              fontWeight: 600,
+                            }}
+                          />
                         </StyledTableCell>
                       )}
                       {visibleColumns.codigoBarras && (
