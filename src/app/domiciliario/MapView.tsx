@@ -7,6 +7,8 @@ import NavigationIcon from "@mui/icons-material/Navigation";
 import { clearAllCache } from "@/utils/cacheUtils";
 
 const DELIVERED_CACHE_KEY = "delivered_packages_today";
+const MARKERS_CACHE_KEY = "geocoded_markers_cache";
+const MARKERS_CACHE_DURATION = 8 * 60 * 60 * 1000; // 8 horas
 
 const mapContainerStyle = {
   width: "100%",
@@ -86,19 +88,34 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
 
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
 
-  // Filtrar marcadores según búsqueda y excluir entregados
-  const deliveredIds = new Set(deliveredPackages.map(p => p.id));
-  const filteredMarkers = markers.filter((marker) => {
-    // Excluir paquetes ya entregados
+  // Filtrar marcadores según pestaña activa y búsqueda
+  const deliveredIds = new Set(deliveredPackages.map((p) => p.id));
+
+  // Marcadores pendientes: no tienen entregado en Firebase NI en local
+  const pendingMarkers = markers.filter((marker) => {
+    if (marker.package.entregado === true) return false;
     if (deliveredIds.has(marker.id)) return false;
-    
-    const matchesSearch = 
-      marker.package.addressee?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      marker.package.uid?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+
+    const matchesSearch =
+      marker.package.addressee
+        ?.toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
+      marker.package.uid
+        ?.toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
       marker.address?.toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     return matchesSearch;
   });
+
+  // Marcadores entregados: tienen entregado en Firebase O en local
+  const deliveredMarkers = markers.filter((marker) => {
+    return marker.package.entregado === true || deliveredIds.has(marker.id);
+  });
+
+  // Marcadores visibles en el mapa según pestaña activa
+  const visibleMarkers =
+    activeTab === "pending" ? pendingMarkers : deliveredMarkers;
 
   // Función para guardar coordenadas en Firebase
   const saveGeocodedLocation = async (packageId: string, location: GeocodedLocation) => {
@@ -144,7 +161,7 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
       // Limpiar caché para que se actualice en la próxima carga
       clearAllCache();
       
-      // Remover del mapa (ya no es necesario porque filteredMarkers lo excluye)
+      // Remover del mapa (ya no es necesario porque pendingMarkers lo excluye)
       if (selectedPackage?.id === packageId) {
         setSelectedPackage(null);
       }
@@ -325,7 +342,37 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
   // Geocodificar direcciones con Google Geocoding API
   useEffect(() => {
     const geocodePackages = async () => {
-      if (isProcessing) return; // Evitar procesamiento concurrente
+      if (isProcessing) return;
+      
+      // Intentar cargar marcadores desde caché
+      try {
+        const cached = localStorage.getItem(MARKERS_CACHE_KEY);
+        if (cached) {
+          const { markers: cachedMarkers, timestamp, packageIds } = JSON.parse(cached);
+          const now = Date.now();
+          
+          // Verificar si el caché es válido y los paquetes son los mismos
+          const currentIds = packages
+            .filter(p => p?.destinatario?.direccion)
+            .map(p => p.uid)
+            .sort()
+            .join(",");
+          
+          if (now - timestamp < MARKERS_CACHE_DURATION && packageIds === currentIds) {
+            console.log("⚡ Cargando marcadores desde caché (instantáneo)");
+            setMarkers(cachedMarkers);
+            if (cachedMarkers.length > 0) {
+              setCenter(cachedMarkers[0].position);
+            }
+            setIsProcessing(false);
+            return;
+          } else {
+            console.log("⏰ Caché de marcadores expirado o paquetes cambiaron");
+          }
+        }
+      } catch (error) {
+        console.error("Error leyendo caché de marcadores:", error);
+      }
       
       setIsProcessing(true);
       console.log("=== PROCESANDO PAQUETES PARA MAPA ===");
@@ -406,6 +453,24 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
       console.log("=== FIN PROCESAMIENTO ===\n");
       
       setMarkers(processedMarkers);
+      
+      // Guardar marcadores en caché
+      try {
+        const packageIds = packages
+          .filter(p => p?.destinatario?.direccion)
+          .map(p => p.uid)
+          .sort()
+          .join(",");
+        
+        localStorage.setItem(MARKERS_CACHE_KEY, JSON.stringify({
+          markers: processedMarkers,
+          timestamp: Date.now(),
+          packageIds,
+        }));
+        console.log("💾 Marcadores guardados en caché");
+      } catch (error) {
+        console.error("Error guardando caché de marcadores:", error);
+      }
       
       // Centrar el mapa en el primer marcador si existe
       if (processedMarkers.length > 0) {
@@ -566,6 +631,25 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
         >
           <Typography sx={{ fontSize: "20px" }}>📋</Typography>
         </IconButton>
+        <IconButton 
+          onClick={() => {
+            if (confirm("¿Refrescar datos? Esto limpiará todo el caché y volverá a consultar.")) {
+              // Limpiar todos los cachés
+              clearAllCache();
+              localStorage.removeItem(MARKERS_CACHE_KEY);
+              localStorage.removeItem(DELIVERED_CACHE_KEY);
+              // Recargar la página
+              window.location.reload();
+            }
+          }}
+          sx={{ 
+            color: "#fff",
+            mr: 0.5,
+          }}
+          title="Refrescar datos"
+        >
+          <Typography sx={{ fontSize: "20px" }}>🔄</Typography>
+        </IconButton>
         <IconButton onClick={onClose} sx={{ color: "#fff" }}>
           <CloseIcon />
         </IconButton>
@@ -613,7 +697,7 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
                   zoomControl: true,
                 }}
               >
-                {markers.map((marker) => (
+                {visibleMarkers.map((marker) => (
                   <Marker
                     key={marker.id}
                     position={marker.position}
@@ -627,7 +711,9 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
                     icon={{
                       path: window.google.maps.SymbolPath.CIRCLE,
                       scale: 10,
-                      fillColor: selectedPackage?.id === marker.id ? "#FF5722" : "#E53935",
+                      fillColor: activeTab === "delivered"
+                        ? (selectedPackage?.id === marker.id ? "#0D47A1" : "#1565C0")
+                        : (selectedPackage?.id === marker.id ? "#FF5722" : "#E53935"),
                       fillOpacity: 1,
                       strokeColor: "#fff",
                       strokeWeight: 2,
@@ -647,9 +733,21 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
                   }}
                 >
                   <div style={{ padding: "10px", minWidth: "280px", maxWidth: "320px", color: "#000" }}>
-                    <h3 style={{ margin: "0 0 10px 0", fontSize: "16px", fontWeight: 700, color: "#000" }}>
-                      {selectedPackage.package.addressee}
-                    </h3>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
+                      <span style={{
+                        backgroundColor: "#E53935",
+                        color: "#fff",
+                        padding: "4px 10px",
+                        borderRadius: "12px",
+                        fontSize: "14px",
+                        fontWeight: 700,
+                      }}>
+                        #{selectedPackage.package.packageNumber ?? "N/A"}
+                      </span>
+                      <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 700, color: "#000" }}>
+                        {selectedPackage.package.addressee}
+                      </h3>
+                    </div>
                     <p style={{ margin: "5px 0", fontSize: "14px", color: "#000" }}>
                       <strong>Guía:</strong> {selectedPackage.package.uid}
                     </p>
@@ -661,6 +759,9 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
                     </p>
                     <p style={{ margin: "5px 0", fontSize: "14px", color: "#000" }}>
                       <strong>Celular:</strong> {selectedPackage.package.destinatario?.celular || "N/A"}
+                    </p>
+                    <p style={{ margin: "5px 0", fontSize: "14px", color: "#000" }}>
+                      <strong>Caja:</strong> {selectedPackage.package.box || "N/A"}
                     </p>
                     <div style={{ display: "flex", gap: "8px", marginTop: "12px", flexWrap: "wrap" }}>
                       <span style={{
@@ -755,6 +856,32 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
                         🧭 Navegar
                       </button>
                     </div>
+                    {/* Botón Entregar */}
+                    {!selectedPackage.package.entregado && !deliveredIds.has(selectedPackage.id) && (
+                      <div style={{ marginTop: "12px" }}>
+                        <button
+                          onClick={() => {
+                            if (confirm(`¿Marcar como entregado?\n${selectedPackage.package.addressee}`)) {
+                              markAsDelivered(selectedPackage.id);
+                              setSelectedPackage(null);
+                            }
+                          }}
+                          style={{
+                            backgroundColor: "#1565C0",
+                            color: "#fff",
+                            padding: "10px 0",
+                            borderRadius: "16px",
+                            fontSize: "14px",
+                            fontWeight: 700,
+                            border: "none",
+                            cursor: "pointer",
+                            width: "100%",
+                          }}
+                        >
+                          ✓ Marcar como Entregado
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </InfoWindow>
               )}
@@ -847,12 +974,12 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
             }}
           >
             <Tab 
-              label={`Pendientes (${filteredMarkers.length})`} 
+              label={`Pendientes (${pendingMarkers.length})`} 
               value="pending"
               sx={{ color: "#000" }}
             />
             <Tab 
-              label={`Entregados (${deliveredPackages.length})`} 
+              label={`Entregados (${deliveredMarkers.length})`} 
               value="delivered"
               sx={{ color: "#000" }}
             />
@@ -872,7 +999,7 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
                 }}
               />
               <Chip 
-                label={`Pendientes: ${filteredMarkers.length}`}
+                label={`Pendientes: ${pendingMarkers.length}`}
                 size="small"
                 sx={{ 
                   backgroundColor: "#FF9800", 
@@ -1090,14 +1217,14 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
             Haz clic en una dirección para ver detalles.
           </Alert>
           
-          {activeTab === "pending" && filteredMarkers.length === 0 && searchQuery && (
+          {activeTab === "pending" && pendingMarkers.length === 0 && searchQuery && (
             <Alert severity="info" sx={{ mb: 2, fontSize: { xs: "11px", md: "12px" } }}>
               No se encontraron resultados para &quot;{searchQuery}&quot;
             </Alert>
           )}
           
           {/* Lista de paquetes pendientes */}
-          {activeTab === "pending" && filteredMarkers.map((marker, index) => (
+          {activeTab === "pending" && pendingMarkers.map((marker, index) => (
             <Box
               key={marker.id}
               sx={{
@@ -1322,29 +1449,36 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
           ))}
 
           {/* Lista de paquetes entregados */}
-          {activeTab === "delivered" && deliveredPackages.length === 0 && (
+          {activeTab === "delivered" && deliveredMarkers.length === 0 && (
             <Alert severity="info" sx={{ mb: 2, fontSize: { xs: "11px", md: "12px" } }}>
-              No hay paquetes entregados hoy
+              No hay paquetes entregados
             </Alert>
           )}
 
-          {activeTab === "delivered" && deliveredPackages.map((delivered, index) => (
+          {activeTab === "delivered" && deliveredMarkers.map((marker, index) => (
             <Box
-              key={delivered.id}
+              key={marker.id}
+              onClick={() => handleMarkerClick(marker)}
               sx={{
-                backgroundColor: "#e8f5e9",
+                backgroundColor: "#E3F2FD",
                 padding: { xs: "8px", md: "12px" },
                 marginBottom: { xs: "6px", md: "8px" },
                 borderRadius: "12px",
-                border: "1px solid #4CAF50",
+                border: selectedPackage?.id === marker.id ? "2px solid #0D47A1" : "1px solid #1565C0",
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+                "&:hover": {
+                  backgroundColor: "#BBDEFB",
+                  transform: "translateY(-2px)",
+                },
               }}
             >
               <Box sx={{ display: "flex", alignItems: "center", mb: 0.5 }}>
                 <Chip
-                  label={delivered.label}
+                  label={marker.label}
                   size="small"
                   sx={{
-                    backgroundColor: "#4CAF50",
+                    backgroundColor: "#1565C0",
                     fontSize: { xs: "10px", md: "12px" },
                     height: { xs: "20px", md: "24px" },
                     color: "#fff",
@@ -1361,13 +1495,13 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
                     color: "#000",
                   }}
                 >
-                  {delivered.package.addressee}
+                  {marker.package.addressee}
                 </Typography>
                 <Chip
                   label="✓"
                   size="small"
                   sx={{
-                    backgroundColor: "#4CAF50",
+                    backgroundColor: "#1565C0",
                     color: "#fff",
                     height: { xs: "20px", md: "24px" },
                     fontSize: { xs: "12px", md: "14px" },
@@ -1382,7 +1516,7 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
                   mb: 0.5 
                 }}
               >
-                📦 {delivered.package.uid}
+                📦 {marker.package.uid}
               </Typography>
               <Typography 
                 variant="body2" 
@@ -1392,21 +1526,23 @@ const MapView: React.FC<MapViewProps> = ({ packages, onClose }) => {
                   color: "#000",
                 }}
               >
-                📍 {delivered.address}
+                📍 {marker.address}
               </Typography>
-              <Typography 
-                variant="body2" 
-                sx={{ 
-                  fontSize: { xs: "10px", md: "11px" }, 
-                  color: "#4CAF50",
-                  fontWeight: 600,
-                }}
-              >
-                ✓ Entregado: {new Date(delivered.deliveredAt).toLocaleTimeString('es-CO', { 
-                  hour: '2-digit', 
-                  minute: '2-digit' 
-                })}
-              </Typography>
+              {marker.package.fechaEntrega && (
+                <Typography 
+                  variant="body2" 
+                  sx={{ 
+                    fontSize: { xs: "10px", md: "11px" }, 
+                    color: "#1565C0",
+                    fontWeight: 600,
+                  }}
+                >
+                  ✓ Entregado: {new Date(marker.package.fechaEntrega).toLocaleTimeString('es-CO', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                  })}
+                </Typography>
+              )}
             </Box>
           ))}
         </Box>

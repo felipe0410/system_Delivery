@@ -3,6 +3,7 @@
 const CACHE_KEYS = {
   MAPA: "mapa_entregas_cache",
   DOMICILIARIO: "domiciliario_data_cache",
+  MARKERS: "geocoded_markers_cache",
 };
 
 const CACHE_DURATION = 8 * 60 * 60 * 1000; // 8 horas en milisegundos
