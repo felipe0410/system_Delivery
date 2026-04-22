@@ -34,6 +34,7 @@ import {
   saveEnvios,
   saveTempByDateAndType,
   shipments,
+  db,
 } from "@/firebase/firebase";
 import { VisibilityOff, Visibility } from "@mui/icons-material";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
@@ -43,7 +44,7 @@ import NumbersIcon from "@mui/icons-material/Numbers";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Shipments from "../Shipments/page";
-import { serverTimestamp } from "firebase/firestore";
+import { serverTimestamp, writeBatch, doc, collection } from "firebase/firestore";
 import { 
   validatePassword as validatePasswordUtil,
   getFrequentPasswords,
@@ -289,41 +290,75 @@ const Page = () => {
               convertirMonedaANumero(shipment?.shippingCost ?? "0"),
             box: originalData.box ?? shipment.box,
             shippingCost: originalData.shippingCost,
-            // Usar el packageNumber de originalData, incluso si es 0
             packageNumber: originalData.packageNumber !== undefined ? originalData.packageNumber : (shipment.packageNumber ?? 0),
             status: domiciliary ? "mensajero" : "oficina",
             revision: originalData.revision,
             pago: originalData.pago,
-            fecha_de_admision_timestamp: serverTimestamp(),
             fecha_de_admision_timestamp_local: Date.now(),
           };
         }
 
         return shipment;
       });
-      for (const updatedShipment of updatedAllData) {
-        const uid = updatedShipment.uid;
+      // Limpiar solo undefined (Firestore rechaza undefined pero acepta null)
+      const cleanUndefined = (obj: any): Record<string, any> => {
+        const cleaned: Record<string, any> = {};
+        for (const [key, value] of Object.entries(obj)) {
+          if (value === undefined) continue;
+          if (value !== null && typeof value === "object" && !Array.isArray(value)) {
+            const nested: Record<string, any> = {};
+            for (const [nk, nv] of Object.entries(value as object)) {
+              if (nv !== undefined) nested[nk] = nv;
+            }
+            cleaned[key] = nested;
+          } else {
+            cleaned[key] = value;
+          }
+        }
+        return cleaned;
+      };
 
-        const result = await shipments(
-          uid,
-          domiciliary
+      // Guardar con writeBatch (hasta 500 docs por batch)
+      const enviosRef = collection(db, "envios");
+      const BATCH_LIMIT = 500;
+      let totalSaved = 0;
+
+      for (let i = 0; i < updatedAllData.length; i += BATCH_LIMIT) {
+        const chunk = updatedAllData.slice(i, i + BATCH_LIMIT);
+        const batch = writeBatch(db);
+
+        for (const updatedShipment of chunk) {
+          const uid = updatedShipment.uid;
+          if (!uid) continue;
+
+          const baseData = cleanUndefined(updatedShipment);
+          const dataToSave = domiciliary
             ? {
-              ...updatedShipment,
-              status: "mensajero",
-              box: "0",
-              courierAttempt1: Date.now(),
-            }
+                uid,
+                ...baseData,
+                status: "mensajero",
+                box: "0",
+                courierAttempt1: Date.now(),
+                fecha_de_admision_timestamp: serverTimestamp(),
+              }
             : {
-              ...updatedShipment,
-              status: "oficina",
-            }
-        );
-        if (result) {
-          setShipmentsSave((prevCount) => prevCount + 1);
-        } else {
-          console.error(
-            `Error al guardar los datos para el envío con UID: ${uid}`
-          );
+                uid,
+                ...baseData,
+                status: "oficina",
+                fecha_de_admision_timestamp: serverTimestamp(),
+              };
+
+          batch.set(doc(enviosRef, uid), dataToSave);
+        }
+
+        try {
+          await batch.commit();
+          totalSaved += chunk.length;
+          setShipmentsSave(totalSaved);
+          console.log(`✅ Batch guardado: ${totalSaved}/${updatedAllData.length}`);
+        } catch (batchError) {
+          console.error(`❌ Error en batch:`, batchError);
+          enqueueSnackbar(`Error guardando lote de envíos`, { variant: "error" });
         }
       }
       setGuidiesDetails(response.data);
